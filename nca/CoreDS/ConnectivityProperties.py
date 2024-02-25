@@ -64,12 +64,12 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
     (2) calico: +ve and -ve named ports, no src named ports, and no use of operators between these objects.
     """
 
-    def __init__(self, create_all=False):
+    def __init__(self, dimensions_list=None, create_all=False):
         """
         This will create empty or full connectivity properties, depending on create_all flag.
         :param create_all: whether to create full connectivity properties.
         """
-        super().__init__(ConnectivityCube.dimensions_list)
+        super().__init__(dimensions_list if dimensions_list else ConnectivityCube.all_dimensions_list)
         self.named_ports = {}  # a mapping from dst named port (String) to src ports interval set
         self.excluded_named_ports = {}  # a mapping from dst named port (String) to src ports interval set
         if create_all:
@@ -132,7 +132,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         :return: the cube in ConnectivityCube format
         :rtype: ConnectivityCube
         """
-        res = ConnectivityCube()
+        res = ConnectivityCube(self.all_dimensions_list)
         for i, dim in enumerate(self.active_dimensions):
             if isinstance(cube[i], MinDFA):
                 res.set_dim_directly(dim, cube[i])
@@ -291,7 +291,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         """
         :rtype: ConnectivityProperties
         """
-        res = ConnectivityProperties()
+        res = ConnectivityProperties(self.all_dimensions_list)
         for layer in self.layers:
             res.layers[self._copy_layer_elem(layer)] = self.layers[layer].copy()
         res.active_dimensions = self.active_dimensions.copy()
@@ -470,7 +470,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         Returns all connectivity properties, representing logical True
         :return: ConnectivityProperties
         """
-        return ConnectivityProperties(True)
+        return ConnectivityProperties(create_all=True)
 
     def are_auto_conns(self):
         """
@@ -496,9 +496,79 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         """
         Return the properties after removing all connections from peer to itself
         """
+        return self - self.get_auto_conns_from_peers()
+
+    def get_auto_conns_from_peers(self):
+        """
+        Build properties containing all connections from peer to itself, for all peers in the current properties
+        :return: the resulting auto connections properties
+        """
         peers = self.project_on_one_dimension("src_peers") | self.project_on_one_dimension("dst_peers")
         auto_conns = ConnectivityProperties()
         for peer in peers:
             auto_conns |= ConnectivityProperties.make_conn_props_from_dict({"src_peers": PeerSet({peer}),
                                                                             "dst_peers": PeerSet({peer})})
-        return self - auto_conns
+        return auto_conns
+
+    def minimize(self):
+        """
+        Try to minimize the current properties by changing the order between "src_peers" and "dst_peers" dimensions
+        """
+        new_all_dims_map = [i for i in range(len(self.all_dimensions_list))]
+        src_peers_index = self.all_dimensions_list.index("src_peers")
+        dst_peers_index = self.all_dimensions_list.index("dst_peers")
+        # switch between "src_peers" and "dst_peers" dimensions
+        new_all_dims_map[src_peers_index] = dst_peers_index
+        new_all_dims_map[dst_peers_index] = src_peers_index
+        new_props = self._reorder_by_dim_list(new_all_dims_map)
+        return self if len(self) <= len(new_props) else new_props
+
+    def push_back_peers_dimensions(self):
+        """
+        Reorder the current properties by making "src_peers" and "dst_peers" the last two dimensions.
+        """
+        new_all_dims_map = [i for i in range(len(self.all_dimensions_list))]
+        last_index = len(self.all_dimensions_list) - 1
+        src_peers_index = self.all_dimensions_list.index("src_peers")
+        dst_peers_index = self.all_dimensions_list.index("dst_peers")
+        # switch between "src_peers", "dst_peers" and last two dimensions
+        new_all_dims_map[src_peers_index] = last_index - 1
+        new_all_dims_map[last_index - 1] = src_peers_index
+        new_all_dims_map[dst_peers_index] = last_index
+        new_all_dims_map[last_index] = dst_peers_index
+        return self._reorder_by_dim_list(new_all_dims_map)
+
+    def _reorder_by_dim_list(self, new_all_dims_map):
+        """
+        Reorder the current properties by the given dimensions order
+        :param list[int] new_all_dims_map: the given dimensions order
+        :return: the reordered connectivity properties
+        """
+        # Build reordered all dimensions list
+        new_all_dimensions_list = self._reorder_list_by_map(self.all_dimensions_list, new_all_dims_map)
+        new_active_dimensions = []
+        new_active_dims_map = [i for i in range(len(self.active_dimensions))]
+        # Build reordered active dimensions list
+        for dim in new_all_dimensions_list:
+            if dim in self.active_dimensions:
+                new_active_dims_map[len(new_active_dimensions)] = self.active_dimensions.index(dim)
+                new_active_dimensions.append(dim)
+        # Build reordered properties by cubes
+        res = ConnectivityProperties(new_all_dimensions_list)
+        for cube in self:
+            new_cube = self._reorder_list_by_map(cube, new_active_dims_map)
+            res.add_cube(new_cube, new_active_dimensions)
+        return res
+
+    @staticmethod
+    def _reorder_list_by_map(orig_list, new_to_old_map):
+        """
+        Reorder a given list by map from new to old indices.
+        :param list orig_list: the original list
+        :param list[int] new_to_old_map: the list mapping new to old indices
+        :return: the resulting list
+        """
+        res = []
+        for i in range(len(orig_list)):
+            res.append(orig_list[new_to_old_map[i]])
+        return res
