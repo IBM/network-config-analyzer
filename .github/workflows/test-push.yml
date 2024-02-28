@@ -76,13 +76,13 @@ jobs:
         run: python tests/run_all_tests.py --type=general --category=k8s --check_run_time | tee tests/k8s_log.txt ; test ${PIPESTATUS[0]} -eq 0
       - name: upload run_k8s_tests log
         if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: k8s-log
           path: tests/k8s_log.txt
       - name: Upload k8s failed run-time tests file
         if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: k8s-failed-run-time-check-file
           path: ./tests/k8s_tests_failed_runtime_check.csv
@@ -104,7 +104,7 @@ jobs:
         run: python tests/run_all_tests.py --type=general --category=k8s --hc_opt=debug | tee tests/k8s_cmp_log.txt ; test ${PIPESTATUS[0]} -eq 0
       - name: upload run_k8s_tests log
         if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: k8s-cmp-log
           path: tests/k8s_cmp_log.txt
@@ -120,13 +120,13 @@ jobs:
         run: python tests/run_all_tests.py --type=general --category=calico --check_run_time | tee tests/calico_log.txt ; test ${PIPESTATUS[0]} -eq 0
       - name: upload run_calico_tests log
         if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: calico-log
           path: tests/calico_log.txt
       - name: Upload calico failed run-time tests file
         if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: calico-failed-run-time-check-file
           path: ./tests/calico_tests_failed_runtime_check.csv
@@ -143,7 +143,7 @@ jobs:
         run: python tests/run_all_tests.py --type=general --category=calico --hc_opt=debug | tee tests/calico_cmp_log.txt ; test ${PIPESTATUS[0]} -eq 0
       - name: upload run_calico_tests log
         if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: calico-cmp-log
           path: tests/calico_cmp_log.txt
@@ -159,13 +159,13 @@ jobs:
         run: python tests/run_all_tests.py --type=general --category=istio --check_run_time | tee tests/istio_log.txt ; test ${PIPESTATUS[0]} -eq 0
       - name: upload run_istio_tests log
         if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: istio-log
           path: tests/istio_log.txt
       - name: Upload istio failed run-time tests file
         if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: istio-failed-run-time-check-file
           path: ./tests/istio_tests_failed_runtime_check.csv
@@ -182,7 +182,7 @@ jobs:
         run: python tests/run_all_tests.py --type=general --category=istio --hc_opt=debug | tee tests/istio_cmp_log.txt ; test ${PIPESTATUS[0]} -eq 0
       - name: upload run_istio_tests log
         if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: istio-cmp-log
           path: tests/istio_cmp_log.txt
@@ -217,7 +217,7 @@ jobs:
         run: |
           pip install build==0.10.0
           python -m build
-      - uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+      - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: nca-package
           path: dist/*
