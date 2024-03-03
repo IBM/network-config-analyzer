@@ -231,7 +231,8 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         """
         res = []
         for (src, dst) in base_elems_pairs:
-            res.extend(FWRule.create_fw_rules_from_base_elements(src, dst, self.connections, self.cluster_info))
+            res.extend(FWRule.create_fw_rules_from_base_elements(src, dst, self.connections, self.cluster_info,
+                                                                 self.output_config))
         return res
 
     def _create_initial_fw_rules_from_peer_props(self, peer_props):
@@ -244,7 +245,7 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
             # whole peers sets were handled in self.ns_pairs and self.peer_pairs_with_partial_ns_expr
             assert src_peers and dst_peers
             res.extend(FWRule.create_fw_rules_from_base_elements(src_peers, dst_peers, self.connections,
-                                                                 self.cluster_info))
+                                                                 self.cluster_info, self.output_config))
         return res
 
     def _create_all_initial_fw_rules(self):
