@@ -543,16 +543,21 @@ class ConnectionSet:
 
         return 'No diff.'
 
-    def convert_to_connectivity_properties(self, peer_container):
+    def convert_to_connectivity_properties(self, peer_container, relevant_protocols=ProtocolSet()):
         """
         Convert the current ConnectionSet to ConnectivityProperties format.
         This function is used for comparing fw-rules output between original and optimized implementation,
         when optimized_run == 'debug'
         :param PeerContainer peer_container: the peer container
+        :param ProtocolSet relevant_protocols: specify if all protocols refer to TCP / non-TCP protocols
         :return: the connection set in ConnectivityProperties format
         """
         if self.allow_all:
-            return ConnectivityProperties.get_all_conns_props_per_config_peers(peer_container)
+            if relevant_protocols:
+                protocols_conn = ConnectivityProperties.make_conn_props_from_dict({"protocols": relevant_protocols})
+            else:
+                protocols_conn = ConnectivityProperties(create_all=True)
+            return ConnectivityProperties.get_all_conns_props_per_config_peers(peer_container) & protocols_conn
 
         res = ConnectivityProperties.make_empty_props()
         for protocol, properties in self.allowed_protocols.items():

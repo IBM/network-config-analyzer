@@ -175,11 +175,9 @@ class BaseNetworkQuery:
                 assert False
 
     @staticmethod
-    def compare_fw_rules_to_conn_props(fw_rules, props, peer_container, rules_descr=""):
+    def compare_fw_rules_to_conn_props(fw_rules, props, peer_container, connectivity_restriction=None):
         text_prefix = "Connectivity properties and fw-rules generated from them"
-        if rules_descr:
-            text_prefix += " for " + rules_descr
-        props2 = MinimizeBasic.fw_rules_to_conn_props(fw_rules, peer_container)
+        props2 = MinimizeBasic.fw_rules_to_conn_props(fw_rules, peer_container, connectivity_restriction)
         BaseNetworkQuery.compare_conn_props(props, props2, text_prefix)
 
 
@@ -1127,7 +1125,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         fw_rules = MinimizeFWRules.get_minimized_firewall_rules_from_props(props, cluster_info, self.output_config,
                                                                            self.config.peer_container,
                                                                            connectivity_restriction)
-        self.compare_fw_rules_to_conn_props(fw_rules, props, self.config.peer_container)  # Tanya: debug
+        self.compare_fw_rules_to_conn_props(fw_rules, props, self.config.peer_container,
+                                            connectivity_restriction=connectivity_restriction)  # Tanya: debug
         formatted_rules = fw_rules.get_fw_rules_in_required_format(connectivity_restriction=connectivity_restriction)
         return formatted_rules, fw_rules
 
