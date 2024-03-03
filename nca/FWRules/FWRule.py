@@ -214,15 +214,16 @@ class FWRuleElement:
         return PeerSet(self.get_pods_set())
 
     @staticmethod
-    def create_fw_elements_from_base_element(base_elem, cluster_info):
+    def create_fw_elements_from_base_element(base_elem, cluster_info, output_config):
         """
         create a list of fw-rule-elements from base-element
         :param base_elem: of type ClusterEP/IpBlock/K8sNamespace/DNSEntry
         :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
+        :param OutputConfiguration output_config: an object holding output configuration
         :return: list fw-rule-elements of type:  list[PodElement]/list[IPBlockElement]/list[FWRuleElement]/list[DNSElement]
         """
         if isinstance(base_elem, ClusterEP):
-            return [PodElement(base_elem)]
+            return [PodElement(base_elem, output_config.outputEndpoints == 'deployments')]
         elif isinstance(base_elem, IpBlock):
             return [IPBlockElement(ip) for ip in base_elem.split()]
         elif isinstance(base_elem, K8sNamespace):
@@ -240,7 +241,7 @@ class FWRuleElement:
                 pods -= ns_pods
             if ipblocks_and_dns:
                 for peer in base_elem:
-                    res.extend(FWRuleElement.create_fw_elements_from_base_element(peer, cluster_info))
+                    res.extend(FWRuleElement.create_fw_elements_from_base_element(peer, cluster_info, output_config))
             return res
         # unknown base-elem type
         return None
@@ -721,18 +722,19 @@ class FWRule:
         return None
 
     @staticmethod
-    def create_fw_rules_from_base_elements(src, dst, connections, cluster_info):
+    def create_fw_rules_from_base_elements(src, dst, connections, cluster_info, output_config):
         """
         create fw-rules from single pair of base elements (src,dst) and a given connection set
         :param ConnectionSet connections: the allowed connections from src to dst
         :param src: a base-element  of type: ClusterEP/K8sNamespace/ IpBlock
         :param dst: a base-element  of type: ClusterEP/K8sNamespace/IpBlock
         :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
+        :param OutputConfiguration output_config: an object holding output configuration
         :return: list with created fw-rules
         :rtype list[FWRule]
         """
-        src_elem = FWRuleElement.create_fw_elements_from_base_element(src, cluster_info)
-        dst_elem = FWRuleElement.create_fw_elements_from_base_element(dst, cluster_info)
+        src_elem = FWRuleElement.create_fw_elements_from_base_element(src, cluster_info, output_config)
+        dst_elem = FWRuleElement.create_fw_elements_from_base_element(dst, cluster_info, output_config)
         if src_elem is None or dst_elem is None:
             return []
         return [FWRule(src, dst, connections) for src in src_elem for dst in dst_elem]

@@ -271,7 +271,8 @@ class MinimizeCsFwRules(MinimizeBasic):
         """
         res = []
         for (src, dst) in base_elems_pairs:
-            res.extend(FWRule.create_fw_rules_from_base_elements(src, dst, self.connections, self.cluster_info))
+            res.extend(FWRule.create_fw_rules_from_base_elements(src, dst, self.connections, self.cluster_info,
+                                                                 self.output_config))
         return res
 
     def _create_all_initial_fw_rules(self):
@@ -561,6 +562,7 @@ class MinimizeCsFwRules(MinimizeBasic):
 
 # ==================================================================================================================
 
+
 class MinimizeFWRules:
     """
     This is a class for minimizing and handling fw-rules globally for all connection sets
@@ -718,7 +720,7 @@ class MinimizeFWRules:
                 relevant_protocols = ProtocolSet.get_non_tcp_protocols()
 
         # TODO - Tanya: this reorder does not work
-        #reordered_conn_props = props.push_back_peers_dimensions()
+        # reordered_conn_props = props.push_back_peers_dimensions()
         reordered_conn_props = props
         connections_to_peers = defaultdict(ConnectivityProperties)
         for cube in reordered_conn_props:
