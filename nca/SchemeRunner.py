@@ -150,11 +150,9 @@ class SchemeRunner(GenericYamlParser):
         global_ns_list = self._handle_resources_list(self.scheme.get('namespaceList', None))
         global_resource_list = self._handle_resources_list(self.scheme.get('resourceList', None))
         resources_handler = ResourcesHandler()
-        if self.optimized_run == 'true':
-            # we need to track configurations for the queries to use later-on
-            # todo - this is not the place to activate the ExplTracker, should be done per query?
-            # todo - should take the output_endpoints from the query
-            ExplTracker().activate('deployments')
+        query_array = self.scheme.get('queries', [])
+        if not self.activate_exp_tracker(query_array):
+            return
         resources_handler.set_global_peer_container(global_ns_list, global_pod_list, global_resource_list,
                                                     self.optimized_run)
 
@@ -164,7 +162,7 @@ class SchemeRunner(GenericYamlParser):
             self._add_config(config_entry, resources_handler, self.optimized_run)
         end_parse = time.time()
         print(f'Finished parsing in {(end_parse - start):6.2f} seconds')
-        self.run_queries(self.scheme.get('queries', []))
+        self.run_queries(query_array)
         end_queries = time.time()
         print(f'Parsing time: {(end_parse - start):6.2f} seconds')
         print(f'Queries time: {(end_queries - end_parse):6.2f} seconds')
@@ -182,6 +180,40 @@ class SchemeRunner(GenericYamlParser):
         output_configuration_dict.update(self.output_config_from_cli_args)
         output_config_obj = OutputConfiguration(output_configuration_dict, query['name'])
         return output_config_obj
+
+    def activate_exp_tracker(self, query_array):
+        """
+        check if it is safe to activate the ExplTracker, and activate it
+        activating is safe if we have at most one query that needs explainabilty, and it must be the first
+        :param list[dict] query_array: A list of query objects to run
+        :return: whether it safe to run the queries
+        :rtype: bool
+        """
+        need_connectivity = ['connectivityMap' in q.keys() for q in query_array]
+        out_configs = [self.get_query_output_config_obj(q) for q in query_array]
+        need_html = need_connectivity and [oc['outputFormat'] == 'html' for oc in out_configs]
+        # todo: if we have explainabilty query, then implement:
+        # todo: is_query_explainabilty = ['explainabilty' in q.keys() for q in query_array]
+        # todo: need_exp = need_html || is_query_explainabilty
+        need_exp = need_html
+        n_need_exp = len([needs_exp for needs_exp in need_exp if needs_exp])
+        if n_need_exp == 0:
+            return True
+        elif n_need_exp == 1 and need_exp[0] and self.optimized_run == 'true':
+            ExplTracker().activate(out_configs[0]['outputFormat'])
+            return True
+        elif n_need_exp == 1 and need_exp[0]:
+            query_name = query_array[0]['name']
+            print(f'Explainability does not have optimized implementation yet, needs for query "{query_name}"')
+            return False
+        elif n_need_exp == 1:
+            query_name = query_array[need_exp.index(True)]['name']
+            print(f'Query "{query_name}" must be the first query, since it needs Explainability')
+            return False
+        else:
+            quaries_names = [q['name'] for q, needs_html in zip(query_array, need_html) if needs_html]
+            print(f'Can not run more than one query that needs Explainability, got {n_need_exp}:\n{quaries_names}')
+            return False
 
     def run_queries(self, query_array):
         """

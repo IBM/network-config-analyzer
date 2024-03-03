@@ -24,6 +24,7 @@ class VirtualService:
         or to a remote dns entry;
         finally, 'ports' field is taken directly from 'Destination.port' attribute.
         """
+        line_number: int  # line number of this destination inside the virtual service resource file
         name: str
         pods: PeerSet
         ports: PortSet
@@ -40,7 +41,8 @@ class VirtualService:
         for building GatewayPolicies. On the second phase, GatewayPolicies are built from every Route.
         """
 
-        def __init__(self):
+        def __init__(self, line_number):
+            self.line_number = line_number  # line number of this route inside the virtual service resource file
             # 'is_internal_dest' field represents whether the destination if to internal (True)
             # or external (False) service. It is True for Ingress flow routes, as well as for mesh-to-egress-gateway
             # routes of Egress flow. It is False for egress-gateway-to-dns-service routes of Egress flow.
@@ -61,7 +63,7 @@ class VirtualService:
             self.all_sni_hosts_dfa = None
             self.gateway_names = []  # list of gateways full names in format "namespace/name"
 
-        def add_destination(self, name, pods, port, is_internal_dest):
+        def add_destination(self, line_number, name, pods, port, is_internal_dest):
             """
             Adds the route destination to HTTP/TLS/TCP route
             :param str name: a name of a service representing this destination
@@ -72,7 +74,7 @@ class VirtualService:
             rule_ports = PortSet()
             if port:
                 rule_ports.add_port(port)  # may be either a number or a named port
-            self.destinations.append(VirtualService.Destination(name, pods, rule_ports))
+            self.destinations.append(VirtualService.Destination(line_number, name, pods, rule_ports))
             if self.is_internal_dest is None:
                 self.is_internal_dest = is_internal_dest
             else:
@@ -99,7 +101,7 @@ class VirtualService:
             else:
                 self.methods = methods.copy()
 
-    def __init__(self, name, namespace):
+    def __init__(self, name, namespace, file_name):
         """
         Create a VirtualService
         :param str name: the name of the VirtualService
@@ -107,6 +109,7 @@ class VirtualService:
         """
         self.name = name  # the name of the virtual service, as appears in the metadata
         self.namespace = namespace  # the namespace of the virtual service, as appears in the metadata
+        self.file_name = file_name  # the name of the resource file containing this virtual service
         # the 'hosts_dfa' field originates in VirtualService.hosts attribute, as described in
         # https://istio.io/latest/docs/reference/config/networking/virtual-service/#VirtualService
         # It is used for matching gateways to this virtual service, as well as for 'hosts' attribute

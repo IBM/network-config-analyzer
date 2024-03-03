@@ -60,7 +60,6 @@ subgraph cluster_ingress_controller_ns_namespace{
 	"ingress-controller-ns/ingress-controller-livesim(Pod)" -> "example/deploy-iiii(Deployment)"[label="tcp3000b" labeltooltip="TCP {'dst_ports': '3000', 'hosts': 'ooo.y.z', 'paths': '/iiii(/*)?'},{'dst_ports': '3000', 'hosts': 'iiii.y.z'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"ingress-controller-ns/ingress-controller-livesim(Pod)" -> "example/deploy-jjjj(Deployment)"[label="tcp9950b" labeltooltip="TCP {'dst_ports': '9950', 'hosts': 'ooo.y.z', 'paths': '/jjjj(/*)?'},{'dst_ports': '9950', 'hosts': 'jjjj.y.z'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	color=white
-	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
 	labelloc = "b"
 	fontsize=15
 	fontcolor=maroon

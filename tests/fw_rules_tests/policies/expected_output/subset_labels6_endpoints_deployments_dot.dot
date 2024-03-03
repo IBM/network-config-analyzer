@@ -12,7 +12,6 @@ subgraph cluster_ns2_namespace{
 	"ns2/deployment-F(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-F(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
 }
 	color=white
-	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
 	labelloc = "b"
 	fontsize=15
 	fontcolor=maroon

@@ -153,24 +153,6 @@ class ExplTracker(metaclass=Singleton):
         else:
             NcaLogger().log_message('Explainability error: configuration-block name can not be empty', level='E')
 
-    def derive_item(self, new_name):
-        """
-        Handles resources that change their name after parsing, like virtual-service
-        that adds the service name and suffix "/allowed"
-        Expecting the original name to be before the "/" character.
-        :param str new_name: the name for the new derived element
-        """
-        name_parts = new_name.split('/')
-        name = name_parts[0]
-        if self.ExplDescriptorContainer.get(name):
-            self.ExplDescriptorContainer[new_name] = {'path': self.ExplDescriptorContainer[name].get('path'),
-                                                      'line': self.ExplDescriptorContainer[name].get('line'),
-                                                      'base_name': name
-                                                      }
-        else:
-            NcaLogger().log_message(f'Explainability error: derived item {new_name} found no base item',
-                                    level='E')
-
     def add_peer_policy(self, peer_name, policy_name, egress_dst, ingress_src):
         """
         Add a new policy to a peer
@@ -457,7 +439,7 @@ class ExplTracker(metaclass=Singleton):
                                         f'was not found in the connectivity results', level='E')
                 return ''
             if not self.ExplPeerToPolicyContainer.get(ep_node):
-                NcaLogger().log_message(f'Explainability error - {self.node} '
+                NcaLogger().log_message(f'Explainability error - {node} '
                                         f'has no explanability results', level='E')
                 return ''
 
