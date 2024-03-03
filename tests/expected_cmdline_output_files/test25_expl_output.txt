@@ -1,6 +1,5 @@
 final fw rules for query: , config: test25-networkpolicy.yaml:
-src_ns: [default] src_pods: [my-test-deployment-C] dst_ns: [default] dst_pods: [my-test-deployment-B] conn: All connections
-
+src_ns: [default] src_pods: [my-test-deployment-C] dst_ns: [default] dst_pods: [app=B] conn: All connections
 
 Explainability results:
 <?xml version="1.0" encoding="utf-8"?>
