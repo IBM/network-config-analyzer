@@ -523,21 +523,6 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         new_props = self._reorder_by_dim_list(new_all_dims_map)
         return self if len(self) <= len(new_props) else new_props
 
-    def push_back_peers_dimensions(self):
-        """
-        Reorder the current properties by making "src_peers" and "dst_peers" the last two dimensions.
-        """
-        new_all_dims_map = [i for i in range(len(self.all_dimensions_list))]
-        last_index = len(self.all_dimensions_list) - 1
-        src_peers_index = self.all_dimensions_list.index("src_peers")
-        dst_peers_index = self.all_dimensions_list.index("dst_peers")
-        # switch between "src_peers", "dst_peers" and last two dimensions
-        new_all_dims_map[src_peers_index] = last_index - 1
-        new_all_dims_map[last_index - 1] = src_peers_index
-        new_all_dims_map[dst_peers_index] = last_index
-        new_all_dims_map[last_index] = dst_peers_index
-        return self._reorder_by_dim_list(new_all_dims_map)
-
     def _reorder_by_dim_list(self, new_all_dims_map):
         """
         Reorder the current properties by the given dimensions order

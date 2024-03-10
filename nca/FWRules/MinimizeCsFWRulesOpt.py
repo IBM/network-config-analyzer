@@ -5,7 +5,7 @@
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
-from nca.CoreDS.Peer import IpBlock, ClusterEP, HostEP, DNSEntry, PeerSet
+from nca.CoreDS.Peer import IpBlock, ClusterEP, HostEP, DNSEntry, PeerSet, Pod
 from .FWRule import FWRuleElement, FWRule, PodElement, PeerSetElement, LabelExpr, PodLabelsElement, IPBlockElement, \
     DNSElement
 from .MinimizeBasic import MinimizeBasic
@@ -94,9 +94,9 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         self._compute_covered_peer_props()
         # only Pod elements have namespaces (skipping IpBlocks and HostEPs)
         src_ns_set = set(src.namespace for src in self.peer_props.project_on_one_dimension("src_peers")
-                         if isinstance(src, ClusterEP))
+                         if isinstance(src, Pod))
         dst_ns_set = set(dst.namespace for dst in self.peer_props.project_on_one_dimension("dst_peers")
-                         if isinstance(dst, ClusterEP))
+                         if isinstance(dst, Pod))
         # per relevant namespaces, compute which pairs of src-ns and dst-ns are covered by given peer-pairs
         for src_ns in src_ns_set:
             for dst_ns in dst_ns_set:
@@ -122,8 +122,6 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         self._compute_peer_pairs_with_partial_ns_expr(dst_ns_set, False)
         # compute pairs with src as pod/ip-block namespace dest as pod
         self._compute_peer_pairs_with_partial_ns_expr(src_ns_set, True)
-        # remove pairs of (pod,pod) for trivial cases of communication from pod to itself
-        self.peer_props_without_ns_expr = self.peer_props_without_ns_expr.props_without_auto_conns()
 
     def _compute_covered_peer_props(self):
         """
@@ -151,16 +149,20 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         # in the grouping computation
 
         for ns in ns_set:
+            ns_peers = PeerSet(self.cluster_info.ns_dict[ns])
             dim_name = "src_peers" if is_src_ns else "dst_peers"
             other_dim_name = "dst_peers" if is_src_ns else "src_peers"
-            candidate_peers = self.peer_props_without_ns_expr.project_on_one_dimension(other_dim_name)
-            for peer in candidate_peers:
-                peer_with_ns_props = \
-                    ConnectivityProperties.make_conn_props_from_dict({dim_name: PeerSet(self.cluster_info.ns_dict[ns]),
-                                                                      other_dim_name: PeerSet({peer})})
-                if peer_with_ns_props.contained_in(self.peer_props_without_ns_expr):
-                    self.peer_pairs_with_partial_ns_expr.add((ns, peer) if is_src_ns else (peer, ns))
-                    self.peer_props_without_ns_expr -= peer_with_ns_props
+            paired_to_ns_peers = PeerSet()
+            for cube in self.peer_props_without_ns_expr:
+                conn_cube = self.peer_props_without_ns_expr.get_connectivity_cube(cube)
+                dim_peers = conn_cube[dim_name]
+                if ns_peers.issubset(dim_peers):
+                    paired_to_ns_peers |= conn_cube[other_dim_name]
+            paired_to_ns_peers = paired_to_ns_peers.canonical_form()
+            self.peer_pairs_with_partial_ns_expr.add((ns, paired_to_ns_peers) if is_src_ns else (paired_to_ns_peers, ns))
+            self.peer_props_without_ns_expr -= \
+                ConnectivityProperties.make_conn_props_from_dict({dim_name: PeerSet(self.cluster_info.ns_dict[ns]),
+                                                                  other_dim_name: paired_to_ns_peers})
 
     def get_ns_fw_rules_grouped_by_common_elem(self, is_src_fixed, ns_set, fixed_elem):
         """
