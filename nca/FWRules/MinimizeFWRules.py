@@ -272,7 +272,7 @@ class MinimizeCsFwRules(MinimizeBasic):
         res = []
         for (src, dst) in base_elems_pairs:
             res.extend(FWRule.create_fw_rules_from_base_elements(src, dst, self.connections, self.cluster_info,
-                                                                 self.output_config))
+                                                                 self.output_config, True))
         return res
 
     def _create_all_initial_fw_rules(self):
@@ -719,16 +719,18 @@ class MinimizeFWRules:
             else:  # connectivity_restriction == 'non-TCP'
                 relevant_protocols = ProtocolSet.get_non_tcp_protocols()
 
-        # TODO - Tanya: this reorder does not work
-        # reordered_conn_props = props.push_back_peers_dimensions()
-        reordered_conn_props = props
-        connections_to_peers = defaultdict(ConnectivityProperties)
-        for cube in reordered_conn_props:
-            conn_cube = reordered_conn_props.get_connectivity_cube(cube)
+        peers_to_connections = defaultdict(ConnectionSet)
+        # pick up all connection sets relating to the same peer set pairs
+        for cube in props:
+            conn_cube = props.get_connectivity_cube(cube)
             conns, src_peers, dst_peers = \
                 MinimizeBasic.get_connection_set_and_peers_from_cube(conn_cube, peer_container, relevant_protocols)
             conn_cube.unset_all_but_peers()
-            connections_to_peers[conns] |= ConnectivityProperties.make_conn_props(conn_cube)
+            peers_to_connections[ConnectivityProperties.make_conn_props(conn_cube)] |= conns
+        # now combine all peer set pairs relating to the same connection sets
+        connections_to_peers = defaultdict(ConnectivityProperties)
+        for peers, conns in peers_to_connections.items():
+            connections_to_peers[conns] |= peers
         connections_sorted_by_size = list(connections_to_peers.items())
         connections_sorted_by_size.sort(reverse=True)
         return MinimizeFWRules.minimize_firewall_rules_opt(cluster_info, output_config, connections_sorted_by_size)
