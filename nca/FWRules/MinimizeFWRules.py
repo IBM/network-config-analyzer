@@ -272,7 +272,7 @@ class MinimizeCsFwRules(MinimizeBasic):
         res = []
         for (src, dst) in base_elems_pairs:
             res.extend(FWRule.create_fw_rules_from_base_elements(src, dst, self.connections, self.cluster_info,
-                                                                 self.output_config, True))
+                                                                 self.output_config))
         return res
 
     def _create_all_initial_fw_rules(self):
