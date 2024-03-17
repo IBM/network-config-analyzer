@@ -214,40 +214,22 @@ class FWRuleElement:
         return PeerSet(self.get_pods_set())
 
     @staticmethod
-    def create_fw_elements_from_base_element(base_elem, cluster_info, output_config, split_ip_blocks):
+    def create_fw_elements_from_base_element(base_elem, cluster_info, output_config):
         """
         create a list of fw-rule-elements from base-element
         :param base_elem: of type ClusterEP/IpBlock/K8sNamespace/DNSEntry
         :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
         :param OutputConfiguration output_config: an object holding output configuration
-        :param bool split_ip_blocks: whether to split IpBlocks. This flag is for alignment with original implementation;
-          after moving to optimized HC implementation we will never split IpBlocks.
         :return: list fw-rule-elements of type:  list[PodElement]/list[IPBlockElement]/list[FWRuleElement]/list[DNSElement]
         """
         if isinstance(base_elem, ClusterEP):
             return [PodElement(base_elem, output_config.outputEndpoints == 'deployments')]
         elif isinstance(base_elem, IpBlock):
-            if split_ip_blocks:
-                return [IPBlockElement(ip) for ip in base_elem.split()]
-            return [IPBlockElement(base_elem)]
+            return [IPBlockElement(ip) for ip in base_elem.split()]
         elif isinstance(base_elem, K8sNamespace):
             return [FWRuleElement({base_elem}, cluster_info)]
         elif isinstance(base_elem, DNSEntry):
             return [DNSElement(base_elem)]
-        elif isinstance(base_elem, PeerSet):
-            pods = PeerSet(base_elem.get_set_without_ip_block_or_dns_entry())
-            ipblocks_and_dns = base_elem - pods
-            res = []
-            while pods:
-                ns = list(pods)[0].namespace
-                ns_pods = pods & PeerSet(cluster_info.ns_dict[ns])
-                res.append(PeerSetElement(ns_pods))
-                pods -= ns_pods
-            if ipblocks_and_dns:
-                for peer in base_elem:
-                    res.extend(FWRuleElement.create_fw_elements_from_base_element(peer, cluster_info, output_config,
-                                                                                  split_ip_blocks))
-            return res
         # unknown base-elem type
         return None
 
