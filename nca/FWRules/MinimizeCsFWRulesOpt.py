@@ -93,19 +93,20 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         """
         self._compute_covered_peer_props()
         # only Pod elements have namespaces (skipping IpBlocks and HostEPs)
-        src_ns_set = set(src.namespace for src in self.peer_props.project_on_one_dimension("src_peers")
+        all_src_ns_set = set(src.namespace for src in self.peer_props.project_on_one_dimension("src_peers")
                          if isinstance(src, Pod))
-        dst_ns_set = set(dst.namespace for dst in self.peer_props.project_on_one_dimension("dst_peers")
+        all_dst_ns_set = set(dst.namespace for dst in self.peer_props.project_on_one_dimension("dst_peers")
                          if isinstance(dst, Pod))
         # per relevant namespaces, compute which pairs of src-ns and dst-ns are covered by given peer-pairs
         src_ns_to_dst_ns = defaultdict(set)
-        for src_ns in src_ns_set:
-            for dst_ns in dst_ns_set:
+        for src_ns in all_src_ns_set:
+            for dst_ns in all_dst_ns_set:
                 ns_product_props = \
                     ConnectivityProperties.make_conn_props_from_dict({"src_peers": PeerSet(self.cluster_info.ns_dict[src_ns]),
                                                                       "dst_peers": PeerSet(self.cluster_info.ns_dict[dst_ns])})
                 if ns_product_props.contained_in(self.covered_peer_props):
                     src_ns_to_dst_ns[src_ns].add(dst_ns)
+                    self.covered_peer_props -= ns_product_props
                 else:
                     self.peer_props_without_ns_expr |= ns_product_props & self.peer_props
         dst_ns_to_src_ns = defaultdict(set)
@@ -124,9 +125,10 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
             ConnectivityProperties.make_conn_props_from_dict({"dst_peers": dst_peers_without_ns})
         self.peer_props_without_ns_expr |= props_with_elems_without_ns & self.peer_props
         # compute pairs with src as pod/ip-block and dest as namespace
-        self._compute_peer_pairs_with_partial_ns_expr(dst_ns_set, False)
+        self._compute_peer_pairs_with_partial_ns_expr(all_dst_ns_set, False)
         # compute pairs with src as pod/ip-block namespace dest as pod
-        self._compute_peer_pairs_with_partial_ns_expr(src_ns_set, True)
+        if self.peer_props_without_ns_expr:
+            self._compute_peer_pairs_with_partial_ns_expr(all_src_ns_set, True)
 
     def _compute_covered_peer_props(self):
         """
@@ -155,8 +157,12 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
 
         dim_name = "src_peers" if is_src_ns else "dst_peers"
         other_dim_name = "dst_peers" if is_src_ns else "src_peers"
-        for cube in self.peer_props_without_ns_expr:
-            conn_cube = self.peer_props_without_ns_expr.get_connectivity_cube(cube)
+        # We search for partial ns grouping in self.covered_peer_props rather than in self.peer_props_without_ns_expr,
+        # thus allowing overlapping of fw rules. Also, we start from optimal order betwen src_peers and dst_peers,
+        # based on whether we search for whole src or dst namespace.
+        props = self.covered_peer_props.reorder_by_switching_src_dst_peers() if is_src_ns else self.covered_peer_props
+        for cube in props:
+            conn_cube = props.get_connectivity_cube(cube)
             dim_peers = conn_cube[dim_name]
             other_dim_peers = conn_cube[other_dim_name].canonical_form()
             curr_ns_set = set()
@@ -319,9 +325,8 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
                 ns_pods = pods & PeerSet(cluster_info.ns_dict[ns])
                 res.extend(self._create_fw_elements_by_pods_grouping_by_labels(ns_pods))
                 pods -= ns_pods
-            if ipblocks_and_dns:
-                for peer in base_elem:
-                    res.extend(self._create_fw_elements_from_base_element(peer, cluster_info, output_config))
+            for peer in ipblocks_and_dns:
+                res.extend(self._create_fw_elements_from_base_element(peer, cluster_info, output_config))
             return res
         elif isinstance(base_elem, frozenset):  # set of namespaces
             return [FWRuleElement(set(base_elem), cluster_info)]
@@ -350,6 +355,9 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         """
         # create initial fw-rules from ns_set_pairs, peer_pairs_with_partial_ns_expr, peer_props_without_ns_expr
         initial_fw_rules = self._create_all_initial_fw_rules()
+        self.minimized_fw_rules = initial_fw_rules
+        return  # Tanya: temp
+        # TODO - remove the code below after checking and updating all expected results
 
         # option1 - start computation when src is fixed at first iteration, and merge applies to dst
         option1, convergence_iteration_1 = self._create_merged_rules_set(True, initial_fw_rules)
