@@ -514,14 +514,20 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         """
         Try to minimize the current properties by changing the order between "src_peers" and "dst_peers" dimensions
         """
+        new_props = self.reorder_by_switching_src_dst_peers()
+        return self if len(self) <= len(new_props) else new_props
+
+    def reorder_by_switching_src_dst_peers(self):
+        """
+        Reorder self by switching the order between "src_peers" and "dst_peers" dimensions
+        """
         new_all_dims_map = [i for i in range(len(self.all_dimensions_list))]
         src_peers_index = self.all_dimensions_list.index("src_peers")
         dst_peers_index = self.all_dimensions_list.index("dst_peers")
         # switch between "src_peers" and "dst_peers" dimensions
         new_all_dims_map[src_peers_index] = dst_peers_index
         new_all_dims_map[dst_peers_index] = src_peers_index
-        new_props = self._reorder_by_dim_list(new_all_dims_map)
-        return self if len(self) <= len(new_props) else new_props
+        return self._reorder_by_dim_list(new_all_dims_map)
 
     def _reorder_by_dim_list(self, new_all_dims_map):
         """
