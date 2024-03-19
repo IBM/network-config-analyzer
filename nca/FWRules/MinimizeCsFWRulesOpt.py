@@ -94,9 +94,9 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         self._compute_covered_peer_props()
         # only Pod elements have namespaces (skipping IpBlocks and HostEPs)
         all_src_ns_set = set(src.namespace for src in self.peer_props.project_on_one_dimension("src_peers")
-                         if isinstance(src, Pod))
+                             if isinstance(src, Pod))
         all_dst_ns_set = set(dst.namespace for dst in self.peer_props.project_on_one_dimension("dst_peers")
-                         if isinstance(dst, Pod))
+                             if isinstance(dst, Pod))
         # per relevant namespaces, compute which pairs of src-ns and dst-ns are covered by given peer-pairs
         src_ns_to_dst_ns = defaultdict(set)
         for src_ns in all_src_ns_set:
