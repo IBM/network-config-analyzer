@@ -173,7 +173,9 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
             curr_ns_peers = PeerSet()
             for ns in ns_set:
                 ns_peers = PeerSet(self.cluster_info.ns_dict[ns])
-                if ns_peers.issubset(dim_peers):
+                curr_covered = ConnectivityProperties.make_conn_props_from_dict({dim_name: ns_peers,
+                                                                                 other_dim_name: other_dim_peers})
+                if ns_peers.issubset(dim_peers) and (curr_covered & self.peer_props_without_ns_expr):
                     curr_ns_set.add(ns)
                     curr_ns_peers |= ns_peers
             if curr_ns_set:
