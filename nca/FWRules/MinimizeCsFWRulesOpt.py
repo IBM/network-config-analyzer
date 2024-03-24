@@ -93,9 +93,9 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         """
         self._compute_covered_peer_props()
         # only Pod elements have namespaces (skipping IpBlocks and HostEPs)
-        all_src_ns_set = set(src.namespace for src in self.peer_props.project_on_one_dimension("src_peers")
+        all_src_ns_set = set(src.namespace for src in self.covered_peer_props.project_on_one_dimension("src_peers")
                              if isinstance(src, Pod))
-        all_dst_ns_set = set(dst.namespace for dst in self.peer_props.project_on_one_dimension("dst_peers")
+        all_dst_ns_set = set(dst.namespace for dst in self.covered_peer_props.project_on_one_dimension("dst_peers")
                              if isinstance(dst, Pod))
         # per relevant namespaces, compute which pairs of src-ns and dst-ns are covered by given peer-pairs
         src_ns_to_dst_ns = defaultdict(set)
@@ -105,8 +105,11 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
                     ConnectivityProperties.make_conn_props_from_dict({"src_peers": PeerSet(self.cluster_info.ns_dict[src_ns]),
                                                                       "dst_peers": PeerSet(self.cluster_info.ns_dict[dst_ns])})
                 if ns_product_props.contained_in(self.covered_peer_props):
-                    src_ns_to_dst_ns[src_ns].add(dst_ns)
                     self.covered_peer_props -= ns_product_props
+                    if ns_product_props & self.peer_props:
+                        # ensure that the found ns-pair is at least partially included in the current connections' properties
+                        # (rather than being wholly contained in containing connections' properties)
+                        src_ns_to_dst_ns[src_ns].add(dst_ns)
                 else:
                     self.peer_props_without_ns_expr |= ns_product_props & self.peer_props
         dst_ns_to_src_ns = defaultdict(set)
@@ -158,9 +161,10 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         dim_name = "src_peers" if is_src_ns else "dst_peers"
         other_dim_name = "dst_peers" if is_src_ns else "src_peers"
         # We search for partial ns grouping in self.covered_peer_props rather than in self.peer_props_without_ns_expr,
-        # thus allowing overlapping of fw rules. Also, we start from optimal order betwen src_peers and dst_peers,
+        # thus allowing overlapping of fw rules. Also, we start from optimal order between src_peers and dst_peers,
         # based on whether we search for whole src or dst namespace.
         props = self.covered_peer_props.reorder_by_switching_src_dst_peers() if is_src_ns else self.covered_peer_props
+        ns_set_to_peer_set = defaultdict(PeerSet)
         for cube in props:
             conn_cube = props.get_connectivity_cube(cube)
             dim_peers = conn_cube[dim_name]
@@ -173,11 +177,28 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
                     curr_ns_set.add(ns)
                     curr_ns_peers |= ns_peers
             if curr_ns_set:
-                self.peer_pairs_with_partial_ns_expr.add((frozenset(curr_ns_set), other_dim_peers) if is_src_ns
-                                                         else (other_dim_peers, frozenset(curr_ns_set)))
-                self.peer_props_without_ns_expr -= \
-                    ConnectivityProperties.make_conn_props_from_dict({dim_name: curr_ns_peers,
-                                                                      other_dim_name: other_dim_peers})
+                ns_set_to_peer_set[frozenset(curr_ns_set)] |= other_dim_peers
+        for curr_ns_set, other_dim_peers in ns_set_to_peer_set.items():
+            curr_ns_peers = PeerSet(set.union(*[self.cluster_info.ns_dict[ns] for ns in curr_ns_set]))
+            other_dim_peers_without_ip_block = PeerSet(other_dim_peers.get_set_without_ip_block())
+            other_dim_peers_ip_block = other_dim_peers.get_ip_block_canonical_form().get_peer_set()
+            curr_covered_without_ip_block = \
+                ConnectivityProperties.make_conn_props_from_dict({dim_name: curr_ns_peers,
+                                                                  other_dim_name: other_dim_peers_without_ip_block})
+            curr_covered_ip_block = \
+                ConnectivityProperties.make_conn_props_from_dict({dim_name: curr_ns_peers,
+                                                                  other_dim_name: other_dim_peers_ip_block})
+            # ensure that the found pairs (with and without IpBlocks) are at least partially included
+            # in the current connections' properties (rather than being wholly contained
+            # in containing connections' properties)
+            if self.peer_props_without_ns_expr & curr_covered_without_ip_block:
+                self.peer_props_without_ns_expr -= curr_covered_without_ip_block
+                self.peer_pairs_with_partial_ns_expr.add((curr_ns_set, other_dim_peers_without_ip_block) if is_src_ns
+                                                         else (other_dim_peers_without_ip_block, curr_ns_set))
+            if self.peer_props_without_ns_expr & curr_covered_ip_block:
+                self.peer_props_without_ns_expr -= curr_covered_ip_block
+                self.peer_pairs_with_partial_ns_expr.add((curr_ns_set, other_dim_peers_ip_block) if is_src_ns
+                                                         else (other_dim_peers_ip_block, curr_ns_set))
 
     def get_ns_fw_rules_grouped_by_common_elem(self, is_src_fixed, ns_set, fixed_elem):
         """
