@@ -294,9 +294,25 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
 
     def _create_initial_fw_rules_from_peer_props(self, peer_props):
         res = []
-        min_peer_props = peer_props.minimize()
-        for cube in min_peer_props:
-            conn_cube = min_peer_props.get_connectivity_cube(cube)
+        # first, try to group peers paired with src/dst ipblocks
+        ipblock = IpBlock.get_all_ips_block_peer_set()
+        src_ipblock_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": ipblock}) & peer_props
+        if src_ipblock_props:
+            res.extend(self._create_fw_rules_from_peer_props_aux(src_ipblock_props))
+            peer_props -= src_ipblock_props
+        dst_ipblock_props = ConnectivityProperties.make_conn_props_from_dict({"dst_peers": ipblock}) & peer_props
+        if dst_ipblock_props:
+            res.extend(self._create_fw_rules_from_peer_props_aux(dst_ipblock_props))
+            peer_props -= dst_ipblock_props
+        # now group the rest of peers
+        if peer_props:
+            res.extend(self._create_fw_rules_from_peer_props_aux(peer_props.minimize()))
+        return res
+
+    def _create_fw_rules_from_peer_props_aux(self, peer_props):
+        res = []
+        for cube in peer_props:
+            conn_cube = peer_props.get_connectivity_cube(cube)
             src_peers = conn_cube["src_peers"]
             dst_peers = conn_cube["dst_peers"]
             # whole peers sets were handled in self.ns_set_pairs and self.peer_pairs_with_partial_ns_expr
