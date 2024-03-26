@@ -298,12 +298,14 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         ipblock = IpBlock.get_all_ips_block_peer_set()
         src_ipblock_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": ipblock}) & peer_props
         if src_ipblock_props:
-            res.extend(self._create_fw_rules_from_peer_props_aux(src_ipblock_props))
             peer_props -= src_ipblock_props
+            src_ipblock_props = src_ipblock_props.reorder_by_switching_src_dst_peers()
+            res.extend(self._create_fw_rules_from_peer_props_aux(src_ipblock_props))
         dst_ipblock_props = ConnectivityProperties.make_conn_props_from_dict({"dst_peers": ipblock}) & peer_props
         if dst_ipblock_props:
-            res.extend(self._create_fw_rules_from_peer_props_aux(dst_ipblock_props))
             peer_props -= dst_ipblock_props
+            res.extend(self._create_fw_rules_from_peer_props_aux(dst_ipblock_props))
+
         # now group the rest of peers
         if peer_props:
             res.extend(self._create_fw_rules_from_peer_props_aux(peer_props.minimize()))
