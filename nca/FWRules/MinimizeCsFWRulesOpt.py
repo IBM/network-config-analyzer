@@ -140,8 +140,7 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         :return: None
         """
         covered_peer_props = self.peer_props | self.peer_props_in_containing_connections
-        all_peers_set = self.peer_props.project_on_one_dimension("src_peers") |\
-            self.peer_props.project_on_one_dimension("dst_peers")
+        all_peers_set = self.peer_props.get_all_peers()
         for pod in all_peers_set:
             if isinstance(pod, ClusterEP):
                 covered_peer_props |= ConnectivityProperties.make_conn_props_from_dict({"src_peers": PeerSet({pod}),

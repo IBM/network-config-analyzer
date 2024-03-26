@@ -472,6 +472,13 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         """
         return ConnectivityProperties(create_all=True)
 
+    def get_all_peers(self):
+        """
+        Return all peers appearing in self.
+        :return: PeerSet
+        """
+        return self.project_on_one_dimension("src_peers") | self.project_on_one_dimension("dst_peers")
+
     def are_auto_conns(self):
         """
         :return: True iff the given connections are connections from peers to themselves,
@@ -503,7 +510,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         Build properties containing all connections from peer to itself, for all peers in the current properties
         :return: the resulting auto connections properties
         """
-        peers = self.project_on_one_dimension("src_peers") | self.project_on_one_dimension("dst_peers")
+        peers = self.get_all_peers()
         auto_conns = ConnectivityProperties()
         for peer in peers:
             auto_conns |= ConnectivityProperties.make_conn_props_from_dict({"src_peers": PeerSet({peer}),
