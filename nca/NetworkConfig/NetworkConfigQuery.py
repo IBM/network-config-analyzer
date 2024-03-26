@@ -850,14 +850,11 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                                                                                "dst_peers": opt_peers_to_compare})
         base_peers_num = len(opt_peers_to_compare)
         subset_peers = self.compute_subset(opt_peers_to_compare)
-        all_peers = subset_peers
         if len(subset_peers) != base_peers_num:
             # remove connections where both of src_peers and dst_peers are out of the subset
             subset_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": subset_peers}) | \
                            ConnectivityProperties.make_conn_props_from_dict({"dst_peers": subset_peers})
             all_conns_opt &= subset_conns
-            src_peers, dst_peers = ExplTracker().extract_peers(all_conns_opt)
-            all_peers = src_peers | dst_peers
         all_conns_opt = self.config.filter_conns_by_peer_types(all_conns_opt)
         expl_conns = all_conns_opt
         if self.config.policies_container.layers.does_contain_istio_layers():
@@ -867,7 +864,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         else:
             output_res, opt_fw_rules = self.get_props_output_full(all_conns_opt, opt_peers_to_compare)
         if ExplTracker().is_active():
-            ExplTracker().set_connections_and_peers(expl_conns, all_peers)
+            ExplTracker().set_connections_and_peers(expl_conns, opt_peers_to_compare)
         return output_res, opt_fw_rules, opt_fw_rules_tcp, opt_fw_rules_non_tcp
 
     def exec(self):
@@ -929,14 +926,15 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         formatted_rules, fw_rules = self.fw_rules_from_connections_dict(connections, peers_to_compare)
         return formatted_rules, fw_rules
 
-    def get_props_output_full(self, props, peers_to_compare):
+    def get_props_output_full(self, props, all_peers):
         """
         get the connectivity map output considering all connections in the output
         :param ConnectivityProperties props: properties describing allowed connections
-        :param PeerSet peers_to_compare: the peers to consider for dot/fw-rules output
+        :param PeerSet all_peers: the peers to consider for dot/fw-rules output
          whereas all other values should be filtered out in the output
         :rtype ([Union[str, dict], MinimizeFWRules])
         """
+        peers_to_compare = props.project_on_one_dimension("src_peers") | props.project_on_one_dimension("dst_peers")
         if self.output_config.outputFormat in ['dot', 'jpg', 'html']:
             dot_full = self.dot_format_from_props(props, peers_to_compare)
             return dot_full, None
@@ -944,7 +942,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             conns_wo_fw_rules = self.txt_no_fw_rules_format_from_props(props, peers_to_compare)
             return conns_wo_fw_rules, None
         # handle other formats
-        formatted_rules, fw_rules = self.fw_rules_from_props(props, peers_to_compare)
+        formatted_rules, fw_rules = self.fw_rules_from_props(props, all_peers)
         return formatted_rules, fw_rules
 
     def get_connectivity_output_split_by_tcp(self, connections, peers, peers_to_compare):
@@ -991,14 +989,15 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             res_str = formatted_rules_tcp + formatted_rules_non_tcp
         return res_str, fw_rules_tcp, fw_rules_non_tcp
 
-    def get_props_output_split_by_tcp(self, props, peers_to_compare):
+    def get_props_output_split_by_tcp(self, props, all_peers):
         """
         get the connectivity map output as two parts: TCP and non-TCP
         :param ConnectivityProperties props: properties describing allowed connections
-        :param PeerSet peers_to_compare: the peers to consider for dot/fw-rules output
+        :param PeerSet all_peers: the peers to consider for dot/fw-rules output
          whereas all other values should be filtered out in the output
         :rtype (Union[str, dict], MinimizeFWRules, MinimizeFWRules)
         """
+        peers_to_compare = props.project_on_one_dimension("src_peers") | props.project_on_one_dimension("dst_peers")
         connectivity_tcp_str = 'TCP'
         connectivity_non_tcp_str = 'non-TCP'
         props_tcp, props_non_tcp = self.convert_props_to_split_by_tcp(props)
@@ -1015,8 +1014,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             res_str = txt_no_fw_rules_tcp + txt_no_fw_rules_non_tcp
             return res_str, None, None
         # handle formats other than dot and txt_no_fw_rules
-        formatted_rules_tcp, fw_rules_tcp = self.fw_rules_from_props(props_tcp, peers_to_compare, connectivity_tcp_str)
-        formatted_rules_non_tcp, fw_rules_non_tcp = self.fw_rules_from_props(props_non_tcp, peers_to_compare,
+        formatted_rules_tcp, fw_rules_tcp = self.fw_rules_from_props(props_tcp, all_peers, connectivity_tcp_str)
+        formatted_rules_non_tcp, fw_rules_non_tcp = self.fw_rules_from_props(props_non_tcp, all_peers,
                                                                              connectivity_non_tcp_str)
         if self.output_config.outputFormat in ['json', 'yaml']:
             # get a dict object containing the two maps on different keys (TCP_rules and non-TCP_rules)
@@ -1276,7 +1275,10 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
             conns2 = no_conns if props_based_on_config1 else conns
             if self.output_config.fullExplanation:
                 if self.config1.optimized_run == 'true':
-                    different_conns_list.append(PeersAndConnections(str(src_peers), str(dst_peers), conns1, conns2))
+                    src_peers_str_sorted = str(sorted([str(peer) for peer in src_peers]))
+                    dst_peers_str_sorted = str(sorted([str(peer) for peer in dst_peers]))
+                    different_conns_list.append(PeersAndConnections(src_peers_str_sorted, dst_peers_str_sorted,
+                                                                    conns1, conns2))
                 else:  # 'debug': produce the same output format as in the original implementation (per peer pairs)
                     for src_peer in src_peers:
                         for dst_peer in dst_peers:
@@ -1741,6 +1743,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
         return keys_list, conn_graph_removed_per_key, conn_graph_added_per_key
 
+    # TODO - rewrite this function using new optimized fw-rules creation
     def compute_diff_optimized(self):  # noqa: C901
         """
         Compute changed connections (by optimized implementation) as following:
