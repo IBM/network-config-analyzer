@@ -849,11 +849,14 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                                                                                "dst_peers": opt_peers_to_compare})
         base_peers_num = len(opt_peers_to_compare)
         subset_peers = self.compute_subset(opt_peers_to_compare)
+        all_peers = subset_peers
         if len(subset_peers) != base_peers_num:
             # remove connections where both of src_peers and dst_peers are out of the subset
             subset_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": subset_peers}) | \
                            ConnectivityProperties.make_conn_props_from_dict({"dst_peers": subset_peers})
             all_conns_opt &= subset_conns
+            src_peers, dst_peers = ExplTracker().extract_peers(all_conns_opt)
+            all_peers = src_peers | dst_peers
         all_conns_opt = self.config.filter_conns_by_peer_types(all_conns_opt)
         expl_conns = all_conns_opt
         if self.config.policies_container.layers.does_contain_istio_layers():
@@ -863,7 +866,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         else:
             output_res, opt_fw_rules = self.get_props_output_full(all_conns_opt, opt_peers_to_compare)
         if ExplTracker().is_active():
-            ExplTracker().set_connections_and_peers(expl_conns, all_conns_opt.get_all_peers())
+            ExplTracker().set_connections_and_peers(expl_conns, all_peers)
         return output_res, opt_fw_rules, opt_fw_rules_tcp, opt_fw_rules_non_tcp
 
     def exec(self):
