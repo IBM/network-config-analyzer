@@ -17,15 +17,16 @@ class ConnectivityCube(dict):
      It is used as an input interface for ConnectivityProperties methods.
     """
 
-    dimensions_list = ["src_peers", "dst_peers", "protocols", "src_ports", "dst_ports", "methods", "hosts", "paths",
-                       "icmp_type", "icmp_code"]
+    all_dimensions_list = ["src_peers", "dst_peers", "protocols", "src_ports", "dst_ports", "methods", "hosts", "paths",
+                           "icmp_type", "icmp_code"]
 
-    def __init__(self):
+    def __init__(self, dimensions_list=None):
         """
         By default, each dimension in the cube is initialized with entire domain value, which represents
         "don't care" or inactive dimension (i.e., the dimension has no impact).
         """
         super().__init__()
+        self.dimensions_list = dimensions_list if dimensions_list else self.all_dimensions_list
         self.named_ports = set()  # used only in the original solution
         self.excluded_named_ports = set()  # used only in the original solution
         for dim in self.dimensions_list:
@@ -37,7 +38,7 @@ class ConnectivityCube(dict):
         Returns a copy of the given ConnectivityCube object
         :rtype: ConnectivityCube
         """
-        res = ConnectivityCube()
+        res = ConnectivityCube(self.dimensions_list)
         for dim_name, dim_value in self.items():
             if isinstance(dim_value, MinDFA):
                 res.set_dim_directly(dim_name, dim_value)
@@ -128,6 +129,11 @@ class ConnectivityCube(dict):
         assert dim_name in self.dimensions_list
         dim_value = DimensionsManager().get_dimension_domain_by_name(dim_name, True)
         self.set_dim_directly(dim_name, dim_value)
+
+    def unset_all_but_peers(self):
+        for dim_name in self.dimensions_list:
+            if dim_name not in ["src_peers", "dst_peers"]:
+                self.unset_dim(dim_name)
 
     def __getitem__(self, dim_name):
         """
