@@ -840,8 +840,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         all_conns_opt = opt_conns.all_allowed_conns
         opt_peers_to_compare = self.config.peer_container.get_all_peers_group(include_dns_entries=True)
         # add all relevant IpBlocks, used in connections
-        opt_peers_to_compare |= all_conns_opt.project_on_one_dimension('src_peers') | \
-            all_conns_opt.project_on_one_dimension('dst_peers')
+        opt_peers_to_compare |= all_conns_opt.get_all_peers()
         if exclude_ipv6:
             # remove connections where any of src_peers or dst_peers contain automatically-added IPv6 blocks,
             # while keeping connections with IPv6 blocks directly referenced in policies
@@ -864,7 +863,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         else:
             output_res, opt_fw_rules = self.get_props_output_full(all_conns_opt, opt_peers_to_compare)
         if ExplTracker().is_active():
-            ExplTracker().set_connections_and_peers(expl_conns, opt_peers_to_compare)
+            ExplTracker().set_connections_and_peers(expl_conns, all_conns_opt.get_all_peers())
         return output_res, opt_fw_rules, opt_fw_rules_tcp, opt_fw_rules_non_tcp
 
     def exec(self):
@@ -934,7 +933,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
          whereas all other values should be filtered out in the output
         :rtype ([Union[str, dict], MinimizeFWRules])
         """
-        peers_to_compare = props.project_on_one_dimension("src_peers") | props.project_on_one_dimension("dst_peers")
+        peers_to_compare = props.get_all_peers()
         if self.output_config.outputFormat in ['dot', 'jpg', 'html']:
             dot_full = self.dot_format_from_props(props, peers_to_compare)
             return dot_full, None
@@ -997,7 +996,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
          whereas all other values should be filtered out in the output
         :rtype (Union[str, dict], MinimizeFWRules, MinimizeFWRules)
         """
-        peers_to_compare = props.project_on_one_dimension("src_peers") | props.project_on_one_dimension("dst_peers")
+        peers_to_compare = props.get_all_peers()
         connectivity_tcp_str = 'TCP'
         connectivity_non_tcp_str = 'non-TCP'
         props_tcp, props_non_tcp = self.convert_props_to_split_by_tcp(props)
@@ -1244,8 +1243,7 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         :rtype: [ConnectivityProperties, ConnectivityProperties]
         :return: two resulting allowed connections
         """
-        all_peers = conns1.project_on_one_dimension('src_peers') | conns1.project_on_one_dimension('dst_peers') | \
-            conns2.project_on_one_dimension('src_peers') | conns2.project_on_one_dimension('dst_peers')
+        all_peers = conns1.get_all_peers() | conns2.get_all_peers()
         exclude_ipv6 = self.config1.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range) and \
             self.config2.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
         conns_filter = ConnectivityProperties.make_all_props()
