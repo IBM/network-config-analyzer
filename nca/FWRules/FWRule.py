@@ -387,8 +387,7 @@ class PeerSetElement(FWRuleElement):
         """
         :return: string for the field src_pods or dst_pods in representation for txt rule format
         """
-        sorted_pods_names = ', '.join(sorted(self._get_pods_names().split(', ')))
-        return f'[{sorted_pods_names}]'
+        return f'[{self._get_pods_names()}]'
 
     def _get_pods_names(self):
         res = ''
@@ -400,7 +399,8 @@ class PeerSetElement(FWRuleElement):
                     unique_names.add(peer.owner_name)
             else:
                 res += (', ' if res else '') + peer.name
-        return res
+        sorted_res = ', '.join(sorted(res.split(', ')))
+        return sorted_res
 
     def __str__(self):
         """
