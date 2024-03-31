@@ -217,11 +217,11 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
             if self.peer_props_without_ns_expr & curr_covered_without_ip_block:
                 self.peer_props_without_ns_expr -= curr_covered_without_ip_block
                 self.base_elem_pairs.add((curr_ns_set, other_dim_peers_without_ip_block) if is_src_ns
-                                                         else (other_dim_peers_without_ip_block, curr_ns_set))
+                                         else (other_dim_peers_without_ip_block, curr_ns_set))
             if self.peer_props_without_ns_expr & curr_covered_ip_block:
                 self.peer_props_without_ns_expr -= curr_covered_ip_block
                 self.base_elem_pairs.add((curr_ns_set, other_dim_peers_ip_block) if is_src_ns
-                                                         else (other_dim_peers_ip_block, curr_ns_set))
+                                         else (other_dim_peers_ip_block, curr_ns_set))
 
     def _compute_full_ipblock_grouping(self, is_src_ns):
         """
@@ -253,7 +253,7 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
                                                                              other_dim_name: other_dim_peers})
             self.peer_props_without_ns_expr -= curr_covered
             self.base_elem_pairs.add((curr_ipblock.get_peer_set(), other_dim_peers) if is_src_ns
-                                                     else (other_dim_peers, curr_ipblock.get_peer_set()))
+                                     else (other_dim_peers, curr_ipblock.get_peer_set()))
 
     def get_ns_fw_rules_grouped_by_common_elem(self, is_src_fixed, ns_set, fixed_elem):
         """
