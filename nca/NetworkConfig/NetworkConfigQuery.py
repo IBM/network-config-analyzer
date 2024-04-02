@@ -1013,7 +1013,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             txt_no_fw_rules_tcp = self.txt_no_fw_rules_format_from_props(props_tcp, peers_to_compare, connectivity_tcp_str)
             txt_no_fw_rules_non_tcp = self.txt_no_fw_rules_format_from_props(props_non_tcp, peers_to_compare,
                                                                              connectivity_non_tcp_str)
-            res_str = txt_no_fw_rules_tcp + txt_no_fw_rules_non_tcp
+            res_str = txt_no_fw_rules_tcp + '\n\n' + txt_no_fw_rules_non_tcp
             return res_str, None, None
         # handle formats other than dot and txt_no_fw_rules
         formatted_rules_tcp, fw_rules_tcp = self.fw_rules_from_props(props_tcp, all_peers, connectivity_tcp_str)
@@ -1091,7 +1091,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         """
         conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
         conn_graph.add_props_to_graph(props, self.config.peer_container, connectivity_restriction)
-        return conn_graph.get_connections_without_fw_rules_txt_format(connectivity_restriction)
+        return conn_graph.get_connections_without_fw_rules_txt_format(connectivity_restriction + " Connections:")
 
     def fw_rules_from_connections_dict(self, connections, peers_to_compare, connectivity_restriction=None):
         """
