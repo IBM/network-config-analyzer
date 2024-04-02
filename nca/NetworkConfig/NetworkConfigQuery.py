@@ -1091,7 +1091,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         """
         conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
         conn_graph.add_props_to_graph(props, self.config.peer_container, connectivity_restriction)
-        return conn_graph.get_connections_without_fw_rules_txt_format(connectivity_restriction + " Connections:")
+        return conn_graph.get_connections_without_fw_rules_txt_format(connectivity_restriction + " Connections:"
+                                                                      if connectivity_restriction else None)
 
     def fw_rules_from_connections_dict(self, connections, peers_to_compare, connectivity_restriction=None):
         """
