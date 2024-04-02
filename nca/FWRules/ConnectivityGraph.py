@@ -6,7 +6,7 @@
 import itertools
 from collections import defaultdict
 import networkx
-from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod
+from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod, PeerSet
 from .DotGraph import DotGraph
 from .MinimizeFWRules import MinimizeBasic, MinimizeFWRules
 from .ClusterInfo import ClusterInfo
@@ -60,8 +60,10 @@ class ConnectivityGraph:
         """
         conns, src_peers, dst_peers = \
             MinimizeBasic.get_connection_set_and_peers_from_cube(conn_cube, peer_container)
-        for src_peer in src_peers:
-            for dst_peer in dst_peers:
+        split_src_peers = src_peers.split()
+        split_dst_peers = dst_peers.split()
+        for src_peer in split_src_peers:
+            for dst_peer in split_dst_peers:
                 self.connections_to_peers[conns].append((src_peer, dst_peer))
 
     def add_props_to_graph(self, props, peer_container):
