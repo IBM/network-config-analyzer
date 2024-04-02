@@ -6,7 +6,7 @@
 import itertools
 from collections import defaultdict
 import networkx
-from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod, PeerSet
+from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod
 from .DotGraph import DotGraph
 from .MinimizeFWRules import MinimizeBasic, MinimizeFWRules
 from .ClusterInfo import ClusterInfo
