@@ -575,6 +575,19 @@ class PeerSet(set):
         # TODO: after moving to optimized HC implementation PeerSet may be always maintained in the canonical form
         return PeerSet(self.get_set_without_ip_block()) | self.get_ip_block_canonical_form().get_peer_set()
 
+    def split(self):
+        """
+        Splits self's IpBlocks into multiple IpBlock objects, each containing a single range
+        Return the resulting PeerSet
+        """
+        res = PeerSet()
+        for peer in self:
+            if isinstance(peer, IpBlock):
+                res |= peer.split()
+            else:
+                res.add(peer)
+        return res
+
     def __eq__(self, other):
         # set comparison
         if self.get_set_without_ip_block() != other.get_set_without_ip_block():
