@@ -1077,7 +1077,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :return the connectivity map in dot-format, considering connectivity_restriction if required
         """
         conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
-        conn_graph.add_props_to_graph(props, self.config.peer_container)
+        conn_graph.add_props_to_graph(props, self.config.peer_container, connectivity_restriction)
         return conn_graph.get_connectivity_dot_format_str(connectivity_restriction)
 
     def txt_no_fw_rules_format_from_props(self, props, peers, connectivity_restriction=None):
@@ -1090,7 +1090,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :return the connectivity map in txt_no_fw_rules format, considering connectivity_restriction if required
         """
         conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
-        conn_graph.add_props_to_graph(props, self.config.peer_container)
+        conn_graph.add_props_to_graph(props, self.config.peer_container, connectivity_restriction)
         return conn_graph.get_connections_without_fw_rules_txt_format(connectivity_restriction)
 
     def fw_rules_from_connections_dict(self, connections, peers_to_compare, connectivity_restriction=None):

@@ -7,6 +7,7 @@ import itertools
 from collections import defaultdict
 import networkx
 from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod
+from nca.CoreDS.ProtocolSet import ProtocolSet
 from .DotGraph import DotGraph
 from .MinimizeFWRules import MinimizeBasic, MinimizeFWRules
 from .ClusterInfo import ClusterInfo
@@ -51,29 +52,40 @@ class ConnectivityGraph:
         """
         self.connections_to_peers.update(connections)
 
-    def add_edges_from_cube_dict(self, conn_cube, peer_container):
+    def add_edges_from_cube_dict(self, conn_cube, peer_container, connectivity_restriction=None):
         """
         Add edges to the graph according to the give cube
         :param ConnectivityCube conn_cube: the given cube
          whereas all other values should be filtered out in the output
-         :param PeerContainer peer_container: the peer container
+        :param PeerContainer peer_container: the peer container
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to TCP / non-TCP, or not
         """
+
+        relevant_protocols = ProtocolSet()
+        if connectivity_restriction:
+            if connectivity_restriction == 'TCP':
+                relevant_protocols.add_protocol('TCP')
+            else:  # connectivity_restriction == 'non-TCP'
+                relevant_protocols = ProtocolSet.get_non_tcp_protocols()
+
         conns, src_peers, dst_peers = \
-            MinimizeBasic.get_connection_set_and_peers_from_cube(conn_cube, peer_container)
+            MinimizeBasic.get_connection_set_and_peers_from_cube(conn_cube, peer_container, relevant_protocols)
         split_src_peers = src_peers.split()
         split_dst_peers = dst_peers.split()
         for src_peer in split_src_peers:
             for dst_peer in split_dst_peers:
                 self.connections_to_peers[conns].append((src_peer, dst_peer))
 
-    def add_props_to_graph(self, props, peer_container):
+    def add_props_to_graph(self, props, peer_container, connectivity_restriction=None):
         """
         Add edges to the graph according to the given connectivity properties
         :param ConnectivityProperties props: the given connectivity properties
         :param PeerContainer peer_container: the peer container
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to TCP / non-TCP, or not
+
         """
         for cube in props:
-            self.add_edges_from_cube_dict(props.get_connectivity_cube(cube), peer_container)
+            self.add_edges_from_cube_dict(props.get_connectivity_cube(cube), peer_container, connectivity_restriction)
 
     def _get_peer_details(self, peer, format_requirement=False):
         """
