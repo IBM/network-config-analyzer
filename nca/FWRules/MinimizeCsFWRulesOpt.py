@@ -112,9 +112,9 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         if self.peer_props_without_ns_expr:
             self._compute_partial_ns_grouping(all_src_ns_set, True)
         if self.peer_props_without_ns_expr:
-            self._compute_full_ipblock_grouping(False)
+            self._compute_full_ipblock_and_dns_grouping(False)
         if self.peer_props_without_ns_expr:
-            self._compute_full_ipblock_grouping(True)
+            self._compute_full_ipblock_and_dns_grouping(True)
 
     def _compute_covered_peer_props(self):
         """
@@ -223,7 +223,7 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
                 self.base_elem_pairs.add((curr_ns_set, other_dim_peers_ip_block) if is_src_ns
                                          else (other_dim_peers_ip_block, curr_ns_set))
 
-    def _compute_full_ipblock_grouping(self, is_src_ns):
+    def _compute_full_ipblock_and_dns_grouping(self, is_src_ns):
         """
         computes and updates self.base_elem_pairs with pairs where one elem (src/dst)
         can be grouped to an entire IpBlock
@@ -237,23 +237,40 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         # thus allowing overlapping of fw rules. Also, we start from optimal order between src_peers and dst_peers,
         # based on whether we search for full src or dst IpBlock
         props = self.covered_peer_props.reorder_by_switching_src_dst_peers() if is_src_ns else self.covered_peer_props
-        ipblock_to_peer_set = defaultdict(PeerSet)
+        ipblock_dnsentry_to_peer_set = defaultdict(PeerSet)
         for cube in props:
             conn_cube = props.get_connectivity_cube(cube)
             dim_peers = conn_cube[dim_name]
             other_dim_peers = conn_cube[other_dim_name].canonical_form()
             ipblock = dim_peers.get_ip_block_canonical_form()
             if self.is_full_ipblock(ipblock):
-                curr_covered = ConnectivityProperties.make_conn_props_from_dict({dim_name: ipblock.get_peer_set(),
-                                                                                 other_dim_name: other_dim_peers})
-                if curr_covered & self.peer_props_without_ns_expr:
-                    ipblock_to_peer_set[ipblock] |= other_dim_peers
-        for curr_ipblock, other_dim_peers in ipblock_to_peer_set.items():
-            curr_covered = ConnectivityProperties.make_conn_props_from_dict({dim_name: curr_ipblock.get_peer_set(),
+                self._add_to_map_if_covered(dim_name, ipblock.get_peer_set(), other_dim_name, other_dim_peers,
+                                            ipblock_dnsentry_to_peer_set)
+            dns_entries = dim_peers.get_dns_entries()
+            if dns_entries:
+                self._add_to_map_if_covered(dim_name, dns_entries, other_dim_name, other_dim_peers,
+                                            ipblock_dnsentry_to_peer_set)
+        for curr_peers, other_dim_peers in ipblock_dnsentry_to_peer_set.items():
+            curr_peers = PeerSet(set(curr_peers))  # peel off the frozenset
+            curr_covered = ConnectivityProperties.make_conn_props_from_dict({dim_name: curr_peers,
                                                                              other_dim_name: other_dim_peers})
             self.peer_props_without_ns_expr -= curr_covered
-            self.base_elem_pairs.add((curr_ipblock.get_peer_set(), other_dim_peers) if is_src_ns
-                                     else (other_dim_peers, curr_ipblock.get_peer_set()))
+            self.base_elem_pairs.add((curr_peers, other_dim_peers) if is_src_ns else (other_dim_peers, curr_peers))
+
+    def _add_to_map_if_covered(self, dim_name, dim_peers, other_dim_name, other_dim_peers, peers_to_peers_map):
+        """
+        An auxiliary method that checks whether the product of dim_peers and other_dim_peers is covered
+        by self.peer_props_without_ns_expr, and adds the peer sets to peers_to_peers_map if True.
+        :param str dim_name: the first dimension name
+        :param PeerSet dim_peers: a set of peers for the first dimension
+        :param str other_dim_name: the second dimension name
+        :param PeerSet other_dim_peers: a set of peers for the second dimension
+        :param dict peer_to_peer_map: the map from first dimention peers to second dimention peers
+        """
+        curr_covered = ConnectivityProperties.make_conn_props_from_dict({dim_name: dim_peers,
+                                                                         other_dim_name: other_dim_peers})
+        if curr_covered & self.peer_props_without_ns_expr:
+            peers_to_peers_map[frozenset(dim_peers)] |= other_dim_peers
 
     def get_ns_fw_rules_grouped_by_common_elem(self, is_src_fixed, ns_set, fixed_elem):
         """
