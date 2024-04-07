@@ -680,6 +680,12 @@ class PeerSet(set):
         """
         return set(elem for elem in self if not isinstance(elem, (IpBlock, DNSEntry)))
 
+    def get_dns_entries(self):
+        """
+        :return: a set with all elements from self which are DNSEntries
+        """
+        return set(elem for elem in self if isinstance(elem, DNSEntry))
+
     def get_ip_block_canonical_form(self):
         """
         :return: IpBlock element in canonical form for all elements from self which are IpBlock
