@@ -4,13 +4,6 @@ digraph {
 	fontsize=30
 	fontcolor=maroon
 	subgraph cluster_map_explanation {
-subgraph cluster_ns2_namespace{
-	label="ns2"
-	fontsize=20
-	fontcolor=blue
-	tooltip="Namespace"
-	"ns2/deployment-F(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-F(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-}
 	color=white
 	labelloc = "b"
 	fontsize=15

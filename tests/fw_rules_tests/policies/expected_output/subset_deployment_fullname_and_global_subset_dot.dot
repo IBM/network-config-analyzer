@@ -10,7 +10,6 @@ subgraph cluster_default_namespace{
 	fontcolor=blue
 	tooltip="Namespace"
 	"default/deployment-E-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-E-1</td></tr><tr><td>deployment-E-2</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
-	"default/deployment-Eb-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-Eb-1</td></tr><tr><td>deployment-Eb-2</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 }
 subgraph cluster_ns1_namespace{
 	label="ns1"
@@ -18,13 +17,6 @@ subgraph cluster_ns1_namespace{
 	fontcolor=blue
 	tooltip="Namespace"
 	"ns1/deployment-A-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-A-1</td></tr><tr><td>deployment-A-2</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
-}
-subgraph cluster_ns2_namespace{
-	label="ns2"
-	fontsize=20
-	fontcolor=blue
-	tooltip="Namespace"
-	"ns2/deployment-F-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-F-1</td></tr><tr><td>deployment-F-2</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 }
 	"ns1/deployment-A-1" -> "default/deployment-E-1"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	color=white

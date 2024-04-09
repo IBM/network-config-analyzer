@@ -6,18 +6,24 @@ digraph {
 	subgraph cluster_map_explanation {
 	dict_box [label=<<table border="0" cellspacing="0"><tr><td  align="text">Connectivity legend<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 3550" href="bogus">tcp3550     TCP 3550<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 50051" href="bogus">tcp50051     TCP 50051<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 5050" href="bogus">tcp5050     TCP 5050<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 6379" href="bogus">tcp6379     TCP 6379<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 7000" href="bogus">tcp7000     TCP 7000<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 7070" href="bogus">tcp7070     TCP 7070<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 8080" href="bogus">tcp8080     TCP 8080<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 9555" href="bogus">tcp9555     TCP 9555<br align="left" /></td></tr></table>> shape=box]
 	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2 tooltip="IP Block"]
-	"default/adservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>default/adservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-	"default/cartservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>default/cartservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-	"default/checkoutservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>default/checkoutservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-	"default/currencyservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>default/currencyservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-	"default/emailservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>default/emailservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-	"default/frontend(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>default/frontend(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-	"default/loadgenerator(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>default/loadgenerator(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-	"default/paymentservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>default/paymentservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-	"default/productcatalogservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>default/productcatalogservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-	"default/recommendationservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>default/recommendationservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-	"default/redis-cart(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>default/redis-cart(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-	"default/shippingservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>default/shippingservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
+subgraph cluster_default_namespace{
+	label="default"
+	fontsize=20
+	fontcolor=blue
+	tooltip="Namespace"
+	"default/adservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>adservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
+	"default/cartservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>cartservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
+	"default/checkoutservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>checkoutservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
+	"default/currencyservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>currencyservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
+	"default/emailservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>emailservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
+	"default/frontend(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>frontend(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
+	"default/loadgenerator(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>loadgenerator(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
+	"default/paymentservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>paymentservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
+	"default/productcatalogservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>productcatalogservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
+	"default/recommendationservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>recommendationservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
+	"default/redis-cart(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>redis-cart(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
+	"default/shippingservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>shippingservice(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
+}
 	"0.0.0.0/0" -> "default/frontend(Deployment)"[label="tcp8080" labeltooltip="TCP 8080" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/cartservice(Deployment)" -> "default/redis-cart(Deployment)"[label="tcp6379" labeltooltip="TCP 6379" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/checkoutservice(Deployment)" -> "default/cartservice(Deployment)"[label="tcp7070" labeltooltip="TCP 7070" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]

@@ -4,7 +4,6 @@ digraph {
 	fontsize=30
 	fontcolor=maroon
 	subgraph cluster_map_explanation {
-	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2 tooltip="IP Block"]
 subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
@@ -12,7 +11,6 @@ subgraph cluster_default_namespace{
 	tooltip="Namespace"
 	"default/Pod1" [label=<<table border="0" cellspacing="0"><tr><td>Pod1</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
 	"default/Pod4" [label=<<table border="0" cellspacing="0"><tr><td>Pod4</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-	"default/Pod5" [label=<<table border="1" cellspacing="0"><tr><td>Pod5</td></tr><tr><td>deployment-Eb-1</td></tr><tr><td>deployment-Eb-2</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 	"default/deployment-E-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-E-1</td></tr><tr><td>deployment-E-2</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 }
 subgraph cluster_ns1_namespace{
@@ -30,7 +28,6 @@ subgraph cluster_ns2_namespace{
 	fontcolor=blue
 	tooltip="Namespace"
 	"ns2/Pod3" [label=<<table border="0" cellspacing="0"><tr><td>Pod3</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-	"ns2/Pod6" [label=<<table border="1" cellspacing="0"><tr><td>Pod6</td></tr><tr><td>deployment-F-1</td></tr><tr><td>deployment-F-2</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 	"ns2/deployment-C-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-C-1</td></tr><tr><td>deployment-C-2</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 	"ns2/deployment-D-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-D-1</td></tr><tr><td>deployment-D-2</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 }

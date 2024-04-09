@@ -7,7 +7,7 @@
     - src_ns:
       - default
       src_pods:
-      - common=M
+      - test in (A,B)
       dst_ns:
       - default
       dst_pods:

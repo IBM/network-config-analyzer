@@ -1,4 +1,3 @@
 "query","src_ns","src_pods","dst_ns","dst_pods","connection",
 "connectivity_map_by_pods_csv, config: np25","","","","","",
-"","[default]","[my-test-deployment-C-1]","[default]","[app=B]","All connections",
-"","[default]","[my-test-deployment-C-2]","[default]","[app=B]","All connections",
+"","[default]","[my-test-deployment-C-1, my-test-deployment-C-2]","[default]","[app=B]","All connections",

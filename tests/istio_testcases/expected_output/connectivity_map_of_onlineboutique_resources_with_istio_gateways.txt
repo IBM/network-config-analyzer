@@ -1,6 +1,5 @@
 For connections of type TCP, final fw rules for query: connectivity-map-of-onlineboutique-with-istio-gateways, config: onlineboutique-resources-with-istio-gateways:
 src_ns: [istio-system] src_pods: [*] dst: httpbin.example.com conn: TCP {'dst_ports': '80', 'hosts': 'httpbin.example.com'}
-src_ns: [istio-system] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: All connections
 src_ns: [onlineboutique] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [onlineboutique] src_pods: [*] dst: connected-with-mesh.example.com conn: All connections
 src_ns: [onlineboutique] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: TCP {'dst_ports': '443', 'hosts': 'httpbin.example.com'}
