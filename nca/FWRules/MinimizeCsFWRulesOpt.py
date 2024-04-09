@@ -247,8 +247,8 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
                 self._add_to_map_if_covered(dim_name, ipblock.get_peer_set(), other_dim_name, other_dim_peers,
                                             ipblock_dnsentry_to_peer_set)
             dns_entries = dim_peers.get_dns_entries()
-            if dns_entries:
-                self._add_to_map_if_covered(dim_name, dns_entries, other_dim_name, other_dim_peers,
+            for dns_entry in dns_entries:
+                self._add_to_map_if_covered(dim_name, PeerSet({dns_entry}), other_dim_name, other_dim_peers,
                                             ipblock_dnsentry_to_peer_set)
         for curr_peers, other_dim_peers in ipblock_dnsentry_to_peer_set.items():
             curr_peers = PeerSet(set(curr_peers))  # peel off the frozenset
