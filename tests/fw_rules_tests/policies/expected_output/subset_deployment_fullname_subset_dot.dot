@@ -25,7 +25,6 @@ subgraph cluster_ns2_namespace{
 	fontcolor=blue
 	tooltip="Namespace"
 	"ns2/deployment-C-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-C-1</td></tr><tr><td>deployment-C-2</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
-	"ns2/deployment-F-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-F-1</td></tr><tr><td>deployment-F-2</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 }
 	"ns1/deployment-A-1" -> "default/deployment-E-1"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"ns1/deployment-B-1" -> "ns1/deployment-A-1"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]

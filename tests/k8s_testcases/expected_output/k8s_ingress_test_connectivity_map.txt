@@ -1,6 +1,5 @@
 final fw rules for query: connectivity, config: test-ingress:
 src: 0.0.0.0/0 dst_ns: [default,ingress-nginx,istio-system] dst_pods: [*] conn: All connections
-src_ns: [default,ingress-nginx,istio-system] src_pods: [*] dst_ns: [ingress-nginx] dst_pods: [*] conn: All connections
 src_ns: [default,istio-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [default,istio-system] src_pods: [*] dst_ns: [default,istio-system] dst_pods: [*] conn: All connections
+src_ns: [default,istio-system] src_pods: [*] dst_ns: [default,ingress-nginx,istio-system] dst_pods: [*] conn: All connections
 src_ns: [ingress-nginx] src_pods: [*] dst_ns: [default] dst_pods: [details-v1-79f774bdb9] conn: TCP {'dst_ports': '9080', 'hosts': 'demo.localdev.me', 'paths': '/details(/*)?'}

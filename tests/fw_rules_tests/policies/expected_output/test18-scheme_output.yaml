@@ -33,16 +33,9 @@
     - src_ns:
       - kube-system-new
       src_pods:
-      - tier=frontend
+      - '*'
       dst_ip_block:
       - 49.50.0.0/32
-      connection:
-      - All connections
-    - src_ns:
-      - kube-system-new
-      src_pods:
-      - tier=frontend
-      dst_ip_block:
       - 49.50.0.2/32
       connection:
       - All connections

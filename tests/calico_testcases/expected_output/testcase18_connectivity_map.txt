@@ -1,17 +1,12 @@
 final fw rules for query: connectivity_map, config: np-pod-based-policies:
-src: 0.0.0.0/0 dst_ns: [default,vendor-system] dst_pods: [*] conn: All connections
-src: ::/0 dst_ns: [default,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [default,kube-system,vendor-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [default,kube-system,vendor-system] src_pods: [*] dst: ::/0 conn: All connections
-src_ns: [default,kube-system,vendor-system] src_pods: [*] dst_ns: [default,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
+src: 0.0.0.0/0,::/0 dst_ns: [default,vendor-system] dst_pods: [*] conn: All connections
+src_ns: [default,kube-system,vendor-system] src_pods: [*] dst: 0.0.0.0/0,::/0 conn: All connections
+src_ns: [default,vendor-system] src_pods: [*] dst_ns: [default,vendor-system] dst_pods: [*] conn: All connections
+src_ns: [kube-system] src_pods: [*] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
 
 final fw rules for query: connectivity_map, config: np-ports-based:
-src: 0.0.0.0/0 dst_ns: [default,vendor-system] dst_pods: [*] conn: All connections
-src: ::/0 dst_ns: [default,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [default,vendor-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [default,vendor-system] src_pods: [*] dst: ::/0 conn: All connections
+src: 0.0.0.0/0,::/0 dst_ns: [default,vendor-system] dst_pods: [*] conn: All connections
+src_ns: [default,vendor-system] src_pods: [*] dst: 0.0.0.0/0,::/0 conn: All connections
 src_ns: [default,vendor-system] src_pods: [*] dst_ns: [default,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [*] dst: 0.0.0.0/0 conn: TCP
-src_ns: [kube-system] src_pods: [*] dst: ::/0 conn: TCP
+src_ns: [kube-system] src_pods: [*] dst: 0.0.0.0/0,::/0 conn: TCP
 src_ns: [kube-system] src_pods: [*] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP

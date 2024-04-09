@@ -4,13 +4,11 @@ digraph {
 	fontsize=30
 	fontcolor=maroon
 	subgraph cluster_map_explanation {
-	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2 tooltip="IP Block"]
 subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
 	fontcolor=blue
 	tooltip="Namespace"
-	"default/my-test-deployment-A-1" [label=<<table border="1" cellspacing="0"><tr><td>my-test-deployment-A-1</td></tr><tr><td>my-test-deployment-A-2</td></tr><tr><td>my-test-deployment-D-1</td></tr><tr><td>my-test-deployment-D-2</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 	"default/my-test-deployment-B-1" [label=<<table border="1" cellspacing="0"><tr><td>my-test-deployment-B-1</td></tr><tr><td>my-test-deployment-B-2</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 	"default/my-test-deployment-C-1" [label=<<table border="1" cellspacing="0"><tr><td>my-test-deployment-C-1</td></tr><tr><td>my-test-deployment-C-2</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 }

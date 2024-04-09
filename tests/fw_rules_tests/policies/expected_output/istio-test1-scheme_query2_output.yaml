@@ -6,16 +6,6 @@
   - TCP_rules:
     - src_ip_block:
       - 1.2.3.0/24
-      dst_ns:
-      - default
-      dst_pods:
-      - app=skydive
-      connection:
-      - Protocol: TCP
-        Ports:
-        - 30
-        - 50
-    - src_ip_block:
       - 2.2.2.2/32
       dst_ns:
       - default

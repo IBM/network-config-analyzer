@@ -23,18 +23,18 @@
     - src_ns:
       - y
       src_pods:
-      - a
-      dst_ns:
-      - y
-      dst_pods:
-      - b
+      - pod!=c
+      dst_ip_block:
+      - 0.0.0.0/0
       connection:
       - All connections
     - src_ns:
       - y
       src_pods:
       - pod!=c
-      dst_ip_block:
-      - 0.0.0.0/0
+      dst_ns:
+      - y
+      dst_pods:
+      - b
       connection:
       - All connections

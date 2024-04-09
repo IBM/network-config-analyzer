@@ -21,13 +21,6 @@ subgraph cluster_ns1_namespace{
 	"ns1/deployment-A(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-A(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
 	"ns1/deployment-B(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-B(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
 }
-subgraph cluster_ns2_namespace{
-	label="ns2"
-	fontsize=20
-	fontcolor=blue
-	tooltip="Namespace"
-	"ns2/deployment-F(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-F(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-}
 subgraph cluster_ns3_namespace{
 	label="ns3"
 	fontsize=20
