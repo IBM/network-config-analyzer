@@ -9,16 +9,6 @@
     rules:
     - src_ip_block:
       - 0.0.0.0/5
-      - 8.0.0.0/7
-      dst_ns:
-      - kube-system
-      dst_pods:
-      - tier=frontend
-      connection:
-      - Protocol: TCP
-        Ports:
-        - 53
-    - src_ip_block:
       - 11.0.0.0/8
       - 12.0.0.0/6
       - 128.0.0.0/3
@@ -26,32 +16,12 @@
       - 160.0.0.0/5
       - 168.0.0.0/6
       - 172.0.0.0/12
+      - 172.128.0.0/9
       - 172.16.0.0/14
       - 172.20.0.0/16
-      - 32.0.0.0/3
-      - 64.0.0.0/2
-      dst_ns:
-      - kube-system
-      dst_pods:
-      - tier=frontend
-      connection:
-      - Protocol: TCP
-        Ports:
-        - 53
-    - src_ip_block:
       - 172.22.0.0/15
       - 172.24.0.0/14
       - 172.28.0.0/15
-      dst_ns:
-      - kube-system
-      dst_pods:
-      - tier=frontend
-      connection:
-      - Protocol: TCP
-        Ports:
-        - 53
-    - src_ip_block:
-      - 172.128.0.0/9
       - 172.31.0.0/16
       - 172.32.0.0/11
       - 172.64.0.0/10
@@ -59,6 +29,9 @@
       - 174.0.0.0/7
       - 176.0.0.0/4
       - 192.0.0.0/2
+      - 32.0.0.0/3
+      - 64.0.0.0/2
+      - 8.0.0.0/7
       dst_ns:
       - kube-system
       dst_pods:
@@ -71,16 +44,6 @@
     rules:
     - src_ip_block:
       - 0.0.0.0/5
-      - 8.0.0.0/7
-      dst_ns:
-      - kube-system
-      dst_pods:
-      - tier=frontend
-      connection:
-      - Protocol: UDP
-        Ports:
-        - 53
-    - src_ip_block:
       - 11.0.0.0/8
       - 12.0.0.0/6
       - 128.0.0.0/3
@@ -88,32 +51,12 @@
       - 160.0.0.0/5
       - 168.0.0.0/6
       - 172.0.0.0/12
+      - 172.128.0.0/9
       - 172.16.0.0/14
       - 172.20.0.0/16
-      - 32.0.0.0/3
-      - 64.0.0.0/2
-      dst_ns:
-      - kube-system
-      dst_pods:
-      - tier=frontend
-      connection:
-      - Protocol: UDP
-        Ports:
-        - 53
-    - src_ip_block:
       - 172.22.0.0/15
       - 172.24.0.0/14
       - 172.28.0.0/15
-      dst_ns:
-      - kube-system
-      dst_pods:
-      - tier=frontend
-      connection:
-      - Protocol: UDP
-        Ports:
-        - 53
-    - src_ip_block:
-      - 172.128.0.0/9
       - 172.31.0.0/16
       - 172.32.0.0/11
       - 172.64.0.0/10
@@ -121,6 +64,9 @@
       - 174.0.0.0/7
       - 176.0.0.0/4
       - 192.0.0.0/2
+      - 32.0.0.0/3
+      - 64.0.0.0/2
+      - 8.0.0.0/7
       dst_ns:
       - kube-system
       dst_pods:

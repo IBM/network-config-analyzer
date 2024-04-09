@@ -125,8 +125,7 @@ class MinimizeBasic:
                     conns.add_connections(protocol, ConnectivityProperties.make_conn_props(conn_cube))
                 else:
                     if ConnectionSet.protocol_supports_ports(protocol) or ConnectionSet.protocol_is_icmp(protocol):
-                        conns.add_connections(protocol,
-                                              ConnectivityProperties.get_all_conns_props_per_config_peers(peer_container))
+                        conns.add_connections(protocol, ConnectivityProperties.make_all_props())
                     else:
                         conns.add_connections(protocol, True)
         return conns, src_peers, dst_peers
