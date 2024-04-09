@@ -19,16 +19,11 @@ Removed connections between persistent peers (based on topology from config: con
 src_ns: [default] src_pods: [app=app-0] dst_ns: [default] dst_pods: [app=app-2] conn: All connections
 
 Added connections between persistent peers and ipBlocks (based on topology from config: config_b_with_ipBlock) :
-src: 0.0.0.0-9.255.255.255 dst_ns: [default] dst_pods: [app=app-1] conn: All connections
-src: 10.10.0.0/16 dst_ns: [default] dst_pods: [app=app-1] conn: All connections
-src: 11.0.0.0-255.255.255.255 dst_ns: [default] dst_pods: [app=app-1] conn: All connections
+src: 0.0.0.0-9.255.255.255,10.10.0.0-10.10.255.255,11.0.0.0-255.255.255.255 dst_ns: [default] dst_pods: [app=app-1] conn: All connections
 
 Removed connections between persistent peers and ipBlocks (based on topology from config: config_a_with_ipBlock) :
-src: 0.0.0.0-9.255.255.255 dst_ns: [default] dst_pods: [app=app-2] conn: All connections
-src: 10.0.0.0-10.10.255.255 dst_ns: [default] dst_pods: [app=app-2] conn: All but UDP 53
-src: 10.11.0.0/16 dst_ns: [default] dst_pods: [app=app-2] conn: All connections
-src: 10.12.0.0-10.255.255.255 dst_ns: [default] dst_pods: [app=app-2] conn: All but UDP 53
-src: 11.0.0.0-255.255.255.255 dst_ns: [default] dst_pods: [app=app-2] conn: All connections
+src: 0.0.0.0-9.255.255.255,10.11.0.0-10.11.255.255,11.0.0.0-255.255.255.255 dst_ns: [default] dst_pods: [app=app-2] conn: All connections
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [app=app-2] conn: All but UDP 53
 
 New connections between persistent peers and added peers (based on topology from config: config_b_with_ipBlock) :
 src_ns: [default] src_pods: [app in (app-5,app-6)] dst_ns: [default] dst_pods: [app in (app-0,app-1)] conn: All connections
