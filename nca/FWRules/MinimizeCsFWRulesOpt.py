@@ -452,7 +452,7 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         props = self.covered_peer_props & ConnectivityProperties.make_conn_props_from_dict({this_dim: PeerSet({peer})})
         return props.project_on_one_dimension(other_dim)
 
-   # ---------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------
     # below functions are for debugging :
 
     def _print_results_info(self):
