@@ -1396,7 +1396,6 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         output_config: OutputConfiguration
         peer_container: PeerContainer
 
-
     @staticmethod
     def get_query_type():
         return QueryType.PairComparisonQuery
@@ -1605,15 +1604,18 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                         key, True, orig_conn_graph_added_conns, res == 0)
                     if not orig_fw_rules:
                         orig_fw_rules = orig_conn_graph_added_conns.get_minimized_firewall_rules()
-                    added_props_data = added_props_per_key[key]
-                    assert added_props_per_key
-                    opt_fw_rules = MinimizeFWRules.get_minimized_firewall_rules_from_props(
-                        added_props_data.props, added_props_data.cluster_info, added_props_data.output_config,
-                        added_props_data.peer_container, None)
+                    added_props = added_props_per_key[key]
+                    assert added_props
+                    opt_key_explanation, opt_fw_rules = self.compute_explanation_for_key_opt(
+                        key, True, added_props, res == 0)
+                    if not opt_fw_rules:
+                        opt_fw_rules = MinimizeFWRules.get_minimized_firewall_rules_from_props(
+                            added_props.props, added_props.cluster_info, added_props.output_config,
+                            added_props.peer_container, None)
                     self.compare_fw_rules(orig_fw_rules, opt_fw_rules, self.config2.peer_container,
                                           self._get_updated_key(key, True) +
                                           f'between {self.config1.name} and {self.config2.name}')
-                    explanation.append(key_explanation)
+                    explanation.append(opt_key_explanation)
                 res += 1
 
             if is_removed:
@@ -1622,15 +1624,18 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                         key, False, orig_conn_graph_removed_conns, res == 0)
                     if not orig_fw_rules:
                         orig_fw_rules = orig_conn_graph_removed_conns.get_minimized_firewall_rules()
-                    removed_props_data = removed_props_per_key[key]
-                    assert removed_props_data
-                    opt_fw_rules = MinimizeFWRules.get_minimized_firewall_rules_from_props(
-                        removed_props_data.props, removed_props_data.cluster_info, removed_props_data.output_config,
-                        removed_props_data.peer_container, None)
+                    removed_props = removed_props_per_key[key]
+                    assert removed_props
+                    opt_key_explanation, opt_fw_rules = self.compute_explanation_for_key_opt(
+                        key, False, removed_props, res == 0)
+                    if not opt_fw_rules:
+                        opt_fw_rules = MinimizeFWRules.get_minimized_firewall_rules_from_props(
+                            removed_props.props, removed_props.cluster_info, removed_props.output_config,
+                            removed_props.peer_container, None)
                     self.compare_fw_rules(orig_fw_rules, opt_fw_rules, self.config1.peer_container,
                                           self._get_updated_key(key, False) +
                                           f'between {self.config1.name} and {self.config2.name}')
-                    explanation.append(key_explanation)
+                    explanation.append(opt_key_explanation)
                 res += 1
 
         return res, explanation
@@ -2026,7 +2031,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
             keys_list, removed_props_per_key, added_props_per_key = self.compute_diff_optimized()
             if self.config1.optimized_run == 'true':
                 res, explanation = self.get_results_for_computed_fw_rules_opt(keys_list, removed_props_per_key,
-                                                                          added_props_per_key)
+                                                                              added_props_per_key)
             else:
                 res, explanation = self.get_results_for_computed_fw_rules_and_compare_orig_to_opt(
                     keys_list, orig_conn_graph_removed_per_key, orig_conn_graph_added_per_key,
