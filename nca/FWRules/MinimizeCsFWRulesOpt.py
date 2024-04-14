@@ -80,12 +80,14 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         :return: None
         """
         # partition peer_props to ns_set_pairs, base_elem_pairs, peer_props_without_ns_expr
-        self._compute_basic_namespace_grouping()
+        self._compute_basic_grouping()
 
-        # add all fw-rules:
-        self._add_all_fw_rules()
+        # Creating fw-rules from base-elements pairs (pod/ns/ip-block/dns-entry)
+        self.minimized_fw_rules.extend(self._create_fw_rules_from_base_elements_list(self.ns_set_pairs))
+        self.minimized_fw_rules.extend(self._create_fw_rules_from_peer_props(self.peer_props_without_ns_expr))
+        self.minimized_fw_rules.extend(self._create_fw_rules_from_base_elements_list(self.base_elem_pairs))
 
-    def _compute_basic_namespace_grouping(self):
+    def _compute_basic_grouping(self):
         """
         computation of peer sets with possible grouping by namespaces.
         Results are at: ns_set_pairs, base_elem_pairs, peer_props_without_ns_expr
@@ -265,7 +267,7 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         :param PeerSet dim_peers: a set of peers for the first dimension
         :param str other_dim_name: the second dimension name
         :param PeerSet other_dim_peers: a set of peers for the second dimension
-        :param dict peer_to_peer_map: the map from first dimention peers to second dimention peers
+        :param dict peers_to_peers_map: the map from first dimention peers to second dimension peers
         """
         curr_covered = ConnectivityProperties.make_conn_props_from_dict({dim_name: dim_peers,
                                                                          other_dim_name: other_dim_peers})
@@ -349,7 +351,7 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
                 res.append(fw_rule)
         return res
 
-    def _create_initial_fw_rules_from_base_elements_list(self, base_elems_pairs):
+    def _create_fw_rules_from_base_elements_list(self, base_elems_pairs):
         """
         creating initial fw-rules from base elements
         :param base_elems_pairs: a set of pairs (src,dst) , each of type: Pod/K8sNamespace/IpBlock
@@ -362,7 +364,7 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
                                                                 self.output_config))
         return res
 
-    def _create_initial_fw_rules_from_peer_props(self, peer_props):
+    def _create_fw_rules_from_peer_props(self, peer_props):
         res = []
         # first, try to group peers paired with src/dst ipblocks
         ipblock = IpBlock.get_all_ips_block_peer_set()
@@ -444,184 +446,11 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         # unknown base-elem type
         return None
 
-    def _create_all_initial_fw_rules(self):
-        """
-        Creating initial fw-rules from base-elements pairs (pod/ns/ip-block/dns-entry)
-        :return: a list of initial fw-rules of type FWRule
-        :rtype list[FWRule]
-        """
-
-        initial_fw_rules = []
-        initial_fw_rules.extend(self._create_initial_fw_rules_from_base_elements_list(self.ns_set_pairs))
-        initial_fw_rules.extend(self._create_initial_fw_rules_from_peer_props(self.peer_props_without_ns_expr))
-        initial_fw_rules.extend(
-            self._create_initial_fw_rules_from_base_elements_list(self.base_elem_pairs))
-        return initial_fw_rules
-
-    def _add_all_fw_rules(self):
-        """
-        Computation of fw-rules, following the ns-grouping of peer_pairs.
-        Results are at: self.minimized_rules_set
-        :return: None
-        """
-        # create initial fw-rules from ns_set_pairs, base_elem_pairs, peer_props_without_ns_expr
-        initial_fw_rules = self._create_all_initial_fw_rules()
-        self.minimized_fw_rules = initial_fw_rules
-        return  # Tanya: temp
-        # TODO - remove the code below after checking and updating all expected results
-
-        # option1 - start computation when src is fixed at first iteration, and merge applies to dst
-        option1, convergence_iteration_1 = self._create_merged_rules_set(True, initial_fw_rules)
-        # option2 - start computation when dst is fixed at first iteration, and merge applies to src
-        option2, convergence_iteration_2 = self._create_merged_rules_set(False, initial_fw_rules)
-
-        # self.post_processing_fw_rules(option1)
-        # self.post_processing_fw_rules(option2)
-
-        if self.output_config.fwRulesRunInTestMode:
-            # add info for documentation about computation results
-            self.results_info_per_option['option1_len'] = len(option1)
-            self.results_info_per_option['option2_len'] = len(option2)
-            self.results_info_per_option['convergence_iteration_1'] = convergence_iteration_1
-            self.results_info_per_option['convergence_iteration_2'] = convergence_iteration_2
-
-        if self.output_config.fwRulesDebug:
-            print('option 1 rules:')
-            self._print_firewall_rules(option1)
-            print('option 2 rules: ')
-            self._print_firewall_rules(option2)
-
-        # choose the option with less fw-rules
-        if len(option1) < len(option2):
-            self.minimized_fw_rules = option1
-            return
-        self.minimized_fw_rules = option2
-
-    def _get_grouping_result(self, fixed_elem, set_for_grouping_elems, src_first):
-        """
-        Apply grouping for a set of elements to create grouped fw-rules
-        :param fixed_elem: the fixed elements from the original fw-rules
-        :param set_for_grouping_elems: the set of elements to be grouped
-        :param src_first: a bool flag to indicate if fixed_elem is src or dst
-        :return: A list of fw-rules after possible grouping operations
-        """
-        res = []
-        # partition set_for_grouping_elems into: (1) ns_elems, (2) pod_and_pod_labels_elems, (3) ip_block_elems
-        peer_set_elems = set(elem for elem in set_for_grouping_elems if isinstance(elem, PeerSetElement))
-        pod_and_pod_labels_elems = set(elem for elem in set_for_grouping_elems if
-                                       isinstance(elem, (PodElement, PodLabelsElement)))
-        ip_block_elems = set(elem for elem in set_for_grouping_elems if isinstance(elem, IPBlockElement))
-        dns_elems = set(elem for elem in set_for_grouping_elems if isinstance(elem, DNSElement))
-        ns_elems = set_for_grouping_elems - (peer_set_elems | pod_and_pod_labels_elems | ip_block_elems | dns_elems)
-
-        if ns_elems:
-            # grouping of ns elements is straight-forward
-            ns_set = set.union(*(f.ns_info for f in ns_elems))
-            res.extend(self.get_ns_fw_rules_grouped_by_common_elem(src_first, ns_set, fixed_elem))
-
-        for peer_set_elem in peer_set_elems:
-            res.extend(self._get_pod_level_fw_rules_grouped_by_common_labels(src_first, peer_set_elem.get_pods_set(),
-                                                                             fixed_elem, set(), True))
-
-            # fw_rule = FWRule(fixed_elem, peer_set_elem, self.connections) if src_first else \
-            #     FWRule(peer_set_elem, fixed_elem, self.connections)
-            # res.append(fw_rule)
-
-        if pod_and_pod_labels_elems:
-            # grouping of pod and pod-labels elements
-            # TODO: currently adding this due to example in test24: a single pod-labels elem is replaced by another grouping
-            if len(pod_and_pod_labels_elems) == 1 and isinstance(list(pod_and_pod_labels_elems)[0], PodLabelsElement):
-                elem = list(pod_and_pod_labels_elems)[0]
-                fw_rule = FWRule(fixed_elem, elem, self.connections) if src_first else FWRule(elem, fixed_elem,
-                                                                                              self.connections)
-                res.append(fw_rule)
-            else:
-                # set_for_grouping_pods is the set of all pods originated in pods and pod-labels elements, to be grouped
-                set_for_grouping_pods = set()
-                for e in pod_and_pod_labels_elems:
-                    set_for_grouping_pods |= e.get_pods_set()
-
-                # allow borrowing pods for labels-grouping from covered_peer_props
-                fixed_elem_pods = fixed_elem.get_pods_set()
-                # extra_pods_list is a list of pods sets that are paired with pods in fixed_elem_pods within
-                # covered_peer_props
-                extra_pods_list = []
-                for p in fixed_elem_pods:
-                    pods_to_add = self._get_peers_paired_with_given_peer(p, src_first)
-                    extra_pods_list.append(pods_to_add)
-                # extra_pods_list_common is a set of pods that are paired with all pods in fixed_elem_pods within
-                # covered_peer_props
-                extra_pods_list_common = set()
-                if extra_pods_list:
-                    extra_pods_list_common = set.intersection(*extra_pods_list)
-
-                res.extend(self._get_pod_level_fw_rules_grouped_by_common_labels(src_first, set_for_grouping_pods,
-                                                                                 fixed_elem, extra_pods_list_common))
-
-        if ip_block_elems:
-            # currently no grouping for ip blocks
-            for elem in ip_block_elems:
-                if src_first:
-                    res.append(FWRule(fixed_elem, elem, self.connections))
-                else:
-                    res.append(FWRule(elem, fixed_elem, self.connections))
-
-        if dns_elems:
-            for elem in dns_elems:
-                if src_first:  # do we need both if else? , dns_elem may be a dst always
-                    res.append(FWRule(fixed_elem, elem, self.connections))
-                else:
-                    res.append(FWRule(elem, fixed_elem, self.connections))
-
-        return res
-
     def _get_peers_paired_with_given_peer(self, peer, is_src_peer):
         this_dim = "src_peers" if is_src_peer else "dst_peers"
         other_dim = "dst_peers" if is_src_peer else "src_peers"
         props = self.covered_peer_props & ConnectivityProperties.make_conn_props_from_dict({this_dim: PeerSet({peer})})
         return props.project_on_one_dimension(other_dim)
-
-    def _create_merged_rules_set(self, is_src_first, fw_rules):
-        """
-        Computing a minimized set of fw-rules by merging src/dst elements iteratively
-        :param is_src_first: a bool flag to indicate if merge process starts with src or dest
-        :param fw_rules: a list of initial fw-rules
-        :return: a list of minimized fw-rules after merge process
-        """
-        initial_fw_rules = fw_rules.copy()
-        if not initial_fw_rules:
-            return [], 0
-        count_fw_rules = dict()  # map number of fw-rules per iteration number
-        max_iter = self.output_config.fwRulesMaxIter
-        convergence_iteration = max_iter
-        for i in range(0, max_iter):
-            fw_rules_after_merge = []
-            count_fw_rules[i] = len(initial_fw_rules)
-            if i > 1 and count_fw_rules[i] == count_fw_rules[i - 1]:
-                convergence_iteration = i
-                break
-            if i > 1 and self.output_config.fwRulesRunInTestMode:
-                assert count_fw_rules[i - 1] > count_fw_rules[i], "Expecting fewer fw_rules after each merge iteration."
-            # change the grouping target (src/dst) on each iteration
-            src_first = (i % 2 == 0) if is_src_first else (i % 2 == 1)
-            first_elem_set = set(f.src for f in initial_fw_rules) if src_first else set(f.dst for f in initial_fw_rules)
-            for elem in first_elem_set:
-                if src_first:
-                    # TODO: equals or contained in?
-                    # set_for_grouping_elems = set(f.dst for f in initial_fw_rules if elem <= f.src)
-                    set_for_grouping_elems = set(f.dst for f in initial_fw_rules if elem == f.src)
-                else:
-                    # set_for_grouping_elems = set(f.src for f in initial_fw_rules if elem <= f.dst)
-                    set_for_grouping_elems = set(f.src for f in initial_fw_rules if elem == f.dst)
-                res = self._get_grouping_result(elem, set_for_grouping_elems, src_first)
-                fw_rules_after_merge.extend(res)
-            # prepare for next iteration
-            initial_fw_rules = fw_rules_after_merge
-            if self.output_config.fwRulesDebug:
-                print('fw rules after iteration: ' + str(i))
-                self._print_firewall_rules(initial_fw_rules)
-
-        return initial_fw_rules, convergence_iteration
 
     # ---------------------------------------------------------------------------------------------------------
     # below functions are for debugging :
