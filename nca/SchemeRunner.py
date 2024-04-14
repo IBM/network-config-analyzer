@@ -22,7 +22,7 @@ class SchemeRunner(GenericYamlParser):
                                'containment', 'twoWayContainment', 'permits', 'interferes', 'pairwiseInterferes',
                                'forbids', 'emptiness', 'disjointness', 'allCaptured', 'sanity', 'semanticDiff'}
 
-    def __init__(self, scheme_file_name, output_format=None, output_path=None, optimized_run='false'):
+    def __init__(self, scheme_file_name, output_format=None, output_path=None, optimized_run='true'):
         GenericYamlParser.__init__(self, scheme_file_name)
         self.network_configs = {}
         self.global_res = 0

@@ -895,6 +895,11 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 self.compute_connectivity_output_optimized()
             opt_end = time.time()
             print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
+            # the same result for opt == 'true'/'debug'
+            if self.output_config.outputFormat in ['json', 'yaml']:
+                res.output_explanation = [ComputedExplanation(dict_explanation=output_res)]
+            else:
+                res.output_explanation = [ComputedExplanation(str_explanation=output_res)]
             if self.config.optimized_run == 'debug':
                 if fw_rules and opt_fw_rules:
                     self.compare_fw_rules(fw_rules, opt_fw_rules, self.config.peer_container,
@@ -905,11 +910,6 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 if fw_rules_non_tcp and opt_fw_rules_non_tcp:
                     self.compare_fw_rules(fw_rules_non_tcp, opt_fw_rules_non_tcp, self.config.peer_container,
                                           f"connectivity - non-tcp only of {self.config.name}")
-            else:  # self.config.optimized_run == 'true':
-                if self.output_config.outputFormat in ['json', 'yaml']:
-                    res.output_explanation = [ComputedExplanation(dict_explanation=output_res)]
-                else:
-                    res.output_explanation = [ComputedExplanation(str_explanation=output_res)]
         return res
 
     def get_connectivity_output_full(self, connections, peers, peers_to_compare):
@@ -1277,18 +1277,11 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
                 MinimizeBasic.get_connection_set_and_peers_from_cube(conn_cube, self.config1.peer_container)
             conns1 = conns if props_based_on_config1 else no_conns
             conns2 = no_conns if props_based_on_config1 else conns
-            if self.output_config.fullExplanation:
-                if self.config1.optimized_run == 'true':
-                    src_peers_str_sorted = str(sorted([str(peer) for peer in src_peers]))
-                    dst_peers_str_sorted = str(sorted([str(peer) for peer in dst_peers]))
-                    different_conns_list.append(PeersAndConnections(src_peers_str_sorted, dst_peers_str_sorted,
-                                                                    conns1, conns2))
-                else:  # 'debug': produce the same output format as in the original implementation (per peer pairs)
-                    for src_peer in src_peers:
-                        for dst_peer in dst_peers:
-                            if src_peer != dst_peer:
-                                different_conns_list.append(PeersAndConnections(str(src_peer), str(dst_peer),
-                                                                                conns1, conns2))
+            if self.output_config.fullExplanation:  # the same result for opt == 'true'/'debug'
+                src_peers_str_sorted = str(sorted([str(peer) for peer in src_peers]))
+                dst_peers_str_sorted = str(sorted([str(peer) for peer in dst_peers]))
+                different_conns_list.append(PeersAndConnections(src_peers_str_sorted, dst_peers_str_sorted,
+                                                                conns1, conns2))
             else:
                 different_conns_list.append(PeersAndConnections(src_peers.rep(), dst_peers.rep(), conns1, conns2))
                 return
