@@ -1129,8 +1129,9 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         fw_rules = MinimizeFWRules.get_minimized_firewall_rules_from_props(props, cluster_info, self.output_config,
                                                                            self.config.peer_container,
                                                                            connectivity_restriction)
-        self.compare_fw_rules_to_conn_props(fw_rules, props, self.config.peer_container,
-                                            connectivity_restriction=connectivity_restriction)  # Tanya: debug
+        if self.config.optimized_run == 'debug':
+            self.compare_fw_rules_to_conn_props(fw_rules, props, self.config.peer_container,
+                                                connectivity_restriction=connectivity_restriction)
         formatted_rules = fw_rules.get_fw_rules_in_required_format(connectivity_restriction=connectivity_restriction)
         return formatted_rules, fw_rules
 
@@ -1527,7 +1528,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
             fw_rules = MinimizeFWRules.get_minimized_firewall_rules_from_props(props_data.props, props_data.cluster_info,
                                                                                props_data.output_config,
                                                                                props_data.peer_container, None)
-            self.compare_fw_rules_to_conn_props(fw_rules, props_data.props, props_data.peer_container)  # Tanya: debug
+            if self.config1.optimized_run == 'debug':
+                self.compare_fw_rules_to_conn_props(fw_rules, props_data.props, props_data.peer_container)
             conn_graph_explanation = fw_rules.get_fw_rules_in_required_format(False, is_first_connectivity_result)
 
         if self.output_config.outputFormat in ['json', 'yaml']:
@@ -1612,9 +1614,10 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                         opt_fw_rules = MinimizeFWRules.get_minimized_firewall_rules_from_props(
                             added_props.props, added_props.cluster_info, added_props.output_config,
                             added_props.peer_container, None)
-                    self.compare_fw_rules(orig_fw_rules, opt_fw_rules, self.config2.peer_container,
-                                          self._get_updated_key(key, True) +
-                                          f'between {self.config1.name} and {self.config2.name}')
+                    if self.config1.optimized_run == 'debug':
+                        self.compare_fw_rules(orig_fw_rules, opt_fw_rules, self.config2.peer_container,
+                                              self._get_updated_key(key, True) +
+                                              f'between {self.config1.name} and {self.config2.name}')
                     explanation.append(opt_key_explanation)
                 res += 1
 
@@ -1632,9 +1635,10 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                         opt_fw_rules = MinimizeFWRules.get_minimized_firewall_rules_from_props(
                             removed_props.props, removed_props.cluster_info, removed_props.output_config,
                             removed_props.peer_container, None)
-                    self.compare_fw_rules(orig_fw_rules, opt_fw_rules, self.config1.peer_container,
-                                          self._get_updated_key(key, False) +
-                                          f'between {self.config1.name} and {self.config2.name}')
+                    if self.config1.optimized_run == 'debug':
+                        self.compare_fw_rules(orig_fw_rules, opt_fw_rules, self.config1.peer_container,
+                                              self._get_updated_key(key, False) +
+                                              f'between {self.config1.name} and {self.config2.name}')
                     explanation.append(opt_key_explanation)
                 res += 1
 
