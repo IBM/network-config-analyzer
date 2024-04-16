@@ -289,6 +289,9 @@ class IpBlock(Peer, CanonicalIntervalSet):
         if not self.name:
             self.name = self.get_cidr_list_str()
 
+    def full_name(self):
+        return self.get_cidr_list_str()
+
     def is_global_peer(self):
         return self.is_global
 
@@ -296,7 +299,7 @@ class IpBlock(Peer, CanonicalIntervalSet):
         if self.namespace is None:
             return self.name
         else:
-            return self.namespace.name + '_' + self.name
+            return self.namespace.name + '_' + self.full_name()
 
     def copy(self):
         res = IpBlock(name=self.name, namespace=self.namespace, is_global=self.is_global)
@@ -568,6 +571,23 @@ class PeerSet(set):
             return False
         return super().__contains__(item)
 
+    def canonical_form(self):
+        # TODO: after moving to optimized HC implementation PeerSet may be always maintained in the canonical form
+        return PeerSet(self.get_set_without_ip_block()) | self.get_ip_block_canonical_form().get_peer_set()
+
+    def split(self):
+        """
+        Splits self's IpBlocks into multiple IpBlock objects, each containing a single range
+        Return the resulting PeerSet
+        """
+        res = PeerSet()
+        for peer in self:
+            if isinstance(peer, IpBlock):
+                res |= peer.split()
+            else:
+                res.add(peer)
+        return res
+
     def __eq__(self, other):
         # set comparison
         if self.get_set_without_ip_block() != other.get_set_without_ip_block():
@@ -605,6 +625,8 @@ class PeerSet(set):
         return res
 
     def __ior__(self, other):
+        # TODO - after moving to optimized HC implementation, create in canonical form (like __iand__);
+        #  (in the original implementation we need split IpBlock for disjoint_ip_blocks() to work correctly)
         res = PeerSet(super().__ior__(other))
         return res
 
@@ -651,6 +673,18 @@ class PeerSet(set):
         :return: a set with all elements from self which are not IpBlock
         """
         return set(elem for elem in self if not isinstance(elem, IpBlock))
+
+    def get_set_without_ip_block_or_dns_entry(self):
+        """
+        :return: a set with all elements from self which are not IpBlock or DNSEntry
+        """
+        return set(elem for elem in self if not isinstance(elem, (IpBlock, DNSEntry)))
+
+    def get_dns_entries(self):
+        """
+        :return: a set with all elements from self which are DNSEntries
+        """
+        return set(elem for elem in self if isinstance(elem, DNSEntry))
 
     def get_ip_block_canonical_form(self):
         """
@@ -760,21 +794,19 @@ class BasePeerSet:
             :return: the PeerSet of peers referenced by the indices in the interval set
             """
             peer_set = PeerSet()
+            ipv4block = IpBlock()
+            ipv6block = IpBlock()
             for interval in peer_interval_set:
                 if interval.end <= self.max_ipv4_index:
                     # this is IPv4Address
                     start = ipaddress.IPv4Address(interval.start - self.min_ipv4_index)
                     end = ipaddress.IPv4Address(interval.end - self.min_ipv4_index)
-                    ipb = IpBlock(
-                        interval=CanonicalIntervalSet.Interval(IPNetworkAddress(start), IPNetworkAddress(end)))
-                    peer_set.add(ipb)
+                    ipv4block.add_interval(CanonicalIntervalSet.Interval(IPNetworkAddress(start), IPNetworkAddress(end)))
                 elif interval.end <= self.max_ipv6_index:
                     # this is IPv6Address
                     start = ipaddress.IPv6Address(interval.start - self.min_ipv6_index)
                     end = ipaddress.IPv6Address(interval.end - self.min_ipv6_index)
-                    ipb = IpBlock(
-                        interval=CanonicalIntervalSet.Interval(IPNetworkAddress(start), IPNetworkAddress(end)))
-                    peer_set.add(ipb)
+                    ipv6block.add_interval(CanonicalIntervalSet.Interval(IPNetworkAddress(start), IPNetworkAddress(end)))
                 else:
                     # this is Pod
                     assert interval.end <= self.max_pod_index
@@ -782,6 +814,10 @@ class BasePeerSet:
                     for ind in range(min(interval.start - self.min_pod_index, curr_pods_max_ind),
                                      min(interval.end - self.min_pod_index, curr_pods_max_ind) + 1):
                         peer_set.add(self.ordered_peer_list[ind])
+            if ipv4block:
+                peer_set.add(ipv4block)
+            if ipv6block:
+                peer_set.add(ipv6block)
             return peer_set
 
     instance = None

@@ -7,9 +7,9 @@ import itertools
 from collections import defaultdict
 import networkx
 from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod
-from nca.CoreDS.ConnectionSet import ConnectionSet
+from nca.CoreDS.ProtocolSet import ProtocolSet
 from .DotGraph import DotGraph
-from .MinimizeFWRules import MinimizeCsFwRules, MinimizeFWRules
+from .MinimizeFWRules import MinimizeBasic, MinimizeFWRules
 from .ClusterInfo import ClusterInfo
 
 
@@ -52,27 +52,40 @@ class ConnectivityGraph:
         """
         self.connections_to_peers.update(connections)
 
-    def add_edges_from_cube_dict(self, conn_cube, peer_container):
+    def add_edges_from_cube_dict(self, conn_cube, peer_container, connectivity_restriction=None):
         """
         Add edges to the graph according to the give cube
         :param ConnectivityCube conn_cube: the given cube
          whereas all other values should be filtered out in the output
-         :param PeerContainer peer_container: the peer container
+        :param PeerContainer peer_container: the peer container
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to TCP / non-TCP, or not
         """
+
+        relevant_protocols = ProtocolSet()
+        if connectivity_restriction:
+            if connectivity_restriction == 'TCP':
+                relevant_protocols.add_protocol('TCP')
+            else:  # connectivity_restriction == 'non-TCP'
+                relevant_protocols = ProtocolSet.get_non_tcp_protocols()
+
         conns, src_peers, dst_peers = \
-            ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, peer_container)
-        for src_peer in src_peers:
-            for dst_peer in dst_peers:
+            MinimizeBasic.get_connection_set_and_peers_from_cube(conn_cube, peer_container, relevant_protocols)
+        split_src_peers = src_peers.split()
+        split_dst_peers = dst_peers.split()
+        for src_peer in split_src_peers:
+            for dst_peer in split_dst_peers:
                 self.connections_to_peers[conns].append((src_peer, dst_peer))
 
-    def add_props_to_graph(self, props, peer_container):
+    def add_props_to_graph(self, props, peer_container, connectivity_restriction=None):
         """
         Add edges to the graph according to the given connectivity properties
         :param ConnectivityProperties props: the given connectivity properties
         :param PeerContainer peer_container: the peer container
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to TCP / non-TCP, or not
+
         """
         for cube in props:
-            self.add_edges_from_cube_dict(props.get_connectivity_cube(cube), peer_container)
+            self.add_edges_from_cube_dict(props.get_connectivity_cube(cube), peer_container, connectivity_restriction)
 
     def _get_peer_details(self, peer, format_requirement=False):
         """
@@ -428,57 +441,7 @@ class ConnectivityGraph:
                 print(line)
             print('======================================================')
         # compute the minimized firewall rules
-        return self._minimize_firewall_rules(connections_sorted_by_size)
-
-    def _minimize_firewall_rules(self, connections_sorted_by_size):
-        """
-        Creates the set of minimized fw rules and prints to output
-        :param list connections_sorted_by_size: the original connectivity graph in fw-rules format
-        :return:  minimize_fw_rules: an object of type MinimizeFWRules holding the minimized fw-rules
-        """
-        cs_containment_map = self._build_connections_containment_map(connections_sorted_by_size)
-        fw_rules_map = defaultdict(list)
-        results_map = dict()
-        minimize_cs = MinimizeCsFwRules(self.cluster_info, self.allowed_labels, self.output_config)
-        # build fw_rules_map: per connection - a set of its minimized fw rules
-        for connections, peer_pairs in connections_sorted_by_size:
-            # currently skip "no connections"
-            if not connections:
-                continue
-            # TODO: figure out why we have pairs with (ip,ip) ?
-            peer_pairs_filtered = self._get_peer_pairs_filtered(peer_pairs)
-            peer_pairs_in_containing_connections = cs_containment_map[connections]
-            fw_rules, results_per_info = minimize_cs.compute_minimized_fw_rules_per_connection(
-                connections, peer_pairs_filtered, peer_pairs_in_containing_connections)
-            fw_rules_map[connections] = fw_rules
-            results_map[connections] = results_per_info
-
-        minimize_fw_rules = MinimizeFWRules(fw_rules_map, self.cluster_info, self.output_config,
-                                            results_map)
-        return minimize_fw_rules
-
-    @staticmethod
-    def _get_peer_pairs_filtered(peer_pairs):
-        """
-        Filters out peer pairs where both src and dst are IpBlock
-        :param list peer_pairs: the peer pairs to filter
-        :return: a filtered set of peer pairs
-        """
-        return set((src, dst) for (src, dst) in peer_pairs if not (isinstance(src, IpBlock) and isinstance(dst, IpBlock)))
-
-    def _build_connections_containment_map(self, connections_sorted_by_size):
-        """
-        Build a map from a connection to a set of peer_pairs from connections it is contained in
-        :param list connections_sorted_by_size: the original connectivity graph in fw-rules format
-        :return: a map from connection to a set of peer pairs from containing connections
-        """
-        cs_containment_map = defaultdict(set)
-        for (conn, _) in connections_sorted_by_size:
-            for (other_conn, peer_pairs) in connections_sorted_by_size:
-                if other_conn != conn and conn.contained_in(other_conn):
-                    peer_pairs_filtered = self._get_peer_pairs_filtered(peer_pairs)
-                    cs_containment_map[conn] |= peer_pairs_filtered
-        return cs_containment_map
+        return MinimizeFWRules.minimize_firewall_rules(self.cluster_info, self.output_config, connections_sorted_by_size)
 
     @staticmethod
     def _merge_ip_blocks(connections_sorted_by_size):
