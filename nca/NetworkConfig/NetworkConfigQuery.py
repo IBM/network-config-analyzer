@@ -1896,12 +1896,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         captured_pods = (self.config1.get_captured_pods() | self.config2.get_captured_pods()) & intersected_peers
         exclude_ipv6 = self.config1.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range) and \
             self.config2.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
-        old_ip_blocks = IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(exclude_ipv6),
-                                                   IpBlock.get_all_ips_block_peer_set(exclude_ipv6),
-                                                   exclude_ipv6)
-        new_ip_blocks = IpBlock.disjoint_ip_blocks(self.config2.get_referenced_ip_blocks(exclude_ipv6),
-                                                   IpBlock.get_all_ips_block_peer_set(exclude_ipv6),
-                                                   exclude_ipv6)
+        all_ip_blocks = IpBlock.get_all_ips_block_peer_set(exclude_ipv6)
 
         removed_props_per_key = dict()
         added_props_per_key = dict()
@@ -1927,11 +1922,11 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         key = 'Lost connections between removed peers and ipBlocks'
         keys_list.append(key)
         props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": removed_peers,
-                                                                  "dst_peers": old_ip_blocks}) | \
-            ConnectivityProperties.make_conn_props_from_dict({"src_peers": old_ip_blocks,
+                                                                  "dst_peers": all_ip_blocks}) | \
+            ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_ip_blocks,
                                                               "dst_peers": removed_peers})
         props &= old_props
-        removed_props_per_key[key] = self.get_changed_props_expl_data(key, old_ip_blocks, False, props,
+        removed_props_per_key[key] = self.get_changed_props_expl_data(key, all_ip_blocks, False, props,
                                                                       self.config1.peer_container)
         added_props_per_key[key] = None
 
@@ -1966,17 +1961,16 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
         # 3.2. lost/new connections between intersected peers and ipBlocks due to changes in policies and labels
         key = 'Changed connections between persistent peers and ipBlocks'
-        disjoint_ip_blocks = IpBlock.disjoint_ip_blocks(old_ip_blocks, new_ip_blocks, exclude_ipv6)
         keys_list.append(key)
         props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": captured_pods,
-                                                                  "dst_peers": disjoint_ip_blocks}) | \
-            ConnectivityProperties.make_conn_props_from_dict({"src_peers": disjoint_ip_blocks,
+                                                                  "dst_peers": all_ip_blocks}) | \
+            ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_ip_blocks,
                                                               "dst_peers": captured_pods})
         props1 = old_props & props
         props2 = new_props & props
-        removed_props_per_key[key] = self.get_changed_props_expl_data(key, disjoint_ip_blocks, False, props1 - props2,
+        removed_props_per_key[key] = self.get_changed_props_expl_data(key, all_ip_blocks, False, props1 - props2,
                                                                       self.config1.peer_container)
-        added_props_per_key[key] = self.get_changed_props_expl_data(key, disjoint_ip_blocks, True, props2 - props1,
+        added_props_per_key[key] = self.get_changed_props_expl_data(key, all_ip_blocks, True, props2 - props1,
                                                                     self.config2.peer_container)
 
         # 4.1. new connections between intersected peers and added peers
@@ -2007,12 +2001,12 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         key = 'New connections between added peers and ipBlocks'
         keys_list.append(key)
         props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": added_peers,
-                                                                  "dst_peers": new_ip_blocks}) | \
-            ConnectivityProperties.make_conn_props_from_dict({"src_peers": new_ip_blocks,
+                                                                  "dst_peers": all_ip_blocks}) | \
+            ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_ip_blocks,
                                                               "dst_peers": added_peers})
         props &= new_props
         removed_props_per_key[key] = None
-        added_props_per_key[key] = self.get_changed_props_expl_data(key, new_ip_blocks, True, props,
+        added_props_per_key[key] = self.get_changed_props_expl_data(key, all_ip_blocks, True, props,
                                                                     self.config2.peer_container)
 
         return keys_list, removed_props_per_key, added_props_per_key
