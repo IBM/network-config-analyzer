@@ -41,7 +41,7 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         """
         The main function for creating the minimized set of fw-rules for a given connection set
 
-        :param connections: the allowed connections for the given peer pairs, of type ConnectionSet
+        :param ConnectionSet connections: the allowed connections for the given peer pairs, of type ConnectionSet
         :param ConnectivityProperties peer_props: peers (src,dst) for which communication is allowed over the given connections
         :param ConnectivityProperties peer_props_in_containing_connections: peers in connections that contain the current
                connection set
