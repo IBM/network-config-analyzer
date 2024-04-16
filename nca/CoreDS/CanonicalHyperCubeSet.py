@@ -41,7 +41,6 @@ class CanonicalHyperCubeSet:
     def __init__(self, dimensions, allow_all=False):
         self.layers = dict()  # layers are w.r.t active dimensions
         self.all_dimensions_list = dimensions  # ordered list of all dimensions
-        self.all_dim_types = [DimensionsManager().get_dimension_type_by_name(dim_name) for dim_name in dimensions]
         # init ordered list of active dimensions:
         if allow_all:
             self.active_dimensions = []  # names (for non-active dimensions everything is allowed)
@@ -172,8 +171,9 @@ class CanonicalHyperCubeSet:
             dimensions_list_restriction = self.all_dimensions_list
         dimensions_list_ordered = self._get_dimensions_subset_by_order(dimensions_list_restriction)
         cube_res = []
+        dimensions_manager = DimensionsManager()
         for dim_name in dimensions_list_ordered:
-            cube_res.append(DimensionsManager().get_dimension_domain_by_name(dim_name, True))
+            cube_res.append(dimensions_manager.get_dimension_domain_by_name(dim_name, True))
         return cube_res
 
     def __len__(self):
@@ -228,7 +228,10 @@ class CanonicalHyperCubeSet:
         """
         if len(item) < len(self.all_dimensions_list):
             raise Exception("input item len mismatch")
-        for index, dim_type in enumerate(self.all_dim_types):
+        dimensions_manager = DimensionsManager()
+        all_dim_types = [dimensions_manager.get_dimension_type_by_name(dim_name)
+                         for dim_name in self.all_dimensions_list]
+        for index, dim_type in enumerate(all_dim_types):
             if dim_type == DimensionsManager.DimensionType.DFA:
                 assert (isinstance(item[index], str))
             else:
@@ -604,9 +607,10 @@ class CanonicalHyperCubeSet:
         :return: str representation for cube's values
         """
         res = ""
+        dimensions_manager = DimensionsManager()
         for dim_index, dim_values in enumerate(cube):
             dim_name = self.active_dimensions[dim_index]
-            res += DimensionsManager().get_dim_values_str(dim_values, dim_name) + ", "
+            res += dimensions_manager.get_dim_values_str(dim_values, dim_name) + ", "
         return f"({res})"
 
     def _is_last_dimension(self):
@@ -666,11 +670,12 @@ class CanonicalHyperCubeSet:
         for index, dim_name in enumerate(current_active_dimensions):
             current_active_dimensions_dict[dim_name] = index
         aligned_cube_values = []
+        dimensions_manager = DimensionsManager()
         for active_dim_name in new_active_dimensions:
             if active_dim_name in current_active_dimensions_dict:
                 aligned_cube_values.append(cube[current_active_dimensions_dict[active_dim_name]])
             else:
-                aligned_cube_values.append(DimensionsManager().get_dimension_domain_by_name(active_dim_name, True))
+                aligned_cube_values.append(dimensions_manager.get_dimension_domain_by_name(active_dim_name, True))
         return aligned_cube_values
 
     def _set_active_dimensions(self, dim_names_set):
@@ -828,8 +833,9 @@ class CanonicalHyperCubeSet:
         # reduce by searching for active dimensions on which entire domain is allowed for all the cubes
         dimensions_to_reduce = []
         values_per_dimension = self._get_values_sets_per_active_dimension()
+        dimensions_manager = DimensionsManager()
         for dim_name, values_set in values_per_dimension.items():
-            dim_domain = DimensionsManager().get_dimension_domain_by_name(dim_name)
+            dim_domain = dimensions_manager.get_dimension_domain_by_name(dim_name)
             if {dim_domain} == values_set:
                 dimensions_to_reduce.append(dim_name)
         dimensions_to_reduce = self._get_dimensions_subset_by_order(dimensions_to_reduce)
