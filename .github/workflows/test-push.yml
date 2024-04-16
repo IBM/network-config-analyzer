@@ -234,7 +234,7 @@ jobs:
           name: nca-package
           path: nca_build
       - run: |
-          pip install nca_build/network-config-analyzer-*.tar.gz
+          pip install nca_build/network_config_analyzer-*.tar.gz
           nca --connectivity -r https://github.com/IBM/network-config-analyzer/blob/master/tests/livesim_tests/livesim_topology.yaml
         env:
           GHE_TOKEN: ${{ github.token }}
