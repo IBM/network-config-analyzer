@@ -126,10 +126,13 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         """
         covered_peer_props = self.peer_props | self.peer_props_in_containing_connections
         all_peers_set = self.peer_props.get_all_peers()
-        for pod in all_peers_set:
-            if isinstance(pod, ClusterEP):
-                covered_peer_props |= ConnectivityProperties.make_conn_props_from_dict({"src_peers": PeerSet({pod}),
-                                                                                        "dst_peers": PeerSet({pod})})
+        if len(all_peers_set) < 500:
+            # optimization - add auto-connections only if not too many peers,
+            # otherwise the calculation below is very heavy
+            for pod in all_peers_set:
+                if isinstance(pod, ClusterEP):
+                    covered_peer_props |= ConnectivityProperties.make_conn_props_from_dict({"src_peers": PeerSet({pod}),
+                                                                                            "dst_peers": PeerSet({pod})})
         self.covered_peer_props = covered_peer_props
 
     def _compute_full_ns_grouping(self, all_src_ns_set, all_dst_ns_set):
