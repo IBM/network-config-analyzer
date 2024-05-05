@@ -4,4 +4,4 @@ src_ns: [default,vendor-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connectio
 src_ns: [default,vendor-system] src_pods: [*] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
 src_ns: [kube-system] src_pods: [!has(tier)] dst: 0.0.0.0/0 conn: All connections
 src_ns: [kube-system] src_pods: [!has(tier)] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [tier=frontend] dst: 64.0.0.0-255.255.255.255 conn: TCP
+src_ns: [kube-system] src_pods: [*] dst: 64.0.0.0-255.255.255.255 conn: TCP

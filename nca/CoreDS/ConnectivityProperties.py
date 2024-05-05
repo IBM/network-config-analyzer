@@ -149,10 +149,11 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         :rtype: dict
         """
         cube_dict = {}
+        dimensions_manager = DimensionsManager()
         for i, dim in enumerate(self.active_dimensions):
             dim_values = cube[i]
-            dim_type = DimensionsManager().get_dimension_type_by_name(dim)
-            dim_domain = DimensionsManager().get_dimension_domain_by_name(dim)
+            dim_type = dimensions_manager.get_dimension_type_by_name(dim)
+            dim_domain = dimensions_manager.get_dimension_domain_by_name(dim)
             if dim_domain == dim_values:
                 continue  # skip dimensions with all values allowed in a cube
             if dim in ['protocols', 'methods']:
@@ -167,7 +168,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
                     values_list = ','.join(str(interval) for interval in values_list)
             else:
                 # TODO: should be a list of words for a finite len DFA?
-                values_list = DimensionsManager().get_dim_values_str(dim_values, dim)
+                values_list = dimensions_manager.get_dim_values_str(dim_values, dim)
             cube_dict[dim] = values_list
         return cube_dict
 
@@ -452,9 +453,9 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         This is a compact way to represent all peers connections, but it is an over-approximation also containing
         IpBlock->IpBlock connections. Those redundant connections will be eventually filtered out.
         """
-        src_peers = BasePeerSet().get_peer_set_by_indices(DimensionsManager().get_dimension_domain_by_name("src_peers"))
-        dst_peers = BasePeerSet().get_peer_set_by_indices(DimensionsManager().get_dimension_domain_by_name("dst_peers"))
-        return ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_peers, "dst_peers": dst_peers})
+        # optimization: src_peers and dst_peers have the same domain
+        peers = BasePeerSet().get_peer_set_by_indices(DimensionsManager().get_dimension_domain_by_name("src_peers"))
+        return ConnectivityProperties.make_conn_props_from_dict({"src_peers": peers, "dst_peers": peers})
 
     @staticmethod
     def make_empty_props():

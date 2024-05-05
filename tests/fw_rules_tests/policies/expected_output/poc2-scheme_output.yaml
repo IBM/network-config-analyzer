@@ -19,11 +19,11 @@
     - src_ns:
       - default
       src_pods:
-      - app in (checkoutservice,frontend)
+      - checkoutservice
       dst_ns:
       - default
       dst_pods:
-      - shippingservice
+      - app in (paymentservice,shippingservice)
       connection:
       - Protocol: TCP
         Ports:
@@ -31,11 +31,11 @@
     - src_ns:
       - default
       src_pods:
-      - checkoutservice
+      - frontend
       dst_ns:
       - default
       dst_pods:
-      - paymentservice
+      - shippingservice
       connection:
       - Protocol: TCP
         Ports:

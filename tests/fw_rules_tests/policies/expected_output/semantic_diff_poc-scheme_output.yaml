@@ -12,19 +12,6 @@
       src_pods:
       - '*'
       dst_ns:
-      - kube-system
-      dst_pods:
-      - '*'
-      connection:
-      - All but:
-        - Protocol: UDP
-          Ports:
-          - 53
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ns:
       - default
       dst_pods:
       - productcatalogservice
@@ -118,7 +105,7 @@
       dst_ns:
       - default
       dst_pods:
-      - app in (emailservice,recommendationservice)
+      - app in (emailservice,frontend,loadgenerator,recommendationservice)
       connection:
       - All but:
         - Protocol: TCP
@@ -165,6 +152,20 @@
           - 9555
     - src_ns:
       - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - kube-system
+      dst_pods:
+      - '*'
+      connection:
+      - All but:
+        - Protocol: UDP
+          Ports:
+          - 53
+    - src_ns:
+      - default
+      - kube-system
       src_pods:
       - '*'
       dst_ns:
@@ -251,7 +252,7 @@
       dst_ns:
       - default
       dst_pods:
-      - app!=frontend
+      - app not in (frontend,loadgenerator)
       connection:
       - All connections
   - description: Removed connections between persistent peers and ipBlocks

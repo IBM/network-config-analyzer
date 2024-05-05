@@ -108,25 +108,30 @@ class MinimizeBasic:
     @staticmethod
     def get_connection_set_and_peers_from_cube(the_cube, peer_container,
                                                relevant_protocols=ProtocolSet(True)):
+        all_peers = peer_container.get_all_peers_group(True)
         conn_cube = the_cube.copy()
-        src_peers = conn_cube["src_peers"] or peer_container.get_all_peers_group(True)
+        src_peers = conn_cube["src_peers"] or all_peers
         conn_cube.unset_dim("src_peers")
-        dst_peers = conn_cube["dst_peers"] or peer_container.get_all_peers_group(True)
+        dst_peers = conn_cube["dst_peers"] or all_peers
         conn_cube.unset_dim("dst_peers")
         protocols = conn_cube["protocols"]
         conn_cube.unset_dim("protocols")
-        if not conn_cube.has_active_dim() and (protocols.is_whole_range() or protocols == relevant_protocols):
+        has_active_dim = conn_cube.has_active_dim()
+        if not has_active_dim and (protocols == relevant_protocols or protocols.is_whole_range()):
             conns = ConnectionSet(True)
         else:
             conns = ConnectionSet()
             protocol_names = ProtocolSet.get_protocol_names_from_interval_set(protocols)
+            if has_active_dim:
+                props = ConnectivityProperties.make_conn_props(conn_cube)
+            else:
+                props = ConnectivityProperties.make_all_props()
             for protocol in protocol_names:
-                if conn_cube.has_active_dim():
-                    conns.add_connections(protocol, ConnectivityProperties.make_conn_props(conn_cube))
+                if has_active_dim:
+                    conns.add_connections(protocol, props)
                 else:
                     if ConnectionSet.protocol_supports_ports(protocol) or ConnectionSet.protocol_is_icmp(protocol):
-                        conns.add_connections(protocol,
-                                              ConnectivityProperties.get_all_conns_props_per_config_peers(peer_container))
+                        conns.add_connections(protocol, props)
                     else:
                         conns.add_connections(protocol, True)
         return conns, src_peers, dst_peers

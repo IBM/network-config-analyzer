@@ -1,9 +1,2 @@
 final fw rules for query: deny-all-profiles-connectivity, config: deny-all-profiles:
-src_ns: [acc-research] src_pods: [*] dst_ns: [acc-research] dst_pods: [*] conn: All connections
-src_ns: [blue-umbrella] src_pods: [*] dst_ns: [blue-umbrella] dst_pods: [*] conn: All connections
-src_ns: [cap-unauth] src_pods: [*] dst_ns: [cap-unauth] dst_pods: [*] conn: All connections
-src_ns: [chaos-testing] src_pods: [*] dst_ns: [chaos-testing] dst_pods: [*] conn: All connections
-src_ns: [cnc-pdf-tool] src_pods: [*] dst_ns: [cnc-pdf-tool] dst_pods: [*] conn: All connections
-src_ns: [ctighs-va] src_pods: [*] dst_ns: [ctighs-va] dst_pods: [*] conn: All connections
-src_ns: [ctighs] src_pods: [*] dst_ns: [ctighs] dst_pods: [*] conn: All connections
-src_ns: [operia-benchmark] src_pods: [*] dst_ns: [operia-benchmark] dst_pods: [*] conn: All connections
+

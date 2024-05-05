@@ -41,7 +41,7 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         """
         The main function for creating the minimized set of fw-rules for a given connection set
 
-        :param connections: the allowed connections for the given peer pairs, of type ConnectionSet
+        :param ConnectionSet connections: the allowed connections for the given peer pairs, of type ConnectionSet
         :param ConnectivityProperties peer_props: peers (src,dst) for which communication is allowed over the given connections
         :param ConnectivityProperties peer_props_in_containing_connections: peers in connections that contain the current
                connection set
@@ -193,14 +193,13 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
             dim_peers = conn_cube[dim_name]
             other_dim_peers = conn_cube[other_dim_name].canonical_form()
             curr_ns_set = set()
-            curr_ns_peers = PeerSet()
             for ns in ns_set:
                 ns_peers = PeerSet(self.cluster_info.ns_dict[ns])
-                curr_covered = ConnectivityProperties.make_conn_props_from_dict({dim_name: ns_peers,
-                                                                                 other_dim_name: other_dim_peers})
-                if ns_peers.issubset(dim_peers) and (curr_covered & self.peer_props_without_ns_expr):
-                    curr_ns_set.add(ns)
-                    curr_ns_peers |= ns_peers
+                if ns_peers.issubset(dim_peers):
+                    curr_covered = ConnectivityProperties.make_conn_props_from_dict({dim_name: ns_peers,
+                                                                                     other_dim_name: other_dim_peers})
+                    if curr_covered & self.peer_props_without_ns_expr:
+                        curr_ns_set.add(ns)
             if curr_ns_set:
                 ns_set_to_peer_set[frozenset(curr_ns_set)] |= other_dim_peers
         for curr_ns_set, other_dim_peers in ns_set_to_peer_set.items():
@@ -216,12 +215,14 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
             # ensure that the found pairs (with and without IpBlocks) are at least partially included
             # in the current connections' properties (rather than being wholly contained
             # in containing connections' properties)
-            if self.peer_props_without_ns_expr & curr_covered_without_ip_block:
-                self.peer_props_without_ns_expr -= curr_covered_without_ip_block
+            peer_props_without_ns_expr_updated = self.peer_props_without_ns_expr - curr_covered_without_ip_block
+            if self.peer_props_without_ns_expr != peer_props_without_ns_expr_updated:
+                self.peer_props_without_ns_expr = peer_props_without_ns_expr_updated
                 self.base_elem_pairs.add((curr_ns_set, other_dim_peers_without_ip_block) if is_src_ns
                                          else (other_dim_peers_without_ip_block, curr_ns_set))
-            if self.peer_props_without_ns_expr & curr_covered_ip_block:
-                self.peer_props_without_ns_expr -= curr_covered_ip_block
+            peer_props_without_ns_expr_updated = self.peer_props_without_ns_expr - curr_covered_ip_block
+            if self.peer_props_without_ns_expr != peer_props_without_ns_expr_updated:
+                self.peer_props_without_ns_expr = peer_props_without_ns_expr_updated
                 self.base_elem_pairs.add((curr_ns_set, other_dim_peers_ip_block) if is_src_ns
                                          else (other_dim_peers_ip_block, curr_ns_set))
 
@@ -249,8 +250,8 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
                 self._add_to_map_if_covered(dim_name, ipblock.get_peer_set(), other_dim_name, other_dim_peers,
                                             ipblock_dnsentry_to_peer_set)
             dns_entries = dim_peers.get_dns_entries()
-            if dns_entries:
-                self._add_to_map_if_covered(dim_name, dns_entries, other_dim_name, other_dim_peers,
+            for dns_entry in dns_entries:
+                self._add_to_map_if_covered(dim_name, PeerSet({dns_entry}), other_dim_name, other_dim_peers,
                                             ipblock_dnsentry_to_peer_set)
         for curr_peers, other_dim_peers in ipblock_dnsentry_to_peer_set.items():
             curr_peers = PeerSet(set(curr_peers))  # peel off the frozenset

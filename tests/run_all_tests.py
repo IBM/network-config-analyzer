@@ -416,7 +416,7 @@ def main(argv=None):
                         default='general')
     parser.add_argument('--hc_opt', choices=['false', 'true', 'debug'],
                         help='Choose non-optimized/optimized/comparison run',
-                        default='false')
+                        default='true')
     parser.add_argument('--category', choices=['k8s', 'calico', 'istio'], help='Choose category of tests',
                         default='')
     parser.add_argument('--create_expected_output_files', action='store_true', help='Add missing expected output files')

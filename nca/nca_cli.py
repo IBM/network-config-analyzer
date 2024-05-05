@@ -343,8 +343,8 @@ def nca_main(argv=None):
     parser.add_argument('--output_endpoints', choices=['pods', 'deployments'],
                         help='Choose endpoints type in output (pods/deployments)', default='deployments')
     parser.add_argument('--optimized_run', '-opt', type=str,
-                        help='Whether to run optimized run (-opt=true), original run (-opt=false) - the default '
-                             'or the comparison of the both (debug)', default='false')
+                        help='Whether to run optimized run (-opt=true) - the default, original run (-opt=false) '
+                             'or the comparison of the both (debug)', default='true')
     parser.add_argument('--print_ipv6', action='store_true', help='Display IPv6 addresses connections too. '
                                                                   'If the policy reference IPv6 addresses, '
                                                                   'their connections will be printed anyway')

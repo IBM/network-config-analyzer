@@ -7,17 +7,7 @@
     - src_ns:
       - default
       src_pods:
-      - my-test-deployment-C-1
-      dst_ns:
-      - default
-      dst_pods:
-      - app=B
-      connection:
-      - All connections
-    - src_ns:
-      - default
-      src_pods:
-      - my-test-deployment-C-2
+      - my-test-deployment-C-1, my-test-deployment-C-2
       dst_ns:
       - default
       dst_pods:

@@ -26,29 +26,8 @@
       - vendor.role=worker_public
       dst_ip_block:
       - 198.51.100.0/22
-      connection:
-      - All connections
-    - src_ns:
-      - None
-      src_pods:
-      - vendor.role=worker_public
-      dst_ip_block:
       - 198.51.200.0/27
-      connection:
-      - All connections
-    - src_ns:
-      - None
-      src_pods:
-      - vendor.role=worker_public
-      dst_ip_block:
       - 203.0.113.0/24
-      connection:
-      - All connections
-    - src_ns:
-      - None
-      src_pods:
-      - vendor.role=worker_public
-      dst_ip_block:
       - 203.0.115.0/29
       connection:
       - All connections
