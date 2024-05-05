@@ -1,8 +1,9 @@
+namespaceList: ./ns.yaml
+podList: ./pods.yaml
+
 networkConfigList:
   - name: ipblockstest-config
-    resourceList:
-      - ./ns.yaml
-      - ./pods.yaml
+    networkPolicyList:
       - ./netpols.yaml
     expectedWarnings: 0
 
