@@ -22,7 +22,7 @@ class K8sPolicyRule:
         self.props_copy = ConnectivityProperties()
 
     def __eq__(self, other):
-        return self.peer_set == other.peer_set and self.props == other.props
+        return self.props == other.props
 
     def contained_in(self, other):
         """
@@ -30,7 +30,7 @@ class K8sPolicyRule:
         :return: whether the self rule is contained in the other rule (self doesn't allow anything that other does not)
         :type: bool
         """
-        return self.peer_set.issubset(other.peer_set) and self.props.contained_in(other.props)
+        return self.props.contained_in(other.props)
 
 
 class K8sNetworkPolicy(NetworkPolicy):

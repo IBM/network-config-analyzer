@@ -37,8 +37,7 @@ class CalicoPolicyRule:
         self.props_copy = ConnectivityProperties()
 
     def __eq__(self, other):
-        return self.src_peers == other.src_peers and self.dst_peers == other.dst_peers and \
-            self.props == other.props and self.action == other.action
+        return self.props == other.props and self.action == other.action
 
     def contained_in(self, other):
         """
@@ -46,8 +45,7 @@ class CalicoPolicyRule:
         :return: Whether all connections specified by 'self' are also specified by 'other' (regardless of action)
         :rtype: bool
         """
-        return self.src_peers.issubset(other.src_peers) and self.dst_peers.issubset(other.dst_peers) and \
-            self.props.contained_in(other.props)
+        return self.props.contained_in(other.props)
 
     @staticmethod
     def action_str_to_action_type(action_str):
