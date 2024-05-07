@@ -7,7 +7,6 @@ from functools import reduce
 from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
-from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.PolicyResources.GatewayPolicy import GatewayPolicy, GatewayPolicyRule
 from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy
@@ -212,14 +211,12 @@ class IstioGatewayPolicyGenerator:
         """
         conn_cube = this_route_conn_cube.copy()
         conn_cube["dst_ports"] = dest.ports
-        conns = ConnectionSet()
-        conns.add_connections(self.protocol_name, ConnectivityProperties.make_conn_props(conn_cube))
         conn_cube.update({"src_peers": source_peers, "dst_peers": dest.pods, "protocols": self.protocols})
         opt_props = ConnectivityProperties.make_conn_props(conn_cube)
         if is_ingress:
-            return GatewayPolicyRule(source_peers, conns, opt_props)
+            return GatewayPolicyRule(source_peers, opt_props)
         else:
-            return GatewayPolicyRule(dest.pods, conns, opt_props)
+            return GatewayPolicyRule(dest.pods, opt_props)
 
     @staticmethod
     def create_deny_rule(source_peers, dst_peers):
@@ -229,7 +226,7 @@ class IstioGatewayPolicyGenerator:
         """
         opt_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": source_peers,
                                                                       "dst_peers": dst_peers})
-        return GatewayPolicyRule(dst_peers, ConnectionSet(True), opt_props)
+        return GatewayPolicyRule(dst_peers, opt_props)
 
     def create_gtw_to_mesh_and_deny_policies(self, vs, route, route_cnt, gtw_to_hosts, used_gateways):
         """

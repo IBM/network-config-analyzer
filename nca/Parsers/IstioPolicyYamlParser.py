@@ -7,7 +7,6 @@ import re
 from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.Peer import IpBlock, PeerSet
-from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.MethodSet import MethodSet
@@ -465,8 +464,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         Parse a single ingress rule, producing a IstioPolicyRule.
         :param dict rule: The dict with the rule fields
         :param PeerSet selected_peers: The selected peers of the policy
-        :return: A tuple (IstioPolicyRule, ConnectivityProperties) with the proper PeerSet and ConnectionSet,
-        where ConnectivityProperties is an optimized rule format in a HyperCubeSet format
+        :return: A tuple (IstioPolicyRule, ConnectivityProperties) with the proper PeerSet and connectivity properties
         :rtype: tuple(IstioPolicyRule, ConnectivityProperties)
         """
         if rule is None:
@@ -495,11 +493,8 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         if to_array is not None:
             for operation_dict in to_array:
                 conn_props |= self.parse_operation(operation_dict)
-            connections = ConnectionSet()
-            connections.add_connections('TCP', conn_props)
             conn_props &= tcp_props
         else:  # no 'to' in the rule => all connections allowed
-            connections = ConnectionSet(True)
             conn_props = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
 
         # condition possible result value:
@@ -507,7 +502,6 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         # should update either res_pods or condition_props according to the condition
         condition_array = rule.get('when')  # this array can be empty (unlike 'to' and 'from')
         # the combined condition ("AND" of all conditions) should be applied
-        condition_conns = ConnectionSet(True)
         condition_props = ConnectivityProperties.make_all_props()
         if condition_array is not None:
             for condition in condition_array:
@@ -516,8 +510,6 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
                     res_peers &= condition_res
                 elif isinstance(condition_res, ConnectivityProperties):
                     condition_props &= condition_res
-            condition_conns = ConnectionSet()
-            condition_conns.add_connections('TCP', condition_props)
             condition_props &= tcp_props
         if not res_peers:
             self.warning('Rule selects no pods', rule)
@@ -526,9 +518,8 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         else:
             condition_props &= ConnectivityProperties.make_conn_props_from_dict({"src_peers": res_peers,
                                                                                  "dst_peers": selected_peers})
-        connections &= condition_conns
         conn_props &= condition_props
-        return IstioPolicyRule(res_peers, connections, conn_props)
+        return IstioPolicyRule(res_peers, conn_props)
 
     @staticmethod
     def parse_policy_action(action):
@@ -545,7 +536,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
     def parse_policy(self):
         """
         Parses the input object to create a IstioNetworkPolicy object
-        :return: a IstioNetworkPolicy object with proper PeerSets and ConnectionSets
+        :return: a IstioNetworkPolicy object with proper PeerSets and connectivity properties
         :rtype: IstioNetworkPolicy
         """
         policy_name, policy_ns = self.parse_generic_yaml_objects_fields(self.policy, ['AuthorizationPolicy'],

@@ -130,7 +130,7 @@ class MinimizeBasic:
                 if has_active_dim:
                     conns.add_connections(protocol, props)
                 else:
-                    if ConnectionSet.protocol_supports_ports(protocol) or ConnectionSet.protocol_is_icmp(protocol):
+                    if ProtocolSet.protocol_supports_ports(protocol) or ProtocolSet.protocol_is_icmp(protocol):
                         conns.add_connections(protocol, props)
                     else:
                         conns.add_connections(protocol, True)

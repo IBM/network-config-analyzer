@@ -20,7 +20,7 @@ networkConfigList:
   - name: np5_named_ports
     networkPolicyList:
       - namedPorts-policy5.yaml
-    expectedWarnings: 5
+    expectedWarnings: 0
 queries:
   - name: semantic_diff_named_ports_np1_and_np2_by_deployments
     semanticDiff:

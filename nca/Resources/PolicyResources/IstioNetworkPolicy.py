@@ -4,10 +4,9 @@
 #
 
 from enum import Enum
-from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
-from nca.CoreDS.Peer import PeerSet, IpBlock
-from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
+from nca.CoreDS.Peer import PeerSet
+from .NetworkPolicy import PolicyConnections, NetworkPolicy
 
 
 class IstioPolicyRule:
@@ -15,20 +14,18 @@ class IstioPolicyRule:
     A class representing a single ingress rule in a Istio AuthorizationPolicy object
     """
 
-    def __init__(self, peer_set, connections, opt_props):
+    def __init__(self, peer_set, props):
         """
         :param Peer.PeerSet peer_set: The set of peers this rule allows connection from
-        :param ConnectionSet connections: The set of connections allowed/denied by this rule (the action resides in the policy)
+        :param ConnectivityProperties props: the connections
         """
-        # TODO: extend connections (ConnectionSet) to represent HTTP/grpc requests attributes
         self.peer_set = peer_set
-        self.connections = connections
-        self.optimized_props = opt_props
-        # copy of optimized props (used by src_peers/dst_peers domain-updating mechanism)
-        self.optimized_props_copy = ConnectivityProperties()
+        self.props = props
+        # copy of props (used by src_peers/dst_peers domain-updating mechanism)
+        self.props_copy = ConnectivityProperties()
 
     def __eq__(self, other):
-        return self.peer_set == other.peer_set and self.connections == other.connections
+        return self.peer_set == other.peer_set and self.props == other.props
 
     def contained_in(self, other):
         """
@@ -36,7 +33,7 @@ class IstioPolicyRule:
         :return: whether the self rule is contained in the other rule (self doesn't allow anything that other does not)
         :type: bool
         """
-        return self.peer_set.issubset(other.peer_set) and self.connections.contained_in(other.connections)
+        return self.peer_set.issubset(other.peer_set) and self.props.contained_in(other.props)
 
 
 class IstioNetworkPolicy(NetworkPolicy):
@@ -68,52 +65,24 @@ class IstioNetworkPolicy(NetworkPolicy):
             return self.action == IstioNetworkPolicy.ActionType.Deny
         return False
 
-    def sync_opt_props(self):
+    def sync_props(self):
         """
-        If optimized props of the policy are not synchronized (self.optimized_props_in_sync is False),
-        compute optimized props of the policy according to the optimized props of its rules
+        If props of the policy are not synchronized (self.props_in_sync is False),
+        compute props of the policy according to the optimized props of its rules
         """
-        if self.optimized_props_in_sync:
+        if self.props_in_sync:
             return
-        self._init_opt_props()
+        self._init_props()
         for rule in self.ingress_rules:
             if self.action == IstioNetworkPolicy.ActionType.Allow:
-                self._optimized_allow_ingress_props |= rule.optimized_props
+                self._allow_ingress_props |= rule.props
             elif self.action == IstioNetworkPolicy.ActionType.Deny:
-                self._optimized_deny_ingress_props |= rule.optimized_props
+                self._deny_ingress_props |= rule.props
 
         self._optimized_allow_egress_props = ConnectivityProperties.get_all_conns_props_per_domain_peers()
-        self.optimized_props_in_sync = True
+        self.props_in_sync = True
 
-    def allowed_connections(self, from_peer, to_peer, is_ingress):
-        """
-        Evaluate the set of connections this policy allows/denies/passes between two peers
-        :param Peer.Peer from_peer: The source peer
-        :param Peer.Peer to_peer:  The target peer
-        :param bool is_ingress: whether we evaluate ingress rules only or egress rules only
-        :return: A PolicyConnections object containing sets of allowed/denied/pass connections
-        :rtype: PolicyConnections
-        """
-
-        # TODO: currently not handling egress, istio authorization policies have no egress rules
-        if not is_ingress:
-            return PolicyConnections(False, ConnectionSet(True))
-
-        captured = to_peer in self.selected_peers
-        if not captured:
-            return PolicyConnections(False)
-
-        allowed_conns = ConnectionSet()
-        denied_conns = ConnectionSet()
-
-        collected_conns = allowed_conns if self.action == IstioNetworkPolicy.ActionType.Allow else denied_conns
-        for rule in self.ingress_rules:
-            if from_peer in rule.peer_set:
-                collected_conns |= rule.connections
-
-        return PolicyConnections(True, allowed_conns, denied_conns)
-
-    def allowed_connections_optimized(self, is_ingress):
+    def allowed_connections(self, is_ingress):
         """
         Evaluate the set of connections this policy allows/denied/passed between any two peers
         :param bool is_ingress: whether we evaluate ingress rules only or egress rules only
@@ -122,30 +91,16 @@ class IstioNetworkPolicy(NetworkPolicy):
         and the peer set of captured peers by this policy.
         :rtype: tuple (ConnectivityProperties, ConnectivityProperties, PeerSet)
         """
-        res_conns = OptimizedPolicyConnections()
+        res_conns = PolicyConnections()
         if is_ingress:
-            res_conns.allowed_conns = self.optimized_allow_ingress_props().copy()
-            res_conns.denied_conns = self.optimized_deny_ingress_props().copy()
+            res_conns.allowed_conns = self.allow_ingress_props().copy()
+            res_conns.denied_conns = self.deny_ingress_props().copy()
             res_conns.captured = self.selected_peers
         else:
-            res_conns.allowed_conns = self.optimized_allow_egress_props().copy()
-            res_conns.denied_conns = self.optimized_deny_egress_props().copy()
+            res_conns.allowed_conns = self.allow_egress_props().copy()
+            res_conns.denied_conns = self.deny_egress_props().copy()
             res_conns.captured = PeerSet()
         return res_conns
-
-    def referenced_ip_blocks(self, exclude_ipv6=False):
-        """
-        :param bool exclude_ipv6: indicates if to exclude the automatically added IPv6 addresses in the referenced ip_blocks.
-        IPv6 addresses that are referenced in the policy by the user will always be included
-        :return: A set of all ipblocks referenced in one of the policy rules (one Peer object per one ip range)
-        :rtype: Peer.PeerSet
-        """
-        res = PeerSet()
-        for rule in self.ingress_rules:
-            for peer in rule.peer_set:
-                if isinstance(peer, IpBlock) and self._include_ip_block(peer, exclude_ipv6):
-                    res |= peer.split()
-        return res
 
     def has_empty_rules(self, config_name=''):
         """

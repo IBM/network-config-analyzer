@@ -21,29 +21,19 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
     for TCP, it may be any of the dimensions from dimensions_list, except for icmp_type and icmp_code,
     for icmp data the actual used dimensions are only [src_peers, dst_peers, icmp_type, icmp_code].
 
-    The usage of this class in the original solution:
-        In the original solution ConnectivityProperties do not hold src_peers, dst_peers and protocols dimensions.
-        First, ConnectivityProperties are built at parse time. Since peers are not a part of ConnectivityProperties,
-        the named ports cannot be resolved at parse time, and so are kept in named_ports and excluded_named_ports,
-        as explained below.
-        Second, at the query time, ConnectivityProperties is calculated for every pair of peers, and the named ports
-        are resolved. The pairs of peers and the protocols are kept in ConnectionSet class, together with
-        the resulting ConnectivityProperties.
+    ConnectivityProperties potentially hold all the dimensions, including sets of source peers and destination peers.
+    The connectivity properties are built at the parse time for every policy.
+    The named ports are resolved during the construction, therefore in the optimized solution named_ports and
+    excluded_named_ports fields are not used.
 
-    The usage of this class in the optimized solution:
-        In the optimized solution ConnectivityProperties potentially hold all the dimensions, including sets
-        of source peers and destination peers. The connectivity properties are built at the parse time for every policy.
-        The named ports are resolved during the construction, therefore in the optimized solution named_ports and
-        excluded_named_ports fields are not used.
-
-        The src_peers and dst_peers dimensions are special dimensions,  they do not have constant domain. Their domain
-        depends on the current set of peers in the system (as appears in BasePeerSet singleton). This set grows when
-        adding more configurations. Thus, there is no unique 'all values' representation. In particular, those
-        dimensions are never reduced to inactive.
-        This might be a problem in comparison and inclusion operators of ConnectivityProperties. The possible solution
-        may be to keep 'reference full domain value' for these dimensions (as another member in the BasePeerSet),
-        and to set it to relevant values per query, and to make a special treatment of these dimensions
-        in the above operators.
+    The src_peers and dst_peers dimensions are special dimensions,  they do not have constant domain. Their domain
+    depends on the current set of peers in the system (as appears in BasePeerSet singleton). This set grows when
+    adding more configurations. Thus, there is no unique 'all values' representation. In particular, those
+    dimensions are never reduced to inactive.
+    This might be a problem in comparison and inclusion operators of ConnectivityProperties. The possible solution
+    may be to keep 'reference full domain value' for these dimensions (as another member in the BasePeerSet),
+    and to set it to relevant values per query, and to make a special treatment of these dimensions
+    in the above operators.
 
     Also, including support for (included and excluded) named ports (relevant for dest ports only).
 
@@ -366,7 +356,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         return res
 
     @staticmethod
-    def _resolve_named_ports(named_ports, peer, protocols):
+    def _resolve_named_ports(named_ports, peer, protocols, used_named_ports):
         peer_named_ports = peer.get_named_ports()
         real_ports = PortSet()
         for named_port in named_ports:
@@ -379,6 +369,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
                       f'of the pod {peer}. Ignoring the pod')
                 continue
             real_ports.add_port(real_port[0])
+            used_named_ports.add(named_port)
         return real_ports
 
     @staticmethod
@@ -389,11 +380,8 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         If possible (i.e., in the optimized solution, when dst_peers are supported in the given cube),
         the named ports will be resolved.
 
-        In the optimized solution, the resulting ConnectivityProperties should not contain named ports:
+        The resulting ConnectivityProperties should not contain named ports:
             they are substituted with corresponding port numbers, per peer
-        In the original solution, the resulting ConnectivityProperties may contain named ports;
-            they cannot yet be resolved, since dst peers are not provided at this stage the original solution;
-            they will be resolved by convert_named_ports call during query runs.
 
         :param ConnectivityCube conn_cube: the input connectivity cube including all dimension values,
             whereas missing dimensions are represented by their default values (representing all possible values).
@@ -402,11 +390,12 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         src_ports = conn_cube["src_ports"]
         dst_ports = conn_cube["dst_ports"]
         assert not src_ports.named_ports and not src_ports.excluded_named_ports
-        if (not dst_ports.named_ports and not dst_ports.excluded_named_ports) or \
-                not conn_cube.is_active_dim("dst_peers"):
-            # Should not resolve named ports
+        if not dst_ports.named_ports and not dst_ports.excluded_named_ports:
+            # No named ports
             return ConnectivityProperties._make_conn_props_no_named_ports_resolution(conn_cube)
 
+        # Should resolve named ports
+        assert conn_cube.is_active_dim("dst_peers")
         # Initialize conn_properties
         if dst_ports.port_set:
             dst_ports_no_named_ports = PortSet()
@@ -419,15 +408,21 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         # Resolving dst named ports
         protocols = conn_cube["protocols"]
         dst_peers = conn_cube["dst_peers"]
+        used_named_ports = set()
         for peer in dst_peers:
-            real_ports = ConnectivityProperties._resolve_named_ports(dst_ports.named_ports, peer, protocols)
+            real_ports = ConnectivityProperties._resolve_named_ports(dst_ports.named_ports, peer, protocols,
+                                                                     used_named_ports)
             if real_ports:
                 conn_cube.update({"dst_ports": real_ports, "dst_peers": PeerSet({peer})})
                 conn_properties |= ConnectivityProperties._make_conn_props_no_named_ports_resolution(conn_cube)
-            excluded_real_ports = ConnectivityProperties._resolve_named_ports(dst_ports.excluded_named_ports, peer, protocols)
+            excluded_real_ports = ConnectivityProperties._resolve_named_ports(dst_ports.excluded_named_ports, peer,
+                                                                              protocols, used_named_ports)
             if excluded_real_ports:
                 conn_cube.update({"dst_ports": excluded_real_ports, "dst_peers": PeerSet({peer})})
                 conn_properties -= ConnectivityProperties._make_conn_props_no_named_ports_resolution(conn_cube)
+        unresolved_named_ports = (dst_ports.named_ports.union(dst_ports.excluded_named_ports)).difference(used_named_ports)
+        if unresolved_named_ports:
+            print(f'Warning: Named ports {unresolved_named_ports} are not defined in any pod')
         return conn_properties
 
     @staticmethod

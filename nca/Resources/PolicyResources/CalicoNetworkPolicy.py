@@ -4,10 +4,9 @@
 #
 
 from enum import Enum
-from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS import Peer
-from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
+from .NetworkPolicy import PolicyConnections, NetworkPolicy
 
 
 class CalicoPolicyRule:
@@ -23,24 +22,23 @@ class CalicoPolicyRule:
         Log = 2
         Pass = 3
 
-    def __init__(self, src_peers, dst_peers, connections, action, opt_props):
+    def __init__(self, src_peers, dst_peers, action, props):
         """
         :param Peer.PeerSet src_peers: The source peers this rule refers to
         :param Peer.PeerSet dst_peers:  The destination peers this rule refers to
-        :param ConnectionSet connections: The connections allowed/denied/passed by this rule
         :param ActionType action: The rule action
+        :param ConnectivityProperties props: the connectivity properties represented by this rule
         """
         self.src_peers = src_peers
         self.dst_peers = dst_peers
-        self.connections = connections
         self.action = action
-        self.optimized_props = opt_props
+        self.props = props
         # copy of optimized props (used by src_peers/dst_peers domain-updating mechanism)
-        self.optimized_props_copy = ConnectivityProperties()
+        self.props_copy = ConnectivityProperties()
 
     def __eq__(self, other):
         return self.src_peers == other.src_peers and self.dst_peers == other.dst_peers and \
-            self.connections == other.connections and self.action == other.action
+            self.props == other.props and self.action == other.action
 
     def contained_in(self, other):
         """
@@ -49,7 +47,7 @@ class CalicoPolicyRule:
         :rtype: bool
         """
         return self.src_peers.issubset(other.src_peers) and self.dst_peers.issubset(other.dst_peers) and \
-            self.connections.contained_in(other.connections)
+            self.props.contained_in(other.props)
 
     @staticmethod
     def action_str_to_action_type(action_str):
@@ -85,82 +83,42 @@ class CalicoNetworkPolicy(NetworkPolicy):
     def _update_opt_props_by_order(self, is_ingress):
         # handle the order of rules
         for rule in self.ingress_rules if is_ingress else self.egress_rules:
-            props = rule.optimized_props.copy()
+            props = rule.props.copy()
             if rule.action == CalicoPolicyRule.ActionType.Allow:
-                props -= self._optimized_deny_ingress_props if is_ingress else self._optimized_deny_egress_props
-                props -= self._optimized_pass_ingress_props if is_ingress else self._optimized_pass_egress_props
+                props -= self._deny_ingress_props if is_ingress else self._deny_egress_props
+                props -= self._pass_ingress_props if is_ingress else self._pass_egress_props
                 if is_ingress:
-                    self._optimized_allow_ingress_props |= props
+                    self._allow_ingress_props |= props
                 else:
-                    self._optimized_allow_egress_props |= props
+                    self._allow_egress_props |= props
             elif rule.action == CalicoPolicyRule.ActionType.Deny:
-                props -= self._optimized_allow_ingress_props if is_ingress else self._optimized_allow_egress_props
-                props -= self._optimized_pass_ingress_props if is_ingress else self._optimized_pass_egress_props
+                props -= self._allow_ingress_props if is_ingress else self._allow_egress_props
+                props -= self._pass_ingress_props if is_ingress else self._pass_egress_props
                 if is_ingress:
-                    self._optimized_deny_ingress_props |= props
+                    self._deny_ingress_props |= props
                 else:
-                    self._optimized_deny_egress_props |= props
+                    self._deny_egress_props |= props
             elif rule.action == CalicoPolicyRule.ActionType.Pass:
-                props -= self._optimized_allow_ingress_props if is_ingress else self._optimized_allow_egress_props
-                props -= self._optimized_deny_ingress_props if is_ingress else self._optimized_deny_egress_props
+                props -= self._allow_ingress_props if is_ingress else self._allow_egress_props
+                props -= self._deny_ingress_props if is_ingress else self._deny_egress_props
                 if is_ingress:
-                    self._optimized_pass_ingress_props |= props
+                    self._pass_ingress_props |= props
                 else:
-                    self._optimized_pass_egress_props |= props
+                    self._pass_egress_props |= props
 
-    def sync_opt_props(self):
+    def sync_props(self):
         """
-        If optimized props of the policy are not synchronized (self.optimized_props_in_sync is False),
+        If optimized props of the policy are not synchronized (self.props_in_sync is False),
         compute optimized props of the policy according to the optimized props of its rules
         """
-        if self.optimized_props_in_sync:
+        if self.props_in_sync:
             return
-        self._init_opt_props()
+        self._init_props()
         self._update_opt_props_by_order(True)
         self._update_opt_props_by_order(False)
-        self.optimized_props_in_sync = True
+        self.props_in_sync = True
 
-    def allowed_connections(self, from_peer, to_peer, is_ingress):
-        """
-        Evaluate the set of connections this policy allows/denies/passes between two peers
-        :param Peer.Peer from_peer: The source peer
-        :param Peer.Peer to_peer:  The target peer
-        :param bool is_ingress: whether we evaluate ingress rules only or egress rules only
-        :return: A PolicyConnections object containing sets of allowed/denied/pass connections
-        :rtype: PolicyConnections
-        """
-        captured = is_ingress and self.affects_ingress and to_peer in self.selected_peers or \
-            not is_ingress and self.affects_egress and from_peer in self.selected_peers
-        if not captured:
-            return PolicyConnections(False)
-
-        allowed_conns = ConnectionSet()
-        denied_conns = ConnectionSet()
-        pass_conns = ConnectionSet()
-        rules = self.ingress_rules if is_ingress else self.egress_rules
-        for rule in rules:
-            if from_peer in rule.src_peers and to_peer in rule.dst_peers:
-                rule_conns = rule.connections.copy()  # we need a copy because convert_named_ports is destructive
-                rule_conns.convert_named_ports(to_peer.get_named_ports())
-
-                if rule.action == CalicoPolicyRule.ActionType.Allow:
-                    rule_conns -= denied_conns
-                    rule_conns -= pass_conns
-                    allowed_conns |= rule_conns
-                elif rule.action == CalicoPolicyRule.ActionType.Deny:
-                    rule_conns -= allowed_conns
-                    rule_conns -= pass_conns
-                    denied_conns |= rule_conns
-                elif rule.action == CalicoPolicyRule.ActionType.Pass:
-                    rule_conns -= allowed_conns
-                    rule_conns -= denied_conns
-                    pass_conns |= rule_conns
-                else:
-                    pass  # Nothing to do for Log action - does not affect connectivity
-
-        return PolicyConnections(True, allowed_conns, denied_conns, pass_conns)
-
-    def allowed_connections_optimized(self, is_ingress):
+    def allowed_connections(self, is_ingress):
         """
         Evaluate the set of connections this policy allows/denies/passes between any two peers
         :param bool is_ingress: whether we evaluate ingress rules only or egress rules only
@@ -169,16 +127,16 @@ class CalicoNetworkPolicy(NetworkPolicy):
         and the peer set of captured peers by this policy.
         :rtype: tuple (ConnectivityProperties, ConnectivityProperties, PeerSet)
         """
-        res_conns = OptimizedPolicyConnections()
+        res_conns = PolicyConnections()
         if is_ingress:
-            res_conns.allowed_conns = self.optimized_allow_ingress_props().copy()
-            res_conns.denied_conns = self.optimized_deny_ingress_props().copy()
-            res_conns.pass_conns = self.optimized_pass_ingress_props().copy()
+            res_conns.allowed_conns = self.allow_ingress_props().copy()
+            res_conns.denied_conns = self.deny_ingress_props().copy()
+            res_conns.pass_conns = self.pass_ingress_props().copy()
             res_conns.captured = self.selected_peers if self.affects_ingress else Peer.PeerSet()
         else:
-            res_conns.allowed_conns = self.optimized_allow_egress_props().copy()
-            res_conns.denied_conns = self.optimized_deny_egress_props().copy()
-            res_conns.pass_conns = self.optimized_pass_egress_props().copy()
+            res_conns.allowed_conns = self.allow_egress_props().copy()
+            res_conns.denied_conns = self.deny_egress_props().copy()
+            res_conns.pass_conns = self.pass_egress_props().copy()
             res_conns.captured = self.selected_peers if self.affects_egress else Peer.PeerSet()
         return res_conns
 
@@ -202,25 +160,6 @@ class CalicoNetworkPolicy(NetworkPolicy):
         for rule in self.ingress_rules:
             if not ingress_rule or rule != rule_to_exclude:
                 res.add_ingress_rule(rule)
-        return res
-
-    def referenced_ip_blocks(self, exclude_ipv6=False):
-        """
-        :param bool exclude_ipv6: indicates if to exclude the automatically added IPv6 addresses in the referenced ip_blocks.
-        IPv6 addresses that are referenced in the policy by the user will always be included
-        :return: A set of all ipblocks referenced in one of the policy rules (one Peer object per one ip range)
-        :rtype: Peer.PeerSet
-        """
-        res = Peer.PeerSet()
-        for rule in self.egress_rules:
-            for peer in rule.dst_peers:
-                if isinstance(peer, Peer.IpBlock) and self._include_ip_block(peer, exclude_ipv6):
-                    res |= peer.split()
-        for rule in self.ingress_rules:
-            for peer in rule.src_peers:
-                if isinstance(peer, Peer.IpBlock) and self._include_ip_block(peer, exclude_ipv6):
-                    res |= peer.split()
-
         return res
 
     def has_empty_rules(self, config_name=''):

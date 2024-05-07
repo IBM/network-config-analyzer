@@ -2,29 +2,27 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS import Peer
-from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
+from .NetworkPolicy import PolicyConnections, NetworkPolicy
 
 
 class K8sPolicyRule:
     """
     A class representing a single ingress/egress rule in a K8s NetworkPolicy object
     """
-    def __init__(self, peer_set, port_set, opt_props):
+    def __init__(self, peer_set, props):
         """
         :param Peer.PeerSet peer_set: The set of peers this rule allows connection to/from
-        :param ConnectionSet port_set: The set of connections allowed by this rule
+        :param ConnectivityProperties props: the connections
         """
         self.peer_set = peer_set
-        self.port_set = port_set
-        self.optimized_props = opt_props
-        # copy of optimized props (used by src_peers/dst_peers domain-updating mechanism)
-        self.optimized_props_copy = ConnectivityProperties()
+        self.props = props
+        # copy of props (used by src_peers/dst_peers domain-updating mechanism)
+        self.props_copy = ConnectivityProperties()
 
     def __eq__(self, other):
-        return self.peer_set == other.peer_set and self.port_set == other.port_set
+        return self.peer_set == other.peer_set and self.props == other.props
 
     def contained_in(self, other):
         """
@@ -32,54 +30,28 @@ class K8sPolicyRule:
         :return: whether the self rule is contained in the other rule (self doesn't allow anything that other does not)
         :type: bool
         """
-        return self.peer_set.issubset(other.peer_set) and self.port_set.contained_in(other.port_set)
+        return self.peer_set.issubset(other.peer_set) and self.props.contained_in(other.props)
 
 
 class K8sNetworkPolicy(NetworkPolicy):
     """
     This class implements K8s-specific logic for NetworkPolicies
     """
-    def sync_opt_props(self):
+    def sync_props(self):
         """
-        If optimized props of the policy are not synchronized (self.optimized_props_in_sync is False),
-        compute optimized props of the policy according to the optimized props of its rules
+        If props of the policy are not synchronized (self.props_in_sync is False),
+        compute props of the policy according to the props of its rules
         """
-        if self.optimized_props_in_sync:
+        if self.props_in_sync:
             return
-        self._init_opt_props()
+        self._init_props()
         for rule in self.ingress_rules:
-            self._optimized_allow_ingress_props |= rule.optimized_props
+            self._allow_ingress_props |= rule.props
         for rule in self.egress_rules:
-            self._optimized_allow_egress_props |= rule.optimized_props
-        self.optimized_props_in_sync = True
+            self._allow_egress_props |= rule.props
+        self.props_in_sync = True
 
-    def allowed_connections(self, from_peer, to_peer, is_ingress):
-        """
-        Evaluate the set of connections this policy allows between two peers
-        (either the allowed ingress into to_peer or the allowed egress from from_peer).
-        :param Peer.Peer from_peer: The source peer
-        :param Peer.Peer to_peer:  The target peer
-        :param bool is_ingress: whether we evaluate ingress rules only or egress rules only
-        :return: A PolicyConnections object containing sets of allowed connections
-        :rtype: PolicyConnections
-        """
-        captured = is_ingress and self.affects_ingress and to_peer in self.selected_peers or \
-            not is_ingress and self.affects_egress and from_peer in self.selected_peers
-        if not captured:
-            return PolicyConnections(False)
-
-        allowed_conns = ConnectionSet()
-        rules = self.ingress_rules if is_ingress else self.egress_rules
-        other_peer = from_peer if is_ingress else to_peer
-        for rule in rules:
-            if other_peer in rule.peer_set:
-                rule_conns = rule.port_set.copy()  # we need a copy because convert_named_ports is destructive
-                rule_conns.convert_named_ports(to_peer.get_named_ports())
-                allowed_conns |= rule_conns
-
-        return PolicyConnections(True, allowed_conns)
-
-    def allowed_connections_optimized(self, is_ingress):
+    def allowed_connections(self, is_ingress):
         """
         Return the set of connections this policy allows between any two peers
         (either ingress or egress).
@@ -89,12 +61,12 @@ class K8sNetworkPolicy(NetworkPolicy):
         and the peer set of captured peers by this policy.
         :rtype: tuple (ConnectivityProperties, ConnectivityProperties, PeerSet)
         """
-        res_conns = OptimizedPolicyConnections()
+        res_conns = PolicyConnections()
         if is_ingress:
-            res_conns.allowed_conns = self.optimized_allow_ingress_props().copy()
+            res_conns.allowed_conns = self.allow_ingress_props().copy()
             res_conns.captured = self.selected_peers if self.affects_ingress else Peer.PeerSet()
         else:
-            res_conns.allowed_conns = self.optimized_allow_egress_props().copy()
+            res_conns.allowed_conns = self.allow_egress_props().copy()
             res_conns.captured = self.selected_peers if self.affects_egress else Peer.PeerSet()
         return res_conns
 
@@ -117,25 +89,6 @@ class K8sNetworkPolicy(NetworkPolicy):
         for rule in self.ingress_rules:
             if not ingress_rule or rule != rule_to_exclude:
                 res.add_ingress_rule(rule)
-        return res
-
-    def referenced_ip_blocks(self, exclude_ipv6=False):
-        """
-        :param bool exclude_ipv6: indicates if to exclude the automatically added IPv6 addresses in the referenced ip_blocks.
-        IPv6 addresses that are referenced in the policy by the user will always be included
-        :return: A set of all ipblocks referenced in one of the policy rules (one Peer object per one ip range)
-        :rtype: Peer.PeerSet
-        """
-        res = Peer.PeerSet()
-        for rule in self.egress_rules:
-            for peer in rule.peer_set:
-                if isinstance(peer, Peer.IpBlock) and self._include_ip_block(peer, exclude_ipv6):
-                    res |= peer.split()
-        for rule in self.ingress_rules:
-            for peer in rule.peer_set:
-                if isinstance(peer, Peer.IpBlock) and self._include_ip_block(peer, exclude_ipv6):
-                    res |= peer.split()
-
         return res
 
     def has_empty_rules(self, config_name=''):
