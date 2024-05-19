@@ -43,7 +43,8 @@ class OutputExplanation:
 # following classes describe possible OutputExplanation patterns (derived from it), each class consists of the
 # explanation fields that may appear together in one output_explanation and additional info for writing
 # the explanation if required
-# PoliciesWithCommonPods and PeersAndConnectivityProperties classes are helping classes for storing info on some OutputExplanation
+# PoliciesWithCommonPods and PeersAndConnectivityProperties classes are helper classes
+# for storing info on some OutputExplanation
 @dataclass
 class PoliciesWithCommonPods:
     """
@@ -236,8 +237,8 @@ class PeersAndConnectivityProperties:
     """
     src_peer: str = ''
     dst_peer: str = ''
-    conns1: ConnectivityProperties = field(default_factory=ConnectivityProperties)  # connections from src to dst in first config
-    conns2: ConnectivityProperties = field(default_factory=ConnectivityProperties)  # connections from src to dst in second config
+    conns1: ConnectivityProperties = field(default_factory=ConnectivityProperties)  # connections in first config
+    conns2: ConnectivityProperties = field(default_factory=ConnectivityProperties)  # connections in second config
 
     def __lt__(self, other):
         if self.src_peer == other.src_peer:
@@ -253,8 +254,8 @@ class ConnectionsDiffExplanation(OutputExplanation):
     peers_diff_connections_list: list = field(default_factory=list)  # list of PeersAndConnectivityProperties objects,
     # storing info of pairs of peers and their connection in the config/s
     configs: list = field(default_factory=list)  # list[str]: configs names, relevant only when we have the
-    # conns1 and conns2 in PeersAndConnectivityProperties items, so we need them when calling ConnectivityProperties.print_diff
-    # in get_explanation_in_str
+    # conns1 and conns2 in PeersAndConnectivityProperties items,
+    # so we need them when calling ConnectivityProperties.print_diff in get_explanation_in_str
     conns_diff: bool = False
 
     def get_explanation_in_dict(self):
@@ -278,8 +279,8 @@ class ConnectionsDiffExplanation(OutputExplanation):
     def get_explanation_in_str(self):
         """
         returns the explanation result of ConnectionsDiffExplanation and its description in str.
-        When self.conns_diff is True, i.e. having conns1 and conns2 in PeersAndConnectivityProperties items, the diff between
-        connection of each pair is printed
+        When self.conns_diff is True, i.e. having conns1 and conns2 in PeersAndConnectivityProperties items,
+        the diff between connection of each pair is printed
         otherwise (having only conns1, connections from first config is printed)
         :rtype str
         """

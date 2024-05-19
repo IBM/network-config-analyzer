@@ -103,13 +103,12 @@ class MinimizeBasic:
         return chosen_rep, remaining_pods
 
     @staticmethod
-    def fw_rules_to_conn_props(fw_rules, peer_container, connectivity_restriction=None):
+    def fw_rules_to_conn_props(fw_rules, connectivity_restriction=None):
         """
         Converting FWRules to ConnectivityProperties format.
         This function is used for comparing FWRules output between original and optimized solutions,
         when optimized_run == 'debug'
         :param MinimizeFWRules fw_rules: the given FWRules.
-        :param PeerContainer peer_container: the peer container
         param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
                TCP / non-TCP , or not
         :return: the resulting ConnectivityProperties.
@@ -126,10 +125,9 @@ class MinimizeBasic:
             return res
         for fw_rules_list in fw_rules.fw_rules_map.values():
             for fw_rule in fw_rules_list:
-                conn_props = fw_rule.conn.convert_to_connectivity_properties(peer_container, relevant_protocols)
                 src_peers = fw_rule.src.get_peer_set()
                 dst_peers = fw_rule.dst.get_peer_set()
                 rule_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_peers,
-                                                                               "dst_peers": dst_peers}) & conn_props
+                                                                               "dst_peers": dst_peers}) & fw_rule.props
                 res |= rule_props
         return res

@@ -6,7 +6,6 @@
 import re
 from nca.CoreDS import Peer
 from nca.CoreDS.PortSet import PortSet
-from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ProtocolNameResolver import ProtocolNameResolver
 from nca.CoreDS.ProtocolSet import ProtocolSet
@@ -344,8 +343,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
                          "dst_peers": dst_pods})
                     res_props |= conn_props
         else:
-            res_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_pods,
-                                                                              "dst_peers": dst_pods})
+            res_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_pods, "dst_peers": dst_pods})
         if not res_pods:
             self.warning('Rule selects no pods', rule)
 

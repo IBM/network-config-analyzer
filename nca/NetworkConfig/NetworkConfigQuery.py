@@ -161,9 +161,9 @@ class BaseNetworkQuery:
                 assert False
 
     @staticmethod
-    def compare_fw_rules_to_conn_props(fw_rules, props, peer_container, connectivity_restriction=None):
+    def compare_fw_rules_to_conn_props(fw_rules, props, connectivity_restriction=None):
         text_prefix = "Connectivity properties and fw-rules generated from them"
-        props2 = MinimizeBasic.fw_rules_to_conn_props(fw_rules, peer_container, connectivity_restriction)
+        props2 = MinimizeBasic.fw_rules_to_conn_props(fw_rules, connectivity_restriction)
         BaseNetworkQuery.compare_conn_props(props, props2, text_prefix)
 
 
@@ -901,8 +901,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                                                                            self.config.peer_container,
                                                                            connectivity_restriction)
         if self.config.optimized_run == 'debug':
-            self.compare_fw_rules_to_conn_props(fw_rules, props, self.config.peer_container,
-                                                connectivity_restriction=connectivity_restriction)
+            self.compare_fw_rules_to_conn_props(fw_rules, props, connectivity_restriction=connectivity_restriction)
         formatted_rules = fw_rules.get_fw_rules_in_required_format(connectivity_restriction=connectivity_restriction)
         return formatted_rules
 
@@ -1142,7 +1141,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                                                                                props_data.output_config,
                                                                                props_data.peer_container, None)
             if self.config1.optimized_run == 'debug':
-                self.compare_fw_rules_to_conn_props(fw_rules, props_data.props, props_data.peer_container)
+                self.compare_fw_rules_to_conn_props(fw_rules, props_data.props)
             conn_graph_explanation = fw_rules.get_fw_rules_in_required_format(False, is_first_connectivity_result)
 
         if self.output_config.outputFormat in ['json', 'yaml']:
