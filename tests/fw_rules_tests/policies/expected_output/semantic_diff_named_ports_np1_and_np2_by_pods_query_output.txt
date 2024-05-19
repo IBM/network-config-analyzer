@@ -1,7 +1,7 @@
 np1_named_ports and np2_named_ports are not semantically equivalent.
 
 Added connections between persistent peers (based on topology from config: np2_named_ports) :
-src_ns: [default,kube-system,kube-system-dummy-to-ignore,vendor-system] src_pods: [*] dst_ns: [kube-system-dummy-to-ignore] dst_pods: [kube-dns-amd64-d66bf76db-9s486, kube-dns-amd64-d66bf76db-bbvts] conn: TCP 10054
+src_ns: [default,kube-system,kube-system-dummy-to-ignore,vendor-system] src_pods: [*] dst_ns: [kube-system-dummy-to-ignore] dst_pods: [kube-dns-amd64-d66bf76db-9s486, kube-dns-amd64-d66bf76db-bbvts] conn: {protocols:TCP,dst_ports:10054}
 
 Added connections between persistent peers and ipBlocks (based on topology from config: np2_named_ports) :
-src: 0.0.0.0/0 dst_ns: [kube-system-dummy-to-ignore] dst_pods: [kube-dns-amd64-d66bf76db-9s486, kube-dns-amd64-d66bf76db-bbvts] conn: TCP 10054
+src: 0.0.0.0/0 dst_ns: [kube-system-dummy-to-ignore] dst_pods: [kube-dns-amd64-d66bf76db-9s486, kube-dns-amd64-d66bf76db-bbvts] conn: {protocols:TCP,dst_ports:10054}

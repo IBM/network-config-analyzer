@@ -5,8 +5,7 @@
 from bisect import insort
 from enum import Enum
 
-from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.Peer import IpBlock, HostEP, PeerSet, DNSEntry
+from nca.CoreDS.Peer import IpBlock, HostEP, PeerSet
 from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ProtocolSet import ProtocolSet

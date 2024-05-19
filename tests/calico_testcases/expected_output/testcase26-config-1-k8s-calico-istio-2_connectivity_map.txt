@@ -1,5 +1,5 @@
 For connections of type TCP, final fw rules for query: connectivity-5, config: testcase26-config-1-k8s-calico-istio-2:
-src_ns: [default] src_pods: [ratings-v1-b6994bb9] dst_ns: [default] dst_pods: [productpage-v1-6b746f74dc] conn: TCP {'methods': 'GET'}
+src_ns: [default] src_pods: [ratings-v1-b6994bb9] dst_ns: [default] dst_pods: [productpage-v1-6b746f74dc] conn: {protocols:TCP,methods:GET}
 
 For connections of type non-TCP, final fw rules for query: connectivity-5, config: testcase26-config-1-k8s-calico-istio-2:
 

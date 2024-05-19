@@ -4,7 +4,7 @@ digraph {
 	fontsize=30
 	fontcolor=maroon
 	subgraph cluster_map_explanation {
-	dict_box [label=<<table border="0" cellspacing="0"><tr><td  align="text">Connectivity legend<br align="left" /></td></tr><tr><td align="text" tooltip="All" href="bogus">All     All<br align="left" /></td></tr><tr><td align="text" tooltip="TCP {'methods': 'GET'}" href="bogus">TCP     TCP {'methods': 'GET'}<br align="left" /></td></tr></table>> shape=box]
+	dict_box [label=<<table border="0" cellspacing="0"><tr><td  align="text">Connectivity legend<br align="left" /></td></tr><tr><td align="text" tooltip="All" href="bogus">All     All<br align="left" /></td></tr><tr><td align="text" tooltip="{protocols:TCP,methods:GET}" href="bogus">TCP     {protocols:TCP,methods:GET}<br align="left" /></td></tr></table>> shape=box]
 	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2 tooltip="IP Block"]
 	"biclique_All0" [shape=box fontcolor=red color=red width=0.3 height=0.1 label=biclq fontsize=10 margin=0  xlabel="All" tooltip="Traffic allowed from any source workload of the BICLIQUE to any of its destination workloads:
 All"]
@@ -29,13 +29,13 @@ subgraph cluster_istio_system_namespace{
 	"biclique_All0" -> "istio-system/istio-ingressgateway-55d9fb9f-f4mzz"[  color=red fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/details-v1-79f774bdb9-tw7sj" -> "biclique_All0"[  color=red fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/productpage-v1-6b746f74dc-kkzzk" -> "biclique_All0"[  color=red fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/productpage-v1-6b746f74dc-kkzzk" -> "default/details-v1-79f774bdb9-tw7sj"[label="TCP" labeltooltip="TCP {'methods': 'GET'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/productpage-v1-6b746f74dc-kkzzk" -> "default/reviews-v1-545db77b95-2ps7q"[label="TCP" labeltooltip="TCP {'methods': 'GET'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/productpage-v1-6b746f74dc-kkzzk" -> "default/details-v1-79f774bdb9-tw7sj"[label="TCP" labeltooltip="{protocols:TCP,methods:GET}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/productpage-v1-6b746f74dc-kkzzk" -> "default/reviews-v1-545db77b95-2ps7q"[label="TCP" labeltooltip="{protocols:TCP,methods:GET}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/ratings-v1-b6994bb9-gl27w" -> "biclique_All0"[  color=red fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/reviews-v1-545db77b95-2ps7q" -> "biclique_All0"[  color=red fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/reviews-v1-545db77b95-2ps7q" -> "default/ratings-v1-b6994bb9-gl27w"[label="TCP" labeltooltip="TCP {'methods': 'GET'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/reviews-v1-545db77b95-2ps7q" -> "default/ratings-v1-b6994bb9-gl27w"[label="TCP" labeltooltip="{protocols:TCP,methods:GET}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"istio-system/istio-ingressgateway-55d9fb9f-f4mzz" -> "0.0.0.0/0"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
-	"istio-system/istio-ingressgateway-55d9fb9f-f4mzz" -> "default/productpage-v1-6b746f74dc-kkzzk"[label="TCP" labeltooltip="TCP {'methods': 'GET'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"istio-system/istio-ingressgateway-55d9fb9f-f4mzz" -> "default/productpage-v1-6b746f74dc-kkzzk"[label="TCP" labeltooltip="{protocols:TCP,methods:GET}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	color=white
 	labelloc = "b"
 	fontsize=15

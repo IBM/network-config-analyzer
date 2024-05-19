@@ -1,18 +1,6 @@
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|
 |semantic_diff, config1: allow_all, config2: poc3, key: Removed connections between persistent peers||||||
-||[default]|[*]|[default]|[productcatalogservice]|All but TCP 3550|
-||[default]|[recommendationservice]|[default]|[*]|All but TCP 3550|
-||[default]|[*]|[default]|[app in (paymentservice,shippingservice)]|All but TCP 50051|
-||[default]|[*]|[default]|[checkoutservice]|All but TCP 5050|
-||[default]|[cartservice]|[default]|[*]|All but TCP 6379|
-||[default]|[*]|[default]|[currencyservice]|All but TCP 7000|
-||[default]|[*]|[default]|[cartservice]|All but TCP 7070|
-||[default]|[*]|[default]|[app in (emailservice,frontend,loadgenerator,recommendationservice)]|All but TCP 8080|
-||[default]|[loadgenerator]|[default]|[*]|All but TCP 8080|
-||[kube-system]|[*]|[default]|[*]|All but TCP 8080|
-||[default]|[*]|[default]|[adservice]|All but TCP 9555|
-||[default]|[*]|[kube-system]|[*]|All but UDP 53|
 ||[default,kube-system]|[*]|[default]|[loadgenerator]|All connections|
 ||[default]|[*]|[kube-system]|[etcd-operator]|All connections|
 ||[default]|[app not in (cartservice,checkoutservice,frontend,loadgenerator,recommendationservice)]|[default,kube-system]|[*]|All connections|
@@ -22,7 +10,19 @@
 ||[default]|[loadgenerator]|[default]|[app not in (frontend,loadgenerator)]|All connections|
 ||[default]|[recommendationservice]|[default]|[app not in (loadgenerator,productcatalogservice,recommendationservice)]|All connections|
 ||[kube-system]|[*]|[default]|[app not in (frontend,loadgenerator)]|All connections|
+||[default]|[*]|[kube-system]|[*]|All but {protocols:UDP,dst_ports:53}|
+||[default]|[*]|[default]|[app in (emailservice,frontend,loadgenerator,recommendationservice)]|All but {protocols:TCP,dst_ports:8080}|
+||[default]|[loadgenerator]|[default]|[*]|All but {protocols:TCP,dst_ports:8080}|
+||[kube-system]|[*]|[default]|[*]|All but {protocols:TCP,dst_ports:8080}|
+||[default]|[*]|[default]|[adservice]|All but {protocols:TCP,dst_ports:9555}|
+||[default]|[*]|[default]|[checkoutservice]|All but {protocols:TCP,dst_ports:5050}|
+||[default]|[*]|[default]|[cartservice]|All but {protocols:TCP,dst_ports:7070}|
+||[default]|[*]|[default]|[currencyservice]|All but {protocols:TCP,dst_ports:7000}|
+||[default]|[*]|[default]|[productcatalogservice]|All but {protocols:TCP,dst_ports:3550}|
+||[default]|[recommendationservice]|[default]|[*]|All but {protocols:TCP,dst_ports:3550}|
+||[default]|[*]|[default]|[app in (paymentservice,shippingservice)]|All but {protocols:TCP,dst_ports:50051}|
+||[default]|[cartservice]|[default]|[*]|All but {protocols:TCP,dst_ports:6379}|
 |semantic_diff, config1: allow_all, config2: poc3, key: Removed connections between persistent peers and ipBlocks||||||
-|||0.0.0.0/0|[default]|[*]|All but TCP 8080|
 |||0.0.0.0/0|[default]|[app!=frontend]|All connections|
 ||[default]|[*]||0.0.0.0/0|All connections|
+|||0.0.0.0/0|[default]|[*]|All but {protocols:TCP,dst_ports:8080}|

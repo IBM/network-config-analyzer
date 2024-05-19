@@ -7,7 +7,6 @@ from abc import abstractmethod
 from enum import Enum
 from dataclasses import dataclass
 
-from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer, DNSEntry, BasePeerSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
@@ -22,7 +21,7 @@ from nca.Resources.PolicyResources.GatewayPolicy import GatewayPolicy
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from .QueryOutputHandler import QueryAnswer, DictOutputHandler, StringOutputHandler, \
     PoliciesAndRulesExplanations, PodsListsExplanations, ConnectionsDiffExplanation, IntersectPodsExplanation, \
-    PoliciesWithCommonPods, PeersAndConnections, ComputedExplanation
+    PoliciesWithCommonPods, PeersAndConnectivityProperties, ComputedExplanation
 from .NetworkLayer import NetworkLayerName
 from nca.Utils.ExplTracker import ExplTracker
 from nca.NetworkConfig import PeerContainer
@@ -796,24 +795,6 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             res.output_explanation = [ComputedExplanation(str_explanation=output_res)]
         return res
 
-    def get_connectivity_output_full(self, connections, peers, peers_to_compare):
-        """
-        get the connectivity map output considering all connections in the output
-        :param dict connections: the connections' dict (map from connection-set to peer pairs)
-        :param PeerSet peers: the peers to consider for dot and txt_no_fw_rules output
-        :param PeerSet peers_to_compare: the peers to consider for fw-rules output
-        :rtype (Union[str,dict], MinimizeFWRules)
-        """
-        if self.output_config.outputFormat in ['dot', 'jpg', 'html']:
-            dot_full = self.dot_format_from_connections_dict(connections, peers)
-            return dot_full, None
-        if self.output_config.outputFormat == 'txt_no_fw_rules':
-            conns_wo_fw_rules = self._txt_no_fw_rules_format_from_connections_dict(connections, peers)
-            return conns_wo_fw_rules, None
-        # handle other formats
-        formatted_rules, fw_rules = self.fw_rules_from_connections_dict(connections, peers_to_compare)
-        return formatted_rules, fw_rules
-
     def get_props_output_full(self, props, all_peers):
         """
         get the connectivity map output considering all connections in the output
@@ -872,41 +853,6 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             res_str = formatted_rules_tcp + formatted_rules_non_tcp
         return res_str
 
-    def _get_conn_graph(self, connections, peers):
-        """
-        :param dict connections: the connections' dict (map from connection-set to peer pairs)
-        :param PeerSet peers: the peers to consider for building connectivity graph
-        :rtype:  ConnectivityGraph
-        :return the connectivity graph of the given connections and peers
-        """
-        conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
-        conn_graph.add_edges(connections)
-        return conn_graph
-
-    def _txt_no_fw_rules_format_from_connections_dict(self, connections, peers, connectivity_restriction=None):
-        """
-        :param dict connections: the connections' dict (map from connection-set to peer pairs)
-        :param PeerSet peers: the peers to consider for dot output
-        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to TCP / non-TCP , or not
-        :rtype:  str
-        :return the connectivity map in txt_no_fw_rules format: the connections between peers excluding connections
-        between workload to itself (without grouping as fw-rules).
-        """
-        conn_graph = self._get_conn_graph(connections, peers)
-        return conn_graph.get_connections_without_fw_rules_txt_format(connectivity_restriction)
-
-    def dot_format_from_connections_dict(self, connections, peers, connectivity_restriction=None):
-        """
-        :param dict connections: the connections' dict (map from connection-set to peer pairs)
-        :param PeerSet peers: the peers to consider for dot output
-        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
-               TCP / non-TCP , or not
-        :rtype str
-        :return the connectivity map in dot-format, considering connectivity_restriction if required
-        """
-        conn_graph = self._get_conn_graph(connections, peers)
-        return conn_graph.get_connectivity_dot_format_str(connectivity_restriction, self.output_config.simplifyGraph)
-
     def dot_format_from_props(self, props, peers, connectivity_restriction=None):
         """
         :param ConnectivityProperties props: properties describing allowed connections
@@ -934,20 +880,6 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         conn_graph.add_props_to_graph(props, self.config.peer_container, connectivity_restriction)
         return conn_graph.get_connections_without_fw_rules_txt_format(connectivity_restriction + " Connections:"
                                                                       if connectivity_restriction else None)
-
-    def fw_rules_from_connections_dict(self, connections, peers_to_compare, connectivity_restriction=None):
-        """
-        :param dict connections: the connections' dict (map from connection-set to peer pairs)
-        :param PeerSet peers_to_compare: the peers to consider for fw-rules output
-        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
-               TCP / non-TCP , or not
-        :return the connectivity map in fw-rules, considering connectivity_restriction if required
-        :rtype: (Union[str, dict], MinimizeFWRules)
-        """
-        conn_graph = self._get_conn_graph(connections, peers_to_compare)
-        fw_rules = conn_graph.get_minimized_firewall_rules()
-        formatted_rules = fw_rules.get_fw_rules_in_required_format(connectivity_restriction=connectivity_restriction)
-        return formatted_rules, fw_rules
 
     def fw_rules_from_props(self, props, peers_to_compare, connectivity_restriction=None):
         """
@@ -1063,20 +995,20 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         :param bool props_based_on_config1: whether conn_diff_props represent connections present in config1 but not in config2
         (the value True) or connections present in config2 but not in config1 (the value False)
         """
-        no_conns = ConnectionSet()
+        no_props = ConnectivityProperties()
         for cube in conn_diff_props:
             conn_cube = conn_diff_props.get_connectivity_cube(cube)
             conns, src_peers, dst_peers = \
-                MinimizeBasic.get_connection_set_and_peers_from_cube(conn_cube, self.config1.peer_container)
-            conns1 = conns if props_based_on_config1 else no_conns
-            conns2 = no_conns if props_based_on_config1 else conns
-            if self.output_config.fullExplanation:  # the same result for opt == 'true'/'debug'
+                ConnectivityProperties.extract_src_dst_peers_from_cube(conn_cube, self.config1.peer_container)
+            conns1 = conns if props_based_on_config1 else no_props
+            conns2 = no_props if props_based_on_config1 else conns
+            if self.output_config.fullExplanation:
                 src_peers_str_sorted = str(sorted([str(peer) for peer in src_peers]))
                 dst_peers_str_sorted = str(sorted([str(peer) for peer in dst_peers]))
-                different_conns_list.append(PeersAndConnections(src_peers_str_sorted, dst_peers_str_sorted,
-                                                                conns1, conns2))
+                different_conns_list.append(PeersAndConnectivityProperties(src_peers_str_sorted, dst_peers_str_sorted,
+                                                                           conns1, conns2))
             else:
-                different_conns_list.append(PeersAndConnections(src_peers.rep(), dst_peers.rep(), conns1, conns2))
+                different_conns_list.append(PeersAndConnectivityProperties(src_peers.rep(), dst_peers.rep(), conns1, conns2))
                 return
 
     @staticmethod
@@ -1180,20 +1112,6 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         """
         return key.replace("Changed", "Added") if is_added else key.replace("Changed", "Removed")
 
-    @staticmethod
-    def get_explanation_from_conn_graph(conn_graph, is_first_connectivity_result):
-        """
-        :param conn_graph:  a ConnectivityGraph with added/removed connections
-        :param is_first_connectivity_result: bool flag indicating if this is the first connectivity fw-rules computation
-               for the current semantic-diff query
-        :return: fw-rules summarizing added/removed connections (in required format and as MinimizeFWRules)
-        :rtype: Union[str, dict], MinimizeFWRules (dict if required format is yaml/json , str otherwise)
-        """
-        fw_rules = conn_graph.get_minimized_firewall_rules()
-        # for csv format, adding the csv header only for the first connectivity fw-rules computation
-        fw_rules_output = fw_rules.get_fw_rules_in_required_format(False, is_first_connectivity_result)
-        return fw_rules_output, fw_rules
-
     def compute_explanation_for_key(self, key, is_added, props_data, is_first_connectivity_result):
         """
         computes the explanation for given key and conn_graph with description and fw-rules results
@@ -1271,31 +1189,9 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
         return res, explanation
 
-    def get_conn_graph_changed_conns(self, key, ip_blocks, is_added):
-        """
-        create a ConnectivityGraph for changed (added/removed) connections per given key
-        :param key: the key (category) of changed connections
-        :param ip_blocks: a PeerSet of ip-blocks to be added for the topology peers
-        :param is_added: a bool flag indicating if connections are added or removed
-        :return: a ConnectivityGraph object
-        """
-        old_peers = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
-        new_peers = self.config2.peer_container.get_all_peers_group(include_dns_entries=True)
-        allowed_labels = (self.config1.get_allowed_labels()).union(self.config2.get_allowed_labels())
-        topology_peers = new_peers | ip_blocks if is_added else old_peers | ip_blocks
-        # following query_name update is for adding query line descriptions for csv and md formats
-        updated_key = self._get_updated_key(key, is_added)
-        if self.output_config.queryName:
-            query_name = f'semantic_diff, config1: {self.config1.name}, config2: {self.config2.name}, key: {updated_key}'
-        else:
-            # omit the query name prefix if self.output_config.queryName is empty (single query from command line)
-            query_name = updated_key
-        output_config = OutputConfiguration(self.output_config, query_name)
-        return ConnectivityGraph(topology_peers, allowed_labels, output_config)
-
     def get_changed_props_expl_data(self, key, ip_blocks, is_added, props, peer_container):
         """
-        create a ConnectivityGraph for changed (added/removed) connections per given key
+        create an explanation for changed (added/removed) connections per given key
         :param key: the key (category) of changed connections
         :param ip_blocks: a PeerSet of ip-blocks to be added for the topology peers
         :param is_added: a bool flag indicating if connections are added or removed

@@ -11,11 +11,10 @@
       dst_ns:
       - default
       dst_pods:
-      - app=reviews
+      - app=details
       connection:
-      - Protocol: TCP
-        properties:
-        - methods: PUT
+      - protocols: TCP
+        methods: all but GET
     - src_ns:
       - default
       src_pods:
@@ -23,11 +22,10 @@
       dst_ns:
       - default
       dst_pods:
-      - app=details
+      - app=reviews
       connection:
-      - Protocol: TCP
-        properties:
-        - methods: all but GET
+      - protocols: TCP
+        methods: PUT
     - src_ns:
       - default
       src_pods:

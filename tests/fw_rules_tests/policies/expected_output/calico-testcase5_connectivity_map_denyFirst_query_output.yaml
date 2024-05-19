@@ -13,8 +13,7 @@
       dst_pods:
       - '*'
       connection:
-      - All but:
-        - Protocol: TCP
+      - protocols: all but TCP
     - src_ns:
       - kube-system
       src_pods:

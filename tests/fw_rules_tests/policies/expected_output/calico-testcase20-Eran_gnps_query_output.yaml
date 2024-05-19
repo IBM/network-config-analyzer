@@ -7,55 +7,6 @@
     - src_ip_block:
       - 0.0.0.0/0
       dst_ns:
-      - None
-      dst_pods:
-      - vendor.role=worker_public
-      connection:
-      - Protocol: ICMP
-      - Protocol: TCP
-        Ports:
-        - 52311
-      - Protocol: UDP
-        Ports:
-        - 52311
-      - Protocol: VRRP
-    - src_ns:
-      - None
-      src_pods:
-      - vendor.role=worker_public
-      dst_ns:
-      - None
-      dst_pods:
-      - vendor.role=worker_public
-      connection:
-      - Protocol: ICMP
-      - Protocol: TCP
-        Ports:
-        - 52311
-      - Protocol: UDP
-        Ports:
-        - 52311
-      - Protocol: VRRP
-    - src_ns:
-      - kube-system
-      src_pods:
-      - '*'
-      dst_ns:
-      - None
-      dst_pods:
-      - vendor.role=worker_public
-      connection:
-      - Protocol: ICMP
-      - Protocol: TCP
-        Ports:
-        - 52311
-      - Protocol: UDP
-        Ports:
-        - 52311
-      - Protocol: VRRP
-    - src_ip_block:
-      - 0.0.0.0/0
-      dst_ns:
       - kube-system
       dst_pods:
       - '*'
@@ -163,3 +114,40 @@
       - '*'
       connection:
       - All connections
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - None
+      dst_pods:
+      - vendor.role=worker_public
+      connection:
+      - protocols: ICMP, VRRP
+      - protocols: TCP, UDP
+        dst_ports:
+        - 52311
+    - src_ns:
+      - None
+      src_pods:
+      - vendor.role=worker_public
+      dst_ns:
+      - None
+      dst_pods:
+      - vendor.role=worker_public
+      connection:
+      - protocols: ICMP, VRRP
+      - protocols: TCP, UDP
+        dst_ports:
+        - 52311
+    - src_ns:
+      - kube-system
+      src_pods:
+      - '*'
+      dst_ns:
+      - None
+      dst_pods:
+      - vendor.role=worker_public
+      connection:
+      - protocols: ICMP, VRRP
+      - protocols: TCP, UDP
+        dst_ports:
+        - 52311

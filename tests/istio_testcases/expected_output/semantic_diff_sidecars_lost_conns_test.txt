@@ -1,4 +1,4 @@
 sidecar-with-selector-allows-any and sidecar-with-selector-registery-only are not semantically equivalent.
 
 Removed connections between persistent peers and ipBlocks (based on topology from config: sidecar-with-selector-allows-any) :
-src_ns: [default] src_pods: [ratings-v1] dst: 0.0.0.0/0 conn: TCP
+src_ns: [default] src_pods: [ratings-v1] dst: 0.0.0.0/0 conn: {protocols:TCP}

@@ -1,11 +1,11 @@
 testcase7-networkpolicy2.yaml and testcase7-networkpolicy1.yaml are not semantically equivalent.
 
 Added connections between persistent peers (based on topology from config: testcase7-networkpolicy1.yaml) :
-src_ns: [default] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All but TCP+UDP 53
+src_ns: [default] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All but {protocols:TCP, UDP,dst_ports:53}
 
 Removed connections between persistent peers (based on topology from config: testcase7-networkpolicy2.yaml) :
-src_ns: [kube-system,kube-system-dummy-to-ignore] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: TCP+UDP 53
+src_ns: [kube-system,kube-system-dummy-to-ignore] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: {protocols:TCP, UDP,dst_ports:53}
 src_ns: [vendor-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
 
 Removed connections between persistent peers and ipBlocks (based on topology from config: testcase7-networkpolicy2.yaml) :
-src: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [*] conn: TCP+UDP 53
+src: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [*] conn: {protocols:TCP, UDP,dst_ports:53}

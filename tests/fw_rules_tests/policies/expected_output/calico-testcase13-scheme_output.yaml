@@ -13,5 +13,4 @@
       dst_pods:
       - '*'
       connection:
-      - All but:
-        - Protocol: UDPLite
+      - protocols: all but UDPLite

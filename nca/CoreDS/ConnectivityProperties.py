@@ -10,6 +10,7 @@ from .PortSet import PortSet
 from .MethodSet import MethodSet
 from .Peer import PeerSet, BasePeerSet
 from .ProtocolNameResolver import ProtocolNameResolver
+from .ProtocolSet import ProtocolSet
 from .MinDFA import MinDFA
 from .ConnectivityCube import ConnectivityCube
 
@@ -99,9 +100,9 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
     def __str__(self):
         if self.is_all():
-            return ''
+            return 'All connections'
         if not super().__bool__():
-            return 'Empty'
+            return 'No connections'
         if self.active_dimensions == ['dst_ports']:
             assert (len(self) == 1)
             for cube in self:
@@ -114,6 +115,9 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
     def __hash__(self):
         return super().__hash__()
+
+    def __lt__(self, other):
+        return len(self) < len(other)
 
     def get_connectivity_cube(self, cube):
         """
@@ -299,6 +303,10 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         :return: If self!=other, return a string showing a (source, target) pair that appears in only one of them
         :rtype: str
         """
+        if self.is_all() and not other.is_all():
+            return self_name + ' allows all connections while ' + other_name + ' does not.'
+        if not self.is_all() and other.is_all():
+            return other_name + ' allows all connections while ' + self_name + ' does not.'
         self_minus_other = self - other
         other_minus_self = other - self
         diff_str = self_name if self_minus_other else other_name
@@ -566,3 +574,54 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         for i in range(len(orig_list)):
             res.append(orig_list[new_to_old_map[i]])
         return res
+
+    @staticmethod
+    def extract_src_dst_peers_from_cube(the_cube, peer_container, relevant_protocols=ProtocolSet(True)):
+        all_peers = peer_container.get_all_peers_group(True)
+        conn_cube = the_cube.copy()
+        src_peers = conn_cube["src_peers"] or all_peers
+        conn_cube.unset_dim("src_peers")
+        dst_peers = conn_cube["dst_peers"] or all_peers
+        conn_cube.unset_dim("dst_peers")
+        protocols = conn_cube["protocols"]
+        conn_cube.unset_dim("protocols")
+        if not conn_cube.has_active_dim() and (protocols == relevant_protocols or protocols.is_whole_range()):
+            props = ConnectivityProperties.make_all_props()
+        else:
+            conn_cube["protocols"] = protocols
+            assert conn_cube.has_active_dim()
+            props = ConnectivityProperties.make_conn_props(conn_cube)
+        return props, src_peers, dst_peers
+
+    def get_simplified_connections_representation(self, is_str, use_complement_simplification=True):
+        """
+        Get a simplified representation of the connectivity properties - choose shorter version between self
+        and its complement.
+        representation as str is a string representation, and not str is representation as list of objects.
+        The representation is used at fw-rules representation of the connection.
+        :param bool is_str: should get str representation (True) or list representation (False)
+        :param bool use_complement_simplification: should choose shorter rep between self and complement
+        :return: the required representation of the connection set
+        :rtype Union[str, list]
+        """
+        if self.is_all():
+            return "All connections" if is_str else ["All connections"]
+        if not super().__bool__():
+            return "No connections" if is_str else ["No connections"]
+
+        compl = ConnectivityProperties.make_all_props() - self
+        if len(self) > len(compl) and use_complement_simplification:
+            compl_rep = compl._get_connections_representation(is_str)
+            return f'All but {compl_rep}' if is_str else [{"All but": compl_rep}]
+        else:
+            return self._get_connections_representation(is_str)
+
+    def _get_connections_representation(self, is_str):
+        cubes_list = [self.get_cube_dict(cube, is_str) for cube in self]
+        if is_str:
+            return ','.join(self._get_cube_str_representation(cube) for cube in cubes_list)
+        return cubes_list
+
+    @staticmethod
+    def _get_cube_str_representation(cube):
+        return '{' + ','.join(f'{item[0]}:{item[1]}' for item in cube.items()) + '}'

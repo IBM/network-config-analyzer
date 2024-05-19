@@ -1,2 +1,2 @@
 final fw rules for query: open-default-TCP-test, config: open-default-TCP:
-src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: All but UDPLite
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: {protocols:all but UDPLite}

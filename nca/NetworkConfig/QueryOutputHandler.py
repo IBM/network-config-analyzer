@@ -5,7 +5,7 @@
 from abc import abstractmethod
 from dataclasses import dataclass, field
 
-from nca.CoreDS.ConnectionSet import ConnectionSet
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 
 
 @dataclass
@@ -43,7 +43,7 @@ class OutputExplanation:
 # following classes describe possible OutputExplanation patterns (derived from it), each class consists of the
 # explanation fields that may appear together in one output_explanation and additional info for writing
 # the explanation if required
-# PoliciesWithCommonPods and PeersAndConnections classes are helping classes for storing info on some OutputExplanation
+# PoliciesWithCommonPods and PeersAndConnectivityProperties classes are helping classes for storing info on some OutputExplanation
 @dataclass
 class PoliciesWithCommonPods:
     """
@@ -230,14 +230,14 @@ class PodsListsExplanations(OutputExplanation):
 
 
 @dataclass
-class PeersAndConnections:
+class PeersAndConnectivityProperties:
     """
     A class for holding info on connections between same peers pairs in two different configs
     """
     src_peer: str = ''
     dst_peer: str = ''
-    conns1: ConnectionSet = field(default_factory=ConnectionSet)  # connections from src to dst in first config
-    conns2: ConnectionSet = field(default_factory=ConnectionSet)  # connections from src to dst in second config
+    conns1: ConnectivityProperties = field(default_factory=ConnectivityProperties)  # connections from src to dst in first config
+    conns2: ConnectivityProperties = field(default_factory=ConnectivityProperties)  # connections from src to dst in second config
 
     def __lt__(self, other):
         if self.src_peer == other.src_peer:
@@ -250,17 +250,17 @@ class ConnectionsDiffExplanation(OutputExplanation):
     # used in following TwoNetworkConfigs queries that compare connections of pairs of peers in both configs:
     # EquivalenceQuery, StrongEquivalenceQuery, ContainmentQuery, TwoWayContainmentQuery, PermitsQuery, InterferesQuery,
     # PairwiseInterferesQuery, and ForbidsQuery
-    peers_diff_connections_list: list = field(default_factory=list)  # list of PeersAndConnections objects,
+    peers_diff_connections_list: list = field(default_factory=list)  # list of PeersAndConnectivityProperties objects,
     # storing info of pairs of peers and their connection in the config/s
     configs: list = field(default_factory=list)  # list[str]: configs names, relevant only when we have the
-    # conns1 and conns2 in PeersAndConnections items , so we need them when calling ConnectionSet.print_diff
+    # conns1 and conns2 in PeersAndConnectivityProperties items, so we need them when calling ConnectivityProperties.print_diff
     # in get_explanation_in_str
     conns_diff: bool = False
 
     def get_explanation_in_dict(self):
         """
          returns the explanation results of ConnectionsDiffExplanation and its description arranged in dict.
-        if self.conns_diff is True, i.e. PeersAndConnections items contain two connections, then for each
+        if self.conns_diff is True, i.e. PeersAndConnectivityProperties items contain two connections, then for each
         (src, dst) pair , connections from both configs will be presented to emphasize the differences
         :rtype list[dict]
         """
@@ -278,7 +278,7 @@ class ConnectionsDiffExplanation(OutputExplanation):
     def get_explanation_in_str(self):
         """
         returns the explanation result of ConnectionsDiffExplanation and its description in str.
-        When self.conns_diff is True, i.e. having conns1 and conns2 in PeersAndConnections items, the diff between
+        When self.conns_diff is True, i.e. having conns1 and conns2 in PeersAndConnectivityProperties items, the diff between
         connection of each pair is printed
         otherwise (having only conns1, connections from first config is printed)
         :rtype str

@@ -11,9 +11,8 @@
       dst_pods:
       - '*'
       connection:
-      - Protocol: TCP
-        properties:
-        - methods: all but GET
+      - protocols: TCP
+        methods: all but GET
     - src_ns:
       - default
       src_pods:
@@ -23,9 +22,8 @@
       dst_pods:
       - '*'
       connection:
-      - Protocol: TCP
-        properties:
-        - methods: all but GET
+      - protocols: TCP
+        methods: all but GET
     - src_ip_block:
       - 0.0.0.0/0
       dst_ns:

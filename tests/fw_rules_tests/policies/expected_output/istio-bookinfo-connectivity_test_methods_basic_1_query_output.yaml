@@ -13,11 +13,10 @@
       dst_pods:
       - app=details
       connection:
-      - Protocol: TCP
-        properties:
-        - dst_ports:
-          - 80
-          methods: GET
+      - protocols: TCP
+        dst_ports:
+        - 80
+        methods: GET
     - src_ns:
       - default
       src_pods:

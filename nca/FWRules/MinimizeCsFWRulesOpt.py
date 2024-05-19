@@ -4,7 +4,6 @@
 #
 
 from collections import defaultdict
-from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.Peer import IpBlock, ClusterEP, HostEP, DNSEntry, PeerSet, Pod
 from nca.Resources.OtherResources.K8sNamespace import K8sNamespace
@@ -27,8 +26,8 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         """
         super().__init__(cluster_info, output_config)
         self.peer_props = ConnectivityProperties()
-        self.connections = ConnectionSet()
-        self.peer_props_in_containing_connections = ConnectivityProperties()
+        self.props = ConnectivityProperties()
+        self.peer_props_in_containing_props = ConnectivityProperties()
         self.ns_set_pairs = set()
         self.base_elem_pairs = set()
         self.peer_props_without_ns_expr = ConnectivityProperties()
@@ -36,14 +35,13 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         self.results_info_per_option = dict()
         self.minimized_fw_rules = []  # holds the computation result of minimized fw-rules
 
-    def compute_minimized_fw_rules_per_connection(self, connections, peer_props,
-                                                  peer_props_in_containing_connections):
+    def compute_minimized_fw_rules_per_prop(self, props, peer_props, peer_props_in_containing_props):
         """
         The main function for creating the minimized set of fw-rules for a given connection set
 
-        :param ConnectionSet connections: the allowed connections for the given peer pairs, of type ConnectionSet
+        :param ConnectivityProperties props: the allowed connections for the given peer pairs
         :param ConnectivityProperties peer_props: peers (src,dst) for which communication is allowed over the given connections
-        :param ConnectivityProperties peer_props_in_containing_connections: peers in connections that contain the current
+        :param ConnectivityProperties peer_props_in_containing_props: peers in connections that contain the current
                connection set
 
         class members used in computation of fw-rules:
@@ -58,8 +56,8 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         (results_info_per_option: for debugging, dict with some info about the computation)
         """
         self.peer_props = peer_props
-        self.connections = connections
-        self.peer_props_in_containing_connections = peer_props_in_containing_connections
+        self.props = props
+        self.peer_props_in_containing_props = peer_props_in_containing_props
         self.ns_set_pairs = set()
         self.base_elem_pairs = set()
         self.peer_props_without_ns_expr = ConnectivityProperties()
@@ -124,7 +122,7 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         not necessarily only limited to current connection set)
         :return: None
         """
-        covered_peer_props = self.peer_props | self.peer_props_in_containing_connections
+        covered_peer_props = self.peer_props | self.peer_props_in_containing_props
         all_peers_set = self.peer_props.get_all_peers()
         if len(all_peers_set) < 500:
             # optimization - add auto-connections only if not too many peers,
@@ -289,9 +287,9 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         # currently no grouping of ns-list by labels of namespaces
         grouped_elem = FWRuleElement(ns_set, self.cluster_info)
         if is_src_fixed:
-            fw_rule = FWRule(fixed_elem, grouped_elem, self.connections)
+            fw_rule = FWRule(fixed_elem, grouped_elem, self.props)
         else:
-            fw_rule = FWRule(grouped_elem, fixed_elem, self.connections)
+            fw_rule = FWRule(grouped_elem, fixed_elem, self.props)
         return [fw_rule]
 
     def _create_fw_elements_by_pods_grouping_by_labels(self, pods_set):
@@ -331,9 +329,9 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
             pod_label_expr = LabelExpr(key, set(values), map_simple_keys_to_all_values, all_key_values)
             grouped_elem = PodLabelsElement(pod_label_expr, ns_info, self.cluster_info)
             if is_src_fixed:
-                fw_rule = FWRule(fixed_elem, grouped_elem, self.connections)
+                fw_rule = FWRule(fixed_elem, grouped_elem, self.props)
             else:
-                fw_rule = FWRule(grouped_elem, fixed_elem, self.connections)
+                fw_rule = FWRule(grouped_elem, fixed_elem, self.props)
             res.append(fw_rule)
 
         # TODO: should avoid having single pods remaining without labels grouping
@@ -341,17 +339,17 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         if make_peer_sets and remaining_pods:
             peer_set_elem = PeerSetElement(PeerSet(remaining_pods), self.output_config.outputEndpoints == 'deployments')
             if is_src_fixed:
-                fw_rule = FWRule(fixed_elem, peer_set_elem, self.connections)
+                fw_rule = FWRule(fixed_elem, peer_set_elem, self.props)
             else:
-                fw_rule = FWRule(peer_set_elem, fixed_elem, self.connections)
+                fw_rule = FWRule(peer_set_elem, fixed_elem, self.props)
             res.append(fw_rule)
         else:
             for pod in remaining_pods:
                 single_pod_elem = PodElement(pod, self.output_config.outputEndpoints == 'deployments')
                 if is_src_fixed:
-                    fw_rule = FWRule(fixed_elem, single_pod_elem, self.connections)
+                    fw_rule = FWRule(fixed_elem, single_pod_elem, self.props)
                 else:
-                    fw_rule = FWRule(single_pod_elem, fixed_elem, self.connections)
+                    fw_rule = FWRule(single_pod_elem, fixed_elem, self.props)
                 res.append(fw_rule)
         return res
 
@@ -364,7 +362,7 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         """
         res = []
         for (src, dst) in base_elems_pairs:
-            res.extend(self._create_fw_rules_from_base_elements(src, dst, self.connections, self.cluster_info,
+            res.extend(self._create_fw_rules_from_base_elements(src, dst, self.props, self.cluster_info,
                                                                 self.output_config))
         return res
 
@@ -395,14 +393,14 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
             dst_peers = conn_cube["dst_peers"]
             # whole peers sets were handled in self.ns_set_pairs and self.base_elem_pairs
             assert src_peers and dst_peers
-            res.extend(self._create_fw_rules_from_base_elements(src_peers, dst_peers, self.connections,
+            res.extend(self._create_fw_rules_from_base_elements(src_peers, dst_peers, self.props,
                                                                 self.cluster_info, self.output_config))
         return res
 
-    def _create_fw_rules_from_base_elements(self, src, dst, connections, cluster_info, output_config):
+    def _create_fw_rules_from_base_elements(self, src, dst, props, cluster_info, output_config):
         """
         create fw-rules from single pair of base elements (src,dst) and a given connection set
-        :param ConnectionSet connections: the allowed connections from src to dst
+        :param ConnectivityProperties props: the allowed connections from src to dst
         :param src: a base-element  of type: ClusterEP/K8sNamespace/ IpBlock
         :param dst: a base-element  of type: ClusterEP/K8sNamespace/IpBlock
         :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
@@ -414,7 +412,7 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         dst_elem = self._create_fw_elements_from_base_element(dst, cluster_info, output_config)
         if src_elem is None or dst_elem is None:
             return []
-        return [FWRule(src, dst, connections) for src in src_elem for dst in dst_elem]
+        return [FWRule(src, dst, props) for src in src_elem for dst in dst_elem]
 
     def _create_fw_elements_from_base_element(self, base_elem, cluster_info, output_config):
         """
@@ -469,7 +467,7 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
 
     def _print_firewall_rules(self, rules):
         print('-------------------')
-        print('rules for connections: ' + str(self.connections))
+        print('rules for connections: ' + str(self.props))
         for rule in rules:
             # filter out rule of a pod to itslef
             # if rule.is_rule_trivial():

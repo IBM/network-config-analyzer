@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
@@ -102,39 +101,6 @@ class MinimizeBasic:
             if not remaining_pods:
                 break
         return chosen_rep, remaining_pods
-
-    # TODO - after moving to the optimized HC set implementation,
-    #  get rid of ConnectionSet and move the code below to ConnectivityProperties.py
-    @staticmethod
-    def get_connection_set_and_peers_from_cube(the_cube, peer_container,
-                                               relevant_protocols=ProtocolSet(True)):
-        all_peers = peer_container.get_all_peers_group(True)
-        conn_cube = the_cube.copy()
-        src_peers = conn_cube["src_peers"] or all_peers
-        conn_cube.unset_dim("src_peers")
-        dst_peers = conn_cube["dst_peers"] or all_peers
-        conn_cube.unset_dim("dst_peers")
-        protocols = conn_cube["protocols"]
-        conn_cube.unset_dim("protocols")
-        has_active_dim = conn_cube.has_active_dim()
-        if not has_active_dim and (protocols == relevant_protocols or protocols.is_whole_range()):
-            conns = ConnectionSet(True)
-        else:
-            conns = ConnectionSet()
-            protocol_names = ProtocolSet.get_protocol_names_from_interval_set(protocols)
-            if has_active_dim:
-                props = ConnectivityProperties.make_conn_props(conn_cube)
-            else:
-                props = ConnectivityProperties.make_all_props()
-            for protocol in protocol_names:
-                if has_active_dim:
-                    conns.add_connections(protocol, props)
-                else:
-                    if ProtocolSet.protocol_supports_ports(protocol) or ProtocolSet.protocol_is_icmp(protocol):
-                        conns.add_connections(protocol, props)
-                    else:
-                        conns.add_connections(protocol, True)
-        return conns, src_peers, dst_peers
 
     @staticmethod
     def fw_rules_to_conn_props(fw_rules, peer_container, connectivity_restriction=None):

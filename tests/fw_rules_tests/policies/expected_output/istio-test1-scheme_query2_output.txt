@@ -1,8 +1,8 @@
 For connections of type TCP, final fw rules for query: istio-policy2, config: istio-policy2:
-src: 1.2.3.0/24,2.2.2.2/32 dst_ns: [default] dst_pods: [app=skydive] conn: TCP 30,50
+src: 1.2.3.0/24,2.2.2.2/32 dst_ns: [default] dst_pods: [app=skydive] conn: {protocols:TCP,dst_ports:30,50}
 src_ns: [default,kube-system,vendor-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [default,kube-system] src_pods: [*] dst_ns: [default] dst_pods: [app=skydive] conn: TCP 30,50
-src_ns: [default] src_pods: [app=special_skydive] dst_ns: [default] dst_pods: [*] conn: TCP 30,50
+src_ns: [default,kube-system] src_pods: [*] dst_ns: [default] dst_pods: [app=skydive] conn: {protocols:TCP,dst_ports:30,50}
+src_ns: [default] src_pods: [app=special_skydive] dst_ns: [default] dst_pods: [*] conn: {protocols:TCP,dst_ports:30,50}
 
 For connections of type non-TCP, final fw rules for query: istio-policy2, config: istio-policy2:
 src: 0.0.0.0/0 dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections

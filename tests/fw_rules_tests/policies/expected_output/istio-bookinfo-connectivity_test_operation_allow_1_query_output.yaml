@@ -7,26 +7,26 @@
     - src_ns:
       - default
       src_pods:
+      - '*'
+      dst_ip_block:
+      - 0.0.0.0/0
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      src_pods:
       - app=productpage
       dst_ns:
       - default
       dst_pods:
       - app=details
       connection:
-      - Protocol: TCP
-        properties:
-        - methods: GET
-          paths: /info*
-        - methods: POST
-          paths: /data
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ip_block:
-      - 0.0.0.0/0
-      connection:
-      - All connections
+      - protocols: TCP
+        methods: GET
+        paths: /info*
+      - protocols: TCP
+        methods: POST
+        paths: /data
     non-TCP_rules:
     - src_ip_block:
       - 0.0.0.0/0

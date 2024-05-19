@@ -13,8 +13,8 @@
       dst_pods:
       - app=skydive
       connection:
-      - Protocol: UDP
-        Ports:
+      - protocols: UDP
+        dst_ports:
         - 53
     - src_ns:
       - default

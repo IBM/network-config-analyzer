@@ -4,42 +4,6 @@
   numerical_result: 0
   explanation:
   - rules:
-    - src_ns:
-      - kube-system-new-dummy-to-ignore
-      src_pods:
-      - '*'
-      dst_ns:
-      - kube-system-new
-      dst_pods:
-      - '*'
-      connection:
-      - Protocol: TCP
-        Ports:
-        - 80-88
-    - src_ns:
-      - ibm-system-new
-      src_pods:
-      - '*'
-      dst_ns:
-      - kube-system-new
-      dst_pods:
-      - '*'
-      connection:
-      - Protocol: TCP
-        Ports:
-        - 80-90
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ns:
-      - kube-system-new
-      dst_pods:
-      - '*'
-      connection:
-      - Protocol: TCP
-        Ports:
-        - 85-90
     - src_ip_block:
       - 0.0.0.0/0
       dst_ns:
@@ -76,24 +40,48 @@
       - '*'
       connection:
       - All connections
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - kube-system-new
+      dst_pods:
+      - '*'
+      connection:
+      - protocols: TCP
+        dst_ports:
+        - 85-90
+    - src_ns:
+      - ibm-system-new
+      src_pods:
+      - '*'
+      dst_ns:
+      - kube-system-new
+      dst_pods:
+      - '*'
+      connection:
+      - protocols: TCP
+        dst_ports:
+        - 80-90
+    - src_ns:
+      - kube-system-new-dummy-to-ignore
+      src_pods:
+      - '*'
+      dst_ns:
+      - kube-system-new
+      dst_pods:
+      - '*'
+      connection:
+      - protocols: TCP
+        dst_ports:
+        - 80-88
 - query: connectivity_map_4
   configs:
   - np3
   numerical_result: 0
   explanation:
   - rules:
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ns:
-      - kube-system-new
-      dst_pods:
-      - '*'
-      connection:
-      - Protocol: TCP
-        Ports:
-        - 85-90
     - src_ip_block:
       - 0.0.0.0/0
       dst_ns:
@@ -130,3 +118,15 @@
       - '*'
       connection:
       - All connections
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - kube-system-new
+      dst_pods:
+      - '*'
+      connection:
+      - protocols: TCP
+        dst_ports:
+        - 85-90

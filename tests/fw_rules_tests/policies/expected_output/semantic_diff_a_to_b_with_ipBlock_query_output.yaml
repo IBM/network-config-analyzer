@@ -113,17 +113,6 @@
   - description: Removed connections between persistent peers and ipBlocks
     rules:
     - src_ip_block:
-      - 0.0.0.0/0
-      dst_ns:
-      - default
-      dst_pods:
-      - app=app-2
-      connection:
-      - All but:
-        - Protocol: UDP
-          Ports:
-          - 53
-    - src_ip_block:
       - 0.0.0.0/5
       - 10.11.0.0/16
       - 11.0.0.0/8
@@ -139,6 +128,17 @@
       - app=app-2
       connection:
       - All connections
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - default
+      dst_pods:
+      - app=app-2
+      connection:
+      - All but:
+        - protocols: UDP
+          dst_ports:
+          - 53
   - description: New connections between persistent peers and added peers
     rules:
     - src_ns:

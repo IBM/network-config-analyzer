@@ -56,17 +56,6 @@
   - description: Added connections between persistent peers and ipBlocks
     rules:
     - src_ip_block:
-      - 0.0.0.0/0
-      dst_ns:
-      - kube-system
-      dst_pods:
-      - tier=frontend
-      connection:
-      - All but:
-        - Protocol: UDP
-          Ports:
-          - 53
-    - src_ip_block:
       - 10.0.0.0/8
       - 172.21.0.0/16
       - 172.30.0.0/16
@@ -76,6 +65,17 @@
       - tier=frontend
       connection:
       - All connections
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - kube-system
+      dst_pods:
+      - tier=frontend
+      connection:
+      - All but:
+        - protocols: UDP
+          dst_ports:
+          - 53
   - description: Removed connections between persistent peers and ipBlocks
     rules:
     - src_ns:

@@ -1,6 +1,6 @@
 For connections of type TCP, final fw rules for query: connectivity-istio-test-operation-allow-1, config: istio-test-operation-allow-1:
 src_ns: [default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [default] src_pods: [app=productpage] dst_ns: [default] dst_pods: [app=details] conn: TCP {'methods': 'GET', 'paths': '/info*'},{'methods': 'POST', 'paths': '/data'}
+src_ns: [default] src_pods: [app=productpage] dst_ns: [default] dst_pods: [app=details] conn: {protocols:TCP,methods:GET,paths:/info*},{protocols:TCP,methods:POST,paths:/data}
 
 For connections of type non-TCP, final fw rules for query: connectivity-istio-test-operation-allow-1, config: istio-test-operation-allow-1:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: All connections

@@ -12,8 +12,8 @@
       dst_pods:
       - app=skydive
       connection:
-      - Protocol: TCP
-        Ports:
+      - protocols: TCP
+        dst_ports:
         - 30
         - 50
     - src_ns:
@@ -26,8 +26,8 @@
       dst_pods:
       - app=skydive
       connection:
-      - Protocol: TCP
-        Ports:
+      - protocols: TCP
+        dst_ports:
         - 30
         - 50
     - src_ns:
@@ -39,8 +39,8 @@
       dst_pods:
       - '*'
       connection:
-      - Protocol: TCP
-        Ports:
+      - protocols: TCP
+        dst_ports:
         - 30
         - 50
     - src_ns:

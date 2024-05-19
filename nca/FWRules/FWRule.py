@@ -573,16 +573,16 @@ class FWRule:
     rule_csv_header = ['query', 'src_ns', 'src_pods', 'dst_ns', 'dst_pods', 'connection']
     supported_formats = {'txt', 'yaml', 'csv', 'md', 'json'}
 
-    def __init__(self, src, dst, conn):
+    def __init__(self, src, dst, props):
         """
         Create an object of FWRule
         :param src: src element of type FWRuleElement
         :param dst: dst element of type FWRuleElement
-        :param conn: allowed connections of type ConnectionSet
+        :param props: allowed connections of type ConnectivityProperties
         """
         self.src = src
         self.dst = dst
-        self.conn = conn
+        self.props = props
 
     # TODO: also re-format the rule if ns is a combination of both 'system' and non 'system'
     def should_rule_be_filtered_out(self):
@@ -604,7 +604,7 @@ class FWRule:
         """
         src_str = self.src.get_elem_str(True)
         dst_str = self.dst.get_elem_str(False)
-        conn_str = str(self.conn)
+        conn_str = str(self.props)
         return src_str + dst_str + ' conn: ' + conn_str
 
     def get_rule_str(self):
@@ -613,14 +613,14 @@ class FWRule:
         """
         src_str = self.src.get_elem_str(True)
         dst_str = self.dst.get_elem_str(False)
-        conn_str = self.conn.get_simplified_connections_representation(True)
+        conn_str = self.props.get_simplified_connections_representation(True)
         return src_str + dst_str + ' conn: ' + conn_str + '\n'
 
     def __hash__(self):
         return hash(str(self))
 
     def __eq__(self, other):
-        return self.src == other.src and self.dst == other.dst and self.conn == other.conn
+        return self.src == other.src and self.dst == other.dst and self.props == other.props
 
     def __lt__(self, other):
         return str(self) < str(other)
@@ -640,7 +640,7 @@ class FWRule:
         elif component == 'dst_pods':
             return str(self.dst) if isinstance(self.dst, (IPBlockElement, DNSElement)) else self.dst.get_pod_str()
         elif component == 'connection':
-            return self.conn.get_simplified_connections_representation(True)
+            return self.props.get_simplified_connections_representation(True)
         return ''
 
     def get_rule_csv_row(self):
@@ -663,7 +663,7 @@ class FWRule:
         src_ip_block_list = sorted(self.src.get_elem_list_obj()) if isinstance(self.src, IPBlockElement) else None
         dst_ip_block_list = sorted(self.dst.get_elem_list_obj()) if isinstance(self.dst, IPBlockElement) else None
         dst_dns_entry_list = sorted(self.dst.get_elem_list_obj()) if isinstance(self.dst, DNSElement) else None
-        conn_list = self.conn.get_simplified_connections_representation(False)
+        conn_list = self.props.get_simplified_connections_representation(False)
 
         rule_obj = {}
         if src_ip_block_list is None and dst_ip_block_list is None and dst_dns_entry_list is None:
@@ -707,21 +707,3 @@ class FWRule:
         if req_format == 'txt':
             return self.get_rule_str()
         return None
-
-    @staticmethod
-    def create_fw_rules_from_base_elements(src, dst, connections, cluster_info, output_config):
-        """
-        create fw-rules from single pair of base elements (src,dst) and a given connection set
-        :param ConnectionSet connections: the allowed connections from src to dst
-        :param src: a base-element  of type: ClusterEP/K8sNamespace/ IpBlock
-        :param dst: a base-element  of type: ClusterEP/K8sNamespace/IpBlock
-        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
-        :param OutputConfiguration output_config: an object holding output configuration
-        :return: list with created fw-rules
-        :rtype list[FWRule]
-        """
-        src_elem = FWRuleElement.create_fw_elements_from_base_element(src, cluster_info, output_config)
-        dst_elem = FWRuleElement.create_fw_elements_from_base_element(dst, cluster_info, output_config)
-        if src_elem is None or dst_elem is None:
-            return []
-        return [FWRule(src, dst, connections) for src in src_elem for dst in dst_elem]
