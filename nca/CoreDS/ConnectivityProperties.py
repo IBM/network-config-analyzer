@@ -117,7 +117,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         return super().__hash__()
 
     def __lt__(self, other):
-        return len(self) < len(other)
+        return len(self) < len(other) or str(self) < str(other)
 
     def get_connectivity_cube(self, cube):
         """
