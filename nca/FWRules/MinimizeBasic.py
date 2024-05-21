@@ -113,12 +113,14 @@ class MinimizeBasic:
                TCP / non-TCP , or not
         :return: the resulting ConnectivityProperties.
         """
-        relevant_protocols = ProtocolSet()
         if connectivity_restriction:
+            relevant_protocols = ProtocolSet()
             if connectivity_restriction == 'TCP':
                 relevant_protocols.add_protocol('TCP')
             else:  # connectivity_restriction == 'non-TCP'
                 relevant_protocols = ProtocolSet.get_non_tcp_protocols()
+        else:
+            relevant_protocols = ProtocolSet(True)
 
         res = ConnectivityProperties.make_empty_props()
         if fw_rules.fw_rules_map is None:
@@ -127,7 +129,8 @@ class MinimizeBasic:
             for fw_rule in fw_rules_list:
                 src_peers = fw_rule.src.get_peer_set()
                 dst_peers = fw_rule.dst.get_peer_set()
-                rule_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_peers,
-                                                                               "dst_peers": dst_peers}) & fw_rule.props
+                rule_props = \
+                    ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_peers, "dst_peers": dst_peers,
+                                                                      "protocols": relevant_protocols}) & fw_rule.props
                 res |= rule_props
         return res

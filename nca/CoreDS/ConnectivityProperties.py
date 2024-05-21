@@ -584,13 +584,9 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         dst_peers = conn_cube["dst_peers"] or all_peers
         conn_cube.unset_dim("dst_peers")
         protocols = conn_cube["protocols"]
-        conn_cube.unset_dim("protocols")
-        if not conn_cube.has_active_dim() and (protocols == relevant_protocols or protocols.is_whole_range()):
-            props = ConnectivityProperties.make_all_props()
-        else:
-            conn_cube["protocols"] = protocols
-            assert conn_cube.has_active_dim()
-            props = ConnectivityProperties.make_conn_props(conn_cube)
+        if protocols == relevant_protocols:
+            conn_cube.unset_dim("protocols")
+        props = ConnectivityProperties.make_conn_props(conn_cube)
         return props, src_peers, dst_peers
 
     def get_simplified_connections_representation(self, is_str, use_complement_simplification=True):
