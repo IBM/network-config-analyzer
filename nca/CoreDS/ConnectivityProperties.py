@@ -577,6 +577,15 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
     @staticmethod
     def extract_src_dst_peers_from_cube(the_cube, peer_container, relevant_protocols=ProtocolSet(True)):
+        """
+        Remove src_peers and dst_peers from the given cube, and return those sets of peers
+        and the resulting properties without the peers.
+        :param ConnectivityCube the_cube: the given cube
+        :param PeerContainer peer_container: the peer container
+        :param relevant_protocols: the relevant protocols used to represent all protocols
+        :return: tuple(ConnectivityProperties, PeerSet, PeerSet) - the resulting properties after removing
+        src_peers and dst_peers, src_peers, dst_peers
+        """
         all_peers = peer_container.get_all_peers_group(True)
         conn_cube = the_cube.copy()
         src_peers = conn_cube["src_peers"] or all_peers
