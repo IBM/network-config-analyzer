@@ -24,8 +24,6 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
     ConnectivityProperties potentially hold all the dimensions, including sets of source peers and destination peers.
     The connectivity properties are built at the parse time for every policy.
-    The named ports are resolved during the construction, therefore in the optimized solution named_ports and
-    excluded_named_ports fields are not used.
 
     The src_peers and dst_peers dimensions are special dimensions,  they do not have constant domain. Their domain
     depends on the current set of peers in the system (as appears in BasePeerSet singleton). This set grows when
@@ -36,23 +34,9 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
     and to set it to relevant values per query, and to make a special treatment of these dimensions
     in the above operators.
 
-    Also, including support for (included and excluded) named ports (relevant for dest ports only).
+    Also, including support for (included and excluded) named ports (relevant for dest ports only), which are
+    resolved during the construction of ConnectivityProperties.
 
-    The representation with named ports is considered a mid-representation, and is required due to the late binding
-    of the named ports to real ports numbers.
-    The method convert_named_ports is responsible for applying this late binding, and is called by a policy's method
-    allowed_connections() to get policy's allowed connections, given <src, dest> peers and direction ingress/egress
-    Given a specific dest-peer context, the pod's named ports mapping is known, and used for the named ports conversion.
-    Some of the operators for ConnectivityProperties are not supported for objects with (included and excluded) named ports.
-    For example, in the general case, the result for (all but port "x") | (all but port 10) has 2 options:
-        (1) if the dest pod has named port "x" mapped to 10 -> the result would be: (all but port 10)
-        (2) otherwise, the result would be: (all ports)
-    Thus, for the 'or' operator, the assumption is that excluded named ports is empty for both input objects.
-    Some methods, such as bool(), str(), may not return accurate results on objects with named ports (included/excluded)
-    since they depend on the late binding with actual dest pod context.
-    The current actual flow for using named ports is limited for the following:
-    (1) k8s: only +ve named ports, no src named ports, and only use of 'or' operators between these objects.
-    (2) calico: +ve and -ve named ports, no src named ports, and no use of operators between these objects.
     """
 
     def __init__(self, dimensions_list=None, create_all=False):
@@ -61,8 +45,6 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         :param create_all: whether to create full connectivity properties.
         """
         super().__init__(dimensions_list if dimensions_list else ConnectivityCube.all_dimensions_list)
-        self.named_ports = {}  # a mapping from dst named port (String) to src ports interval set
-        self.excluded_named_ports = {}  # a mapping from dst named port (String) to src ports interval set
         if create_all:
             self.set_all()
 
@@ -88,15 +70,8 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         src_ports = conn_cube["src_ports"]
         dst_ports = conn_cube["dst_ports"]
         assert not src_ports.named_ports and not src_ports.excluded_named_ports
-        all_ports = PortSet.all_ports_interval.copy()
-        for port_name in dst_ports.named_ports:
-            res.named_ports[port_name] = src_ports.port_set
-        for port_name in dst_ports.excluded_named_ports:
-            res.excluded_named_ports[port_name] = all_ports
+        assert not dst_ports.named_ports and not dst_ports.excluded_named_ports
         return res
-
-    def __bool__(self):
-        return super().__bool__() or bool(self.named_ports)
 
     def __str__(self):
         if self.is_all():
@@ -183,9 +158,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
     def __eq__(self, other):
         if isinstance(other, ConnectivityProperties):
-            res = super().__eq__(other) and self.named_ports == other.named_ports and \
-                self.excluded_named_ports == other.excluded_named_ports
-            return res
+            return super().__eq__(other)
         return False
 
     def __and__(self, other):
@@ -203,85 +176,6 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         res -= other
         return res
 
-    def __iand__(self, other):
-        assert not self.has_named_ports()
-        assert not isinstance(other, ConnectivityProperties) or not other.has_named_ports()
-        super().__iand__(other)
-        return self
-
-    def __ior__(self, other):
-        assert not self.excluded_named_ports
-        assert not isinstance(other, ConnectivityProperties) or not other.excluded_named_ports
-        super().__ior__(other)
-        if isinstance(other, ConnectivityProperties):
-            res_named_ports = dict({})
-            for port_name in self.named_ports:
-                res_named_ports[port_name] = self.named_ports[port_name]
-            for port_name in other.named_ports:
-                if port_name in res_named_ports:
-                    res_named_ports[port_name] |= other.named_ports[port_name]
-                else:
-                    res_named_ports[port_name] = other.named_ports[port_name]
-            self.named_ports = res_named_ports
-        return self
-
-    def __isub__(self, other):
-        assert not self.has_named_ports()
-        assert not isinstance(other, ConnectivityProperties) or not other.has_named_ports()
-        super().__isub__(other)
-        return self
-
-    def contained_in(self, other):
-        """
-        :param ConnectivityProperties other: another connectivity properties
-        :return: Whether all (source port, target port) pairs in self also appear in other
-        :rtype: bool
-        """
-        assert not self.has_named_ports()
-        assert not other.has_named_ports()
-        return super().contained_in(other)
-
-    def has_named_ports(self):
-        return self.named_ports or self.excluded_named_ports
-
-    def get_named_ports(self):
-        res = set()
-        res |= set(self.named_ports.keys())
-        res |= set(self.excluded_named_ports.keys())
-        return res
-
-    def convert_named_ports(self, named_ports, protocol):
-        """
-        Replaces all references to named ports with actual ports, given a mapping
-        NOTE: that this function modifies self
-        :param dict[str, (int, int)] named_ports: The mapping from a named to port (str) to the actual port number
-        :param int protocol: The relevant protocol
-        :return: None
-        """
-        if not named_ports:
-            named_ports = {}
-
-        my_named_ports = self.named_ports
-        self.named_ports = {}
-        my_excluded_named_ports = self.excluded_named_ports
-        self.excluded_named_ports = {}
-
-        active_dims = ["src_ports", "dst_ports"]
-        for port in my_named_ports:
-            real_port = named_ports.get(port)
-            if real_port and real_port[1] == protocol:
-                real_port_number = real_port[0]
-                rectangle = [my_named_ports[port],
-                             CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
-                self.add_cube(rectangle, active_dims)
-        for port in my_excluded_named_ports:
-            real_port = named_ports.get(port)
-            if real_port and real_port[1] == protocol:
-                real_port_number = real_port[0]
-                rectangle = [my_excluded_named_ports[port],
-                             CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
-                self.add_hole(rectangle, active_dims)
-
     def copy(self):
         """
         :rtype: ConnectivityProperties
@@ -290,9 +184,6 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         for layer in self.layers:
             res.layers[self._copy_layer_elem(layer)] = self.layers[layer].copy()
         res.active_dimensions = self.active_dimensions.copy()
-
-        res.named_ports = self.named_ports.copy()
-        res.excluded_named_ports = self.excluded_named_ports.copy()
         return res
 
     def print_diff(self, other, self_name, other_name):
@@ -403,7 +294,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
             return ConnectivityProperties._make_conn_props_no_named_ports_resolution(conn_cube)
 
         # Should resolve named ports
-        assert conn_cube.is_active_dim("dst_peers")
+#        assert conn_cube.is_active_dim("dst_peers")
         # Initialize conn_properties
         if dst_ports.port_set:
             dst_ports_no_named_ports = PortSet()
