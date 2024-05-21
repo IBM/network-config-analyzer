@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from .CanonicalIntervalSet import CanonicalIntervalSet
 from .CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from .DimensionsManager import DimensionsManager
 from .PortSet import PortSet
