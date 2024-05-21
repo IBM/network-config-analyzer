@@ -1,15 +1,15 @@
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|
 |connectivity_map_md, config: poc1||||||
+||[default]|[app in (checkoutservice,frontend,recommendationservice)]|[default]|[productcatalogservice]|{protocols:TCP,dst_ports:3550}|
+||[default]|[checkoutservice]|[default]|[app in (paymentservice,shippingservice)]|{protocols:TCP,dst_ports:50051}|
+||[default]|[frontend]|[default]|[shippingservice]|{protocols:TCP,dst_ports:50051}|
+||[default]|[frontend]|[default]|[checkoutservice]|{protocols:TCP,dst_ports:5050}|
+||[default]|[cartservice]|[default]|[redis-cart]|{protocols:TCP,dst_ports:6379}|
+||[default]|[app in (checkoutservice,frontend)]|[default]|[currencyservice]|{protocols:TCP,dst_ports:7000}|
+||[default]|[app in (checkoutservice,frontend)]|[default]|[cartservice]|{protocols:TCP,dst_ports:7070}|
 |||0.0.0.0/0|[default]|[frontend]|{protocols:TCP,dst_ports:8080}|
 ||[default]|[checkoutservice]|[default]|[emailservice]|{protocols:TCP,dst_ports:8080}|
 ||[default]|[frontend]|[default]|[recommendationservice]|{protocols:TCP,dst_ports:8080}|
 ||[default]|[loadgenerator]|[default]|[frontend]|{protocols:TCP,dst_ports:8080}|
 ||[default]|[frontend]|[default]|[adservice]|{protocols:TCP,dst_ports:9555}|
-||[default]|[frontend]|[default]|[checkoutservice]|{protocols:TCP,dst_ports:5050}|
-||[default]|[app in (checkoutservice,frontend)]|[default]|[cartservice]|{protocols:TCP,dst_ports:7070}|
-||[default]|[app in (checkoutservice,frontend)]|[default]|[currencyservice]|{protocols:TCP,dst_ports:7000}|
-||[default]|[app in (checkoutservice,frontend,recommendationservice)]|[default]|[productcatalogservice]|{protocols:TCP,dst_ports:3550}|
-||[default]|[checkoutservice]|[default]|[app in (paymentservice,shippingservice)]|{protocols:TCP,dst_ports:50051}|
-||[default]|[frontend]|[default]|[shippingservice]|{protocols:TCP,dst_ports:50051}|
-||[default]|[cartservice]|[default]|[redis-cart]|{protocols:TCP,dst_ports:6379}|

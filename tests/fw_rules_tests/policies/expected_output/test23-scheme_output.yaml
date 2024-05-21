@@ -7,6 +7,16 @@
     - src_ns:
       - default
       src_pods:
+      - test=C
+      dst_ns:
+      - default
+      dst_pods:
+      - app=skydive
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      src_pods:
       - '*'
       dst_ns:
       - default
@@ -16,13 +26,3 @@
       - protocols: UDP
         dst_ports:
         - 53
-    - src_ns:
-      - default
-      src_pods:
-      - test=C
-      dst_ns:
-      - default
-      dst_pods:
-      - app=skydive
-      connection:
-      - All connections
