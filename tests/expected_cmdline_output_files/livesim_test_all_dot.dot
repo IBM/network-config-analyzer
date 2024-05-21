@@ -4,7 +4,7 @@ digraph {
 	fontsize=30
 	fontcolor=maroon
 	subgraph cluster_map_explanation {
-	dict_box [label=<<table border="0" cellspacing="0"><tr><td  align="text">Connectivity legend<br align="left" /></td></tr><tr><td align="text" tooltip="All" href="bogus">All     All<br align="left" /></td></tr><tr><td align="text" tooltip="{protocols:TCP,dst_ports:5678,paths:/foo(/*)?}" href="bogus">tcp5678     {protocols:TCP,dst_ports:5678,...<br align="left" /></td></tr><tr><td align="text" tooltip="{protocols:TCP,dst_ports:80,hosts:httpbin.example.com,paths:(/status(/*)?)|(/delay(/*)?)}" href="bogus">tcp80     {protocols:TCP,dst_ports:80,ho...<br align="left" /></td></tr></table>> shape=box]
+	dict_box [label=<<table border="0" cellspacing="0"><tr><td  align="text">Connectivity legend<br align="left" /></td></tr><tr><td align="text" tooltip="All" href="bogus">All     All<br align="left" /></td></tr><tr><td align="text" tooltip="{dst_ports:5678,paths:/foo(/*)?}" href="bogus">tcp5678     {dst_ports:5678,paths:/foo(/*)?}<br align="left" /></td></tr><tr><td align="text" tooltip="{dst_ports:80,hosts:httpbin.example.com,paths:(/status(/*)?)|(/delay(/*)?)}" href="bogus">tcp80     {dst_ports:80,hosts:httpbin.ex...<br align="left" /></td></tr></table>> shape=box]
 	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2 tooltip="IP Block"]
 subgraph cluster_default_namespace{
 	label="default"
@@ -42,8 +42,8 @@ subgraph cluster_kube_system_namespace{
 	"0.0.0.0/0" -> "ingress-controller-ns/ingress-controller-livesim(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"0.0.0.0/0" -> "istio-system/istio-ingressgateway-livesim(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/deployment-B(Deployment)" -> "default/deployment-A(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
-	"ingress-controller-ns/ingress-controller-livesim(Pod)" -> "default/foo-app(Pod)"[label="tcp5678" labeltooltip="{protocols:TCP,dst_ports:5678,paths:/foo(/*)?}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"istio-system/istio-ingressgateway-livesim(Pod)" -> "default/httpbin(Deployment)"[label="tcp80" labeltooltip="{protocols:TCP,dst_ports:80,hosts:httpbin.example.com,paths:(/status(/*)?)|(/delay(/*)?)}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"ingress-controller-ns/ingress-controller-livesim(Pod)" -> "default/foo-app(Pod)"[label="tcp5678" labeltooltip="{dst_ports:5678,paths:/foo(/*)?}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"istio-system/istio-ingressgateway-livesim(Pod)" -> "default/httpbin(Deployment)"[label="tcp80" labeltooltip="{dst_ports:80,hosts:httpbin.example.com,paths:(/status(/*)?)|(/delay(/*)?)}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"kube-system/kube-dns-livesim(Pod)" -> "0.0.0.0/0"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
 	"kube-system/kube-dns-livesim(Pod)" -> "default/foo-app(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"kube-system/kube-dns-livesim(Pod)" -> "default/httpbin(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]

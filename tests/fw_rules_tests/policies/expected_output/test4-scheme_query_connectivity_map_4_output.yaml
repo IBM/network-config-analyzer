@@ -41,7 +41,7 @@
       connection:
       - All connections
     - src_ns:
-      - default
+      - kube-system-new-dummy-to-ignore
       src_pods:
       - '*'
       dst_ns:
@@ -51,7 +51,7 @@
       connection:
       - protocols: TCP
         dst_ports:
-        - 85-90
+        - 80-88
     - src_ns:
       - ibm-system-new
       src_pods:
@@ -65,7 +65,7 @@
         dst_ports:
         - 80-90
     - src_ns:
-      - kube-system-new-dummy-to-ignore
+      - default
       src_pods:
       - '*'
       dst_ns:
@@ -75,7 +75,7 @@
       connection:
       - protocols: TCP
         dst_ports:
-        - 80-88
+        - 85-90
 - query: connectivity_map_4
   configs:
   - np3

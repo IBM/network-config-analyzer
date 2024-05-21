@@ -1,7 +1,7 @@
 For connections of type TCP, final fw rules for query: connectivity, config: fly-istio-ingress-test:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: All connections
-src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [fly-api, istio-ingressgateway] conn: {protocols:TCP,dst_ports:8761,paths:/flights(/*)?}
-src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [hora-api, istio-ingressgateway] conn: {protocols:TCP,dst_ports:8762,paths:/horas(/*)?}
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [fly-api, istio-ingressgateway] conn: {dst_ports:8761,paths:/flights(/*)?}
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [hora-api, istio-ingressgateway] conn: {dst_ports:8762,paths:/horas(/*)?}
 src_ns: [default] src_pods: [fly-api, hora-api] dst: 0.0.0.0/0 conn: All connections
 src_ns: [default] src_pods: [fly-api, hora-api] dst_ns: [default] dst_pods: [*] conn: All connections
 

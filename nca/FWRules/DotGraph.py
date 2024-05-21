@@ -232,9 +232,8 @@ class DotGraph:
         # for each label, the short will look like "tcp<port>" if there is a port, or "TCP" if there is no port
         for label in self.labels:
             splitted_label = label.replace('{', '').replace('}', '').split(',')
-            label_type = self.get_val_by_key_from_list(splitted_label, 'protocols')
+            label_type = self.get_val_by_key_from_list(splitted_label, 'protocols') or 'TCP'
             label_port = self.get_val_by_key_from_list(splitted_label, 'dst_ports')
-            assert label == 'All' or label_type
             # a 'dst_ports' can be too long (like 'port0,port1-port2' ) we trim it to the first port:
             if len(label_port) > 6:
                 label_port = label_port.split(',')[0].split('-')[0]

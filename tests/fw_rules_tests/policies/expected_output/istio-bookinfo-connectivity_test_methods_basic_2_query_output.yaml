@@ -7,14 +7,11 @@
     - src_ns:
       - default
       src_pods:
-      - app=productpage
-      dst_ns:
-      - default
-      dst_pods:
-      - app=details
+      - '*'
+      dst_ip_block:
+      - 0.0.0.0/0
       connection:
-      - protocols: TCP
-        methods: all but GET
+      - All connections
     - src_ns:
       - default
       src_pods:
@@ -24,16 +21,17 @@
       dst_pods:
       - app=reviews
       connection:
-      - protocols: TCP
-        methods: PUT
+      - methods: PUT
     - src_ns:
       - default
       src_pods:
-      - '*'
-      dst_ip_block:
-      - 0.0.0.0/0
+      - app=productpage
+      dst_ns:
+      - default
+      dst_pods:
+      - app=details
       connection:
-      - All connections
+      - methods: all but GET
     non-TCP_rules:
     - src_ip_block:
       - 0.0.0.0/0

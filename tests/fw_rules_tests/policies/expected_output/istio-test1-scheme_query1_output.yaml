@@ -11,8 +11,7 @@
       dst_pods:
       - '*'
       connection:
-      - protocols: TCP
-        dst_ports:
+      - dst_ports:
         - 26257
     - src_ns:
       - default
@@ -24,8 +23,7 @@
       dst_pods:
       - '*'
       connection:
-      - protocols: TCP
-        dst_ports:
+      - dst_ports:
         - 26257
     - src_ip_block:
       - 0.0.0.0/0

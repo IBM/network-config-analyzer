@@ -21,11 +21,9 @@
       dst_pods:
       - app=details
       connection:
-      - protocols: TCP
-        methods: GET
+      - methods: GET
         paths: /info*
-      - protocols: TCP
-        methods: POST
+      - methods: POST
         paths: /data
     non-TCP_rules:
     - src_ip_block:
