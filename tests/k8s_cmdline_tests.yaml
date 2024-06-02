@@ -429,7 +429,6 @@
     --ns_list fw_rules_tests/podlist/test_subset_topology.yaml
     --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
     --explain default/Pod1[Pod],ns2/deployment-D[Deployment] 
-    -opt=true
     -d
     --expected_output expected_cmdline_output_files/basic_connectivity_specific_nodes_expl_output.txt
   expected: 0
@@ -440,7 +439,6 @@
     --ns_list fw_rules_tests/podlist/test_subset_topology.yaml
     --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
     --explain ALL
-    -opt=true
     -d
     --expected_output expected_cmdline_output_files/basic_connectivity_expl_output.txt
   expected: 0
@@ -451,7 +449,6 @@
     --ns_list fw_rules_tests/podlist/poc_ns_list.json
     --pod_list fw_rules_tests/podlist/kubernetes-manifests.yaml
     --explain ALL
-    -opt=true
     -d
     --expected_output expected_cmdline_output_files/poc1_expl_output.txt
   expected: 0
@@ -463,7 +460,6 @@
     --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
     --deployment_subset deployment-A,deployment-D
     --explain ALL
-    -opt=true
     -d
     --expected_output expected_cmdline_output_files/subset_deployment_expl_output.txt
   expected: 0
@@ -474,7 +470,6 @@
     --ns_list fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
     --pod_list fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
     --explain ALL
-    -opt=true
     -d
     --expected_output expected_cmdline_output_files/test25_expl_output.txt
   expected: 0
@@ -485,7 +480,6 @@
     --ns_list fw_rules_tests/podlist/ns_list.json
     --pod_list fw_rules_tests/podlist/pods_list_4.json
     --explain kube-system-new/calico-node(DaemonSet),0.0.0.0/0
-    -opt=true
     -d
     --expected_output expected_cmdline_output_files/test4_expl_output.txt
   expected: 0
@@ -496,7 +490,6 @@
     --ns_list istio_testcases/example_policies/istio-ingress-test
     --pod_list istio_testcases/example_policies/istio-ingress-test
     --explain ALL
-    -opt=true
     -d
 # temporarily commenting out expected results, until new Ingress/Egress implementation is completed.
 #    --expected_output expected_cmdline_output_files/istio-ingress_expl_output.txt
