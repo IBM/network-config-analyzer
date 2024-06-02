@@ -65,7 +65,7 @@ class CliQuery:
         if BENCHMARKING:
             self.args_obj = TestArgs(test_dict['args'].split(), cli_tests_base_dir)
         else:
-            self.args_obj = TestArgs(['-d '] + test_dict['args'].split(), cli_tests_base_dir)
+            self.args_obj = TestArgs(['-d'] + test_dict['args'].split(), cli_tests_base_dir)
 
 
 
