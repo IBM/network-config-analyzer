@@ -504,12 +504,17 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         if not super().__bool__():
             return "No connections" if is_str else ["No connections"]
 
-        compl = ConnectivityProperties.make_all_props() - self
-        if len(self) > len(compl) and use_complement_simplification:
+        rep =  self._get_connections_representation(is_str)
+        if use_complement_simplification and 'protocols' in self.active_dimensions:
+            # The following 'minus' operation is heavy, try to avoid it as much as possible.
+            compl = ConnectivityProperties.make_all_props() - self
             compl_rep = compl._get_connections_representation(is_str)
-            return f'All but {compl_rep}' if is_str else [{"All but": compl_rep}]
+            if len(rep) > len(compl_rep):
+                return f'All but {compl_rep}' if is_str else [{"All but": compl_rep}]
+            else:
+                return rep
         else:
-            return self._get_connections_representation(is_str)
+            return rep
 
     def _get_connections_representation(self, is_str):
         cubes_list = [self.get_cube_dict(cube, is_str) for cube in self]

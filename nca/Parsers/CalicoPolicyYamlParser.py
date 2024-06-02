@@ -21,7 +21,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
     A parser for Calico NetworkPolicy/GlobalNetworkPolicy/Profile objects
     """
 
-    def __init__(self, policy, peer_container, policy_file_name='', optimized_run='false'):
+    def __init__(self, policy, peer_container, policy_file_name=''):
         """
         :param dict policy: The policy object as provided by the yaml parser
         :param PeerContainer peer_container: The policy will be evaluated against this set of peers
@@ -33,7 +33,6 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         self.namespace = None
         # collecting labels used in calico network policy for fw-rules computation
         self.referenced_labels = set()
-        self.optimized_run = optimized_run
 
     def _parse_selector_expr(self, expr, origin_map, namespace, is_namespace_selector):
         """

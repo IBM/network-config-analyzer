@@ -106,10 +106,10 @@ class MinimizeBasic:
     def fw_rules_to_conn_props(fw_rules, connectivity_restriction=None):
         """
         Converting FWRules to ConnectivityProperties format.
-        This function is used for comparing FWRules output between original and optimized solutions,
-        when optimized_run == 'debug'
+        This function is used for checking that the generated FWRules are semantically equal to connectivity properties
+        from which they were generated. This check is activated when running in the debug mode
         :param MinimizeFWRules fw_rules: the given FWRules.
-        param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
                TCP / non-TCP , or not
         :return: the resulting ConnectivityProperties.
         """

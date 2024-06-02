@@ -85,12 +85,11 @@ class BaseNetworkQuery:
                                        BasePeerSet().get_peer_interval_of(peer_set))
         DimensionsManager().set_domain("dst_peers", DimensionsManager.DimensionType.IntervalSet,
                                        BasePeerSet().get_peer_interval_of(peer_set))
-        if self.get_configs()[0].optimized_run != 'false':
-            # update all optimized connectivity properties by reducing full src_peers/dst_peers dimensions
-            # according to their updated domains (above)
-            for config in self.get_configs():
-                for policy in config.policies_container.policies.values():
-                    policy.reorganize_props_by_new_domains()
+        # update all optimized connectivity properties by reducing full src_peers/dst_peers dimensions
+        # according to their updated domains (above)
+        for config in self.get_configs():
+            for policy in config.policies_container.policies.values():
+                policy.reorganize_props_by_new_domains()
         # run the query
         query_answer = self.execute(cmd_line_flag)
         # restore peers domains and connectivity properties original values
@@ -900,7 +899,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         fw_rules = MinimizeFWRules.get_minimized_firewall_rules_from_props(props, cluster_info, self.output_config,
                                                                            self.config.peer_container,
                                                                            connectivity_restriction)
-        if self.config.optimized_run == 'debug':
+        if self.config.debug:
             self.compare_fw_rules_to_conn_props(fw_rules, props, connectivity_restriction=connectivity_restriction)
         formatted_rules = fw_rules.get_fw_rules_in_required_format(connectivity_restriction=connectivity_restriction)
         return formatted_rules
@@ -1140,7 +1139,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
             fw_rules = MinimizeFWRules.get_minimized_firewall_rules_from_props(props_data.props, props_data.cluster_info,
                                                                                props_data.output_config,
                                                                                props_data.peer_container, None)
-            if self.config1.optimized_run == 'debug':
+            if self.config1.debug:
                 self.compare_fw_rules_to_conn_props(fw_rules, props_data.props)
             conn_graph_explanation = fw_rules.get_fw_rules_in_required_format(False, is_first_connectivity_result)
 
@@ -1258,6 +1257,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         new_conns = self.config2.allowed_connections(res_conns_filter=res_conns_filter)
         old_props, new_props = self.filter_conns_by_input_or_internal_constraints(old_conns.all_allowed_conns,
                                                                                   new_conns.all_allowed_conns)
+        old_minus_new_props = old_props - new_props
+        new_minus_old_props = new_props - old_props
 
         # 1.1. lost connections between removed peers
         key = 'Lost connections between removed peers'
@@ -1302,13 +1303,11 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                                                                   "dst_peers": intersected_peers}) | \
             ConnectivityProperties.make_conn_props_from_dict({"src_peers": intersected_peers,
                                                               "dst_peers": captured_pods})
-        props1 = old_props & props
-        props1 = props1.props_without_auto_conns()
-        props2 = new_props & props
-        props2 = props2.props_without_auto_conns()
-        removed_props_per_key[key] = self.get_changed_props_expl_data(key, PeerSet(), False, props1 - props2,
+        removed_props = (old_minus_new_props & props).props_without_auto_conns()
+        added_props = (new_minus_old_props & props).props_without_auto_conns()
+        removed_props_per_key[key] = self.get_changed_props_expl_data(key, PeerSet(), False, removed_props,
                                                                       self.config1.peer_container)
-        added_props_per_key[key] = self.get_changed_props_expl_data(key, PeerSet(), True, props2 - props1,
+        added_props_per_key[key] = self.get_changed_props_expl_data(key, PeerSet(), True, added_props,
                                                                     self.config2.peer_container)
 
         # 3.2. lost/new connections between intersected peers and ipBlocks due to changes in policies and labels
@@ -1318,11 +1317,11 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                                                                   "dst_peers": all_ip_blocks}) | \
             ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_ip_blocks,
                                                               "dst_peers": captured_pods})
-        props1 = old_props & props
-        props2 = new_props & props
-        removed_props_per_key[key] = self.get_changed_props_expl_data(key, all_ip_blocks, False, props1 - props2,
+        removed_props = old_minus_new_props & props
+        added_props = new_minus_old_props & props
+        removed_props_per_key[key] = self.get_changed_props_expl_data(key, all_ip_blocks, False, removed_props,
                                                                       self.config1.peer_container)
-        added_props_per_key[key] = self.get_changed_props_expl_data(key, all_ip_blocks, True, props2 - props1,
+        added_props_per_key[key] = self.get_changed_props_expl_data(key, all_ip_blocks, True, added_props,
                                                                     self.config2.peer_container)
 
         # 4.1. new connections between intersected peers and added peers

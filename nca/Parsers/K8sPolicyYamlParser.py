@@ -19,7 +19,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
     A parser for k8s NetworkPolicy objects
     """
 
-    def __init__(self, policy, peer_container, policy_file_name='', optimized_run='false'):
+    def __init__(self, policy, peer_container, policy_file_name=''):
         """
         :param dict policy: The policy object as provided by the yaml parser
         :param PeerContainer peer_container: The policy will be evaluated against this set of peers
@@ -30,7 +30,6 @@ class K8sPolicyYamlParser(GenericYamlParser):
         self.peer_container = peer_container
         self.namespace = None
         self.referenced_labels = set()
-        self.optimized_run = optimized_run
         # a set of (key, value) pairs (note, the set may contain pods with labels having same keys but different values
         self.missing_pods_with_labels = set()
 
