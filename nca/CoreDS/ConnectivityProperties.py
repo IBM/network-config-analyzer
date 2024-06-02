@@ -504,7 +504,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         if not super().__bool__():
             return "No connections" if is_str else ["No connections"]
 
-        rep =  self._get_connections_representation(is_str)
+        rep = self._get_connections_representation(is_str)
         if use_complement_simplification and 'protocols' in self.active_dimensions:
             # The following 'minus' operation is heavy, try to avoid it as much as possible.
             compl = ConnectivityProperties.make_all_props() - self
