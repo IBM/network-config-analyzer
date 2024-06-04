@@ -8,7 +8,7 @@ from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.Peer import IpBlock
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from .FWRule import FWRule
-from .MinimizeCsFWRulesOpt import MinimizeCsFwRulesOpt
+from .MinimizeCsFWRules import MinimizeCsFwRules
 
 
 class MinimizeFWRules:
@@ -166,7 +166,7 @@ class MinimizeFWRules:
         props_containment_map = MinimizeFWRules._build_props_containment_map(props_sorted_by_size)
         fw_rules_map = defaultdict(list)
         results_map = dict()
-        minimize_cs_opt = MinimizeCsFwRulesOpt(cluster_info, output_config)
+        minimize_cs = MinimizeCsFwRules(cluster_info, output_config)
         # build fw_rules_map: per connection - a set of its minimized fw rules
         for props, peer_props in props_sorted_by_size:
             # currently skip "no connections"
@@ -174,7 +174,7 @@ class MinimizeFWRules:
                 continue
             # TODO: figure out why we have pairs with (ip,ip) ?
             peer_props_in_containing_props = props_containment_map[props]
-            fw_rules, results_per_info = minimize_cs_opt.compute_minimized_fw_rules_per_prop(
+            fw_rules, results_per_info = minimize_cs.compute_minimized_fw_rules_per_prop(
                 props, peer_props, peer_props_in_containing_props)
             fw_rules_map[props] = fw_rules
             results_map[props] = results_per_info
@@ -204,3 +204,36 @@ class MinimizeFWRules:
                 if other_props != props and props.contained_in(other_props):
                     props_containment_map[props] |= peer_pairs
         return props_containment_map
+
+    @staticmethod
+    def fw_rules_to_conn_props(fw_rules, connectivity_restriction=None):
+        """
+        Converting FWRules to ConnectivityProperties format.
+        This function is used for checking that the generated FWRules are semantically equal to connectivity properties
+        from which they were generated. This check is activated when running in the debug mode
+        :param MinimizeFWRules fw_rules: the given FWRules.
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+               TCP / non-TCP , or not
+        :return: the resulting ConnectivityProperties.
+        """
+        if connectivity_restriction:
+            relevant_protocols = ProtocolSet()
+            if connectivity_restriction == 'TCP':
+                relevant_protocols.add_protocol('TCP')
+            else:  # connectivity_restriction == 'non-TCP'
+                relevant_protocols = ProtocolSet.get_non_tcp_protocols()
+        else:
+            relevant_protocols = ProtocolSet(True)
+
+        res = ConnectivityProperties.make_empty_props()
+        if fw_rules.fw_rules_map is None:
+            return res
+        for fw_rules_list in fw_rules.fw_rules_map.values():
+            for fw_rule in fw_rules_list:
+                src_peers = fw_rule.src.get_peer_set()
+                dst_peers = fw_rule.dst.get_peer_set()
+                rule_props = \
+                    ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_peers, "dst_peers": dst_peers,
+                                                                      "protocols": relevant_protocols}) & fw_rule.props
+                res |= rule_props
+        return res

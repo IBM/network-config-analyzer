@@ -6,13 +6,13 @@
 from collections import defaultdict
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.Peer import IpBlock, ClusterEP, HostEP, DNSEntry, PeerSet, Pod
+from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.OtherResources.K8sNamespace import K8sNamespace
 from .FWRule import FWRuleElement, FWRule, PodElement, PeerSetElement, LabelExpr, PodLabelsElement, IPBlockElement, \
     DNSElement
-from .MinimizeBasic import MinimizeBasic
 
 
-class MinimizeCsFwRulesOpt(MinimizeBasic):
+class MinimizeCsFwRules:
     """
     This is a class for minimizing fw-rules within a specific connection-set
     """
@@ -24,7 +24,8 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         :param output_config: an OutputConfiguration object
 
         """
-        super().__init__(cluster_info, output_config)
+        self.cluster_info = cluster_info
+        self.output_config = output_config
         self.peer_props = ConnectivityProperties()
         self.props = ConnectivityProperties()
         self.peer_props_in_containing_props = ConnectivityProperties()
@@ -276,22 +277,6 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         if curr_covered & self.peer_props_without_ns_expr:
             peers_to_peers_map[frozenset(dim_peers)] |= other_dim_peers
 
-    def get_ns_fw_rules_grouped_by_common_elem(self, is_src_fixed, ns_set, fixed_elem):
-        """
-        create a  fw-rule from a fixed-elem and  a set of namespaces
-        :param is_src_fixed: a flag indicating if the fixed elem is src (True) or dst (False)
-        :param ns_set:  a set of namespaces
-        :param fixed_elem: the fixed element
-        :return: a list with created FWRule
-        """
-        # currently no grouping of ns-list by labels of namespaces
-        grouped_elem = FWRuleElement(ns_set, self.cluster_info)
-        if is_src_fixed:
-            fw_rule = FWRule(fixed_elem, grouped_elem, self.props)
-        else:
-            fw_rule = FWRule(grouped_elem, fixed_elem, self.props)
-        return [fw_rule]
-
     def _create_fw_elements_by_pods_grouping_by_labels(self, pods_set):
         """
         Group a given set of pods by labels, and create FWRuleElements according to the grouping
@@ -307,50 +292,6 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
             res.append(PodLabelsElement(pod_label_expr, ns_info, self.cluster_info))
         if remaining_pods:
             res.append(PeerSetElement(PeerSet(remaining_pods), self.output_config.outputEndpoints == 'deployments'))
-        return res
-
-    def _get_pod_level_fw_rules_grouped_by_common_labels(self, is_src_fixed, pods_set, fixed_elem, extra_pods_set,
-                                                         make_peer_sets=False):
-        """
-        Implements grouping in the level of pods labels.
-        :param is_src_fixed: a bool flag to indicate if fixed_elem is at src or dst.
-        :param pods_set: the set of pods to be grouped
-        :param fixed_elem: the fixed element of the original fw-rules
-        :param extra_pods_set: an additional pods set from containing connections (with same fixed_elem) that can be
-        used for grouping (completing for a set of pods to cover some label grouping).
-        :return: a set of fw-rules result after grouping
-        """
-        res = []
-        # (1) try grouping by pods-labels:
-        chosen_rep, remaining_pods = self._get_pods_grouping_by_labels_main(pods_set, extra_pods_set)
-        for (key, values, ns_info) in chosen_rep:
-            map_simple_keys_to_all_values = self.cluster_info.get_map_of_simple_keys_to_all_values(key, ns_info)
-            all_key_values = self.cluster_info.get_all_values_set_for_key_per_namespace(key, ns_info)
-            pod_label_expr = LabelExpr(key, set(values), map_simple_keys_to_all_values, all_key_values)
-            grouped_elem = PodLabelsElement(pod_label_expr, ns_info, self.cluster_info)
-            if is_src_fixed:
-                fw_rule = FWRule(fixed_elem, grouped_elem, self.props)
-            else:
-                fw_rule = FWRule(grouped_elem, fixed_elem, self.props)
-            res.append(fw_rule)
-
-        # TODO: should avoid having single pods remaining without labels grouping
-        # (2) add rules for remaining single pods:
-        if make_peer_sets and remaining_pods:
-            peer_set_elem = PeerSetElement(PeerSet(remaining_pods), self.output_config.outputEndpoints == 'deployments')
-            if is_src_fixed:
-                fw_rule = FWRule(fixed_elem, peer_set_elem, self.props)
-            else:
-                fw_rule = FWRule(peer_set_elem, fixed_elem, self.props)
-            res.append(fw_rule)
-        else:
-            for pod in remaining_pods:
-                single_pod_elem = PodElement(pod, self.output_config.outputEndpoints == 'deployments')
-                if is_src_fixed:
-                    fw_rule = FWRule(fixed_elem, single_pod_elem, self.props)
-                else:
-                    fw_rule = FWRule(single_pod_elem, fixed_elem, self.props)
-                res.append(fw_rule)
         return res
 
     def _create_fw_rules_from_base_elements_list(self, base_elems_pairs):
@@ -448,14 +389,91 @@ class MinimizeCsFwRulesOpt(MinimizeBasic):
         # unknown base-elem type
         return None
 
-    def _get_peers_paired_with_given_peer(self, peer, is_src_peer):
-        this_dim = "src_peers" if is_src_peer else "dst_peers"
-        other_dim = "dst_peers" if is_src_peer else "src_peers"
-        props = self.covered_peer_props & ConnectivityProperties.make_conn_props_from_dict({this_dim: PeerSet({peer})})
-        return props.project_on_one_dimension(other_dim)
+    def _get_pods_grouping_by_labels_main(self, pods_set, extra_pods_set):
+        """
+        The main function to implement pods grouping by labels.
+        This function splits the pods into namespaces, and per ns calls  get_pods_grouping_by_labels().
+        :param pods_set: the pods for grouping
+        :param extra_pods_set: additional pods that can be used for grouping
+        :return:
+        res_chosen_rep: a list of tuples (key,values,ns) -- as the chosen representation for grouping the pods.
+        res_remaining_pods: set of pods from pods_set that are not included in the grouping result (could not be grouped).
+        """
+        ns_context_options = set(pod.namespace for pod in pods_set)
+        res_chosen_rep = []
+        res_remaining_pods = set()
+        # grouping by pod-labels per each namespace separately
+        for ns in ns_context_options:
+            pods_set_per_ns = pods_set & PeerSet(self.cluster_info.ns_dict[ns])
+            extra_pods_set_per_ns = extra_pods_set & self.cluster_info.ns_dict[ns]
+            chosen_rep, remaining_pods = self._get_pods_grouping_by_labels(pods_set_per_ns, ns, extra_pods_set_per_ns)
+            res_chosen_rep.extend(chosen_rep)
+            res_remaining_pods |= remaining_pods
+        return res_chosen_rep, res_remaining_pods
 
-    # ---------------------------------------------------------------------------------------------------------
-    # below functions are for debugging :
+    def _get_pods_grouping_by_labels(self, pods_set, ns, extra_pods_set):
+        """
+        Implements pods grouping by labels in a single namespace.
+        :param pods_set: the set of pods for grouping.
+        :param ns: the namespace
+        :param extra_pods_set: additional pods that can be used for completing the grouping
+                               (originated in containing connections).
+        :return:
+        chosen_rep:  a list of tuples (key,values,ns) -- as the chosen representation for grouping the pods.
+        remaining_pods: set of pods from pods_list that are not included in the grouping result
+        """
+        if self.output_config.fwRulesDebug:
+            print('get_pods_grouping_by_labels:')
+            print('pods_list: ' + ','.join([str(pod) for pod in pods_set]))
+            print('extra_pods_list: ' + ','.join([str(pod) for pod in extra_pods_set]))
+        all_pods_set = pods_set | extra_pods_set
+        allowed_labels = self.cluster_info.allowed_labels
+        pods_per_ns = self.cluster_info.ns_dict[ns]
+        # labels_rep_options is a list of tuples (key, (values, pods-set)), where each tuple in this list is a valid
+        # grouping of pods-set by "key in values"
+        labels_rep_options = []
+        for key in allowed_labels:
+            values_for_key = self.cluster_info.get_all_values_set_for_key_per_namespace(key, {ns})
+            fully_covered_label_values = set()
+            pods_with_fully_covered_label_values = set()
+            for v in values_for_key:
+                all_pods_per_label_val = self.cluster_info.pods_labels_map[(key, v)] & pods_per_ns
+                if not all_pods_per_label_val:
+                    continue
+                pods_with_label_val_from_pods_list = all_pods_per_label_val & all_pods_set
+                pods_with_label_val_from_original_pods_list = all_pods_per_label_val & pods_set
+                # allow to "borrow" from extra_pods_set only if at least one pod is also in original pods_set
+                if all_pods_per_label_val == pods_with_label_val_from_pods_list and \
+                        pods_with_label_val_from_original_pods_list:
+                    fully_covered_label_values |= {v}
+                    pods_with_fully_covered_label_values |= pods_with_label_val_from_pods_list
+            # TODO: is it OK to ignore label-grouping if only one pod is involved?
+            if self.output_config.fwRulesGroupByLabelSinglePod:
+                if fully_covered_label_values and len(
+                        pods_with_fully_covered_label_values) >= 1:  # don't ignore label-grouping if only one pod is involved
+                    labels_rep_options.append((key, (fully_covered_label_values, pods_with_fully_covered_label_values)))
+            else:
+                if fully_covered_label_values and len(
+                        pods_with_fully_covered_label_values) > 1:  # ignore label-grouping if only one pod is involved
+                    labels_rep_options.append((key, (fully_covered_label_values, pods_with_fully_covered_label_values)))
+
+        chosen_rep = []
+        remaining_pods = pods_set.copy()
+        # sort labels_rep_options by length of pods_with_fully_covered_label_values, to prefer label-grouping that
+        # covers more pods
+        sorted_rep_options = sorted(labels_rep_options, key=lambda x: len(x[1][1]), reverse=True)
+        if self.output_config.fwRulesDebug:
+            print('sorted rep options:')
+            for (key, (label_vals, pods)) in sorted_rep_options:
+                print(key, label_vals, len(pods))
+        ns_info = {ns}
+        for (k, (vals, pods)) in sorted_rep_options:
+            if (pods & pods_set).issubset(remaining_pods):
+                chosen_rep.append((k, vals, ns_info))
+                remaining_pods -= PeerSet(pods)
+            if not remaining_pods:
+                break
+        return chosen_rep, remaining_pods
 
     def _print_results_info(self):
         print('----------------')

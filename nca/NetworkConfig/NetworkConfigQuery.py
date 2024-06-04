@@ -13,7 +13,6 @@ from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.FWRules.ConnectivityGraph import ConnectivityGraph
 from nca.FWRules.MinimizeFWRules import MinimizeFWRules
-from nca.FWRules.MinimizeBasic import MinimizeBasic
 from nca.FWRules.ClusterInfo import ClusterInfo
 from nca.Resources.PolicyResources.NetworkPolicy import PolicyConnectionsFilter
 from nca.Resources.PolicyResources.CalicoNetworkPolicy import CalicoNetworkPolicy
@@ -162,7 +161,7 @@ class BaseNetworkQuery:
     @staticmethod
     def compare_fw_rules_to_conn_props(fw_rules, props, connectivity_restriction=None):
         text_prefix = "Connectivity properties and fw-rules generated from them"
-        props2 = MinimizeBasic.fw_rules_to_conn_props(fw_rules, connectivity_restriction)
+        props2 = MinimizeFWRules.fw_rules_to_conn_props(fw_rules, connectivity_restriction)
         BaseNetworkQuery.compare_conn_props(props, props2, text_prefix)
 
 
