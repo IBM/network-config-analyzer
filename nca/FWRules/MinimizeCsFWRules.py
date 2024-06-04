@@ -6,7 +6,6 @@
 from collections import defaultdict
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.Peer import IpBlock, ClusterEP, HostEP, DNSEntry, PeerSet, Pod
-from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.OtherResources.K8sNamespace import K8sNamespace
 from .FWRule import FWRuleElement, FWRule, PodElement, PeerSetElement, LabelExpr, PodLabelsElement, IPBlockElement, \
     DNSElement
