@@ -10,18 +10,6 @@
     - src_ns:
       - demo
       src_pods:
-      - account-query
-      dst_ns:
-      - demo
-      dst_pods:
-      - bank-ui
-      connection:
-      - Protocol: TCP
-        Ports:
-        - 8080
-    - src_ns:
-      - demo
-      src_pods:
       - bank-ui
       dst_ns:
       - demo
@@ -29,6 +17,18 @@
       - account-command
       connection:
       - All connections
+    - src_ns:
+      - demo
+      src_pods:
+      - account-query
+      dst_ns:
+      - demo
+      dst_pods:
+      - bank-ui
+      connection:
+      - protocols: TCP
+        dst_ports:
+        - 8080
   - description: Removed connections between persistent peers
     rules:
     - src_ns:
@@ -40,6 +40,6 @@
       dst_pods:
       - bank-ui
       connection:
-      - Protocol: UDP
-        Ports:
+      - protocols: UDP
+        dst_ports:
         - 8080

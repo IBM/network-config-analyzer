@@ -44,7 +44,7 @@ class ResourcesHandler:
         self.global_pods_finder = None
         self.global_ns_finder = None
 
-    def set_global_peer_container(self, global_ns_list, global_pod_list, global_resource_list, optimized_run='false'):
+    def set_global_peer_container(self, global_ns_list, global_pod_list, global_resource_list):
         """
         builds the global peer container based on global input resources,
         it also saves the global pods and namespaces finder, to use in case specific configs missing one of them.
@@ -54,7 +54,7 @@ class ResourcesHandler:
         :param Union[list[str], None] global_resource_list: list of global entries of namespaces/pods to handle
         in case specific list is None
         """
-        global_resources_parser = ResourcesParser(optimized_run)
+        global_resources_parser = ResourcesParser()
         self._set_config_peer_container(global_ns_list, global_pod_list, global_resource_list,
                                         'global', True, global_resources_parser)
 
@@ -122,7 +122,7 @@ class ResourcesHandler:
 
         return livesim_configuration_addons
 
-    def parse_elements(self, ns_list, pod_list, resource_list, config_name, save_flag, np_list, optimized_run):
+    def parse_elements(self, ns_list, pod_list, resource_list, config_name, save_flag, np_list):
         """
         Parse the elements and build peer container.
         :param Union[list[str], None] ns_list: namespaces entries
@@ -135,7 +135,7 @@ class ResourcesHandler:
         :param Union[list[str], None] np_list: networkPolicies entries
         :return:  PeerContainer, ResourcesParser, str
         """
-        resources_parser = ResourcesParser(optimized_run)
+        resources_parser = ResourcesParser()
         # build peer container
         peer_container = \
             self._set_config_peer_container(ns_list, pod_list, resource_list, config_name, save_flag, resources_parser)
@@ -146,7 +146,7 @@ class ResourcesHandler:
         return peer_container, resources_parser, cfg
 
     def get_network_config(self, np_list, ns_list, pod_list, resource_list, config_name='global', save_flag=False,
-                           optimized_run='false'):
+                           debug=False):
         """
         First tries to build a peer_container using the input resources (NetworkConfigs's resources)
         If fails, it uses the global peer container.
@@ -158,6 +158,7 @@ class ResourcesHandler:
         if the specific list is None
         :param str config_name: name of the config
         :param bool save_flag: used in cmdline queries with two configs, if save flag is True
+        :param bool debug: for performing some correctness checks
          will save the peer container as global to use it for base config's peer resources in case are missing
         :rtype NetworkConfig
         """
@@ -167,8 +168,7 @@ class ResourcesHandler:
                                                                     resource_list,
                                                                     config_name,
                                                                     save_flag,
-                                                                    np_list,
-                                                                    optimized_run)
+                                                                    np_list)
         NcaLogger().unmute()
         # check if LiveSim can add anything.
         livesim_addons = self.analyze_livesim(resources_parser.policies_finder)
@@ -189,8 +189,7 @@ class ResourcesHandler:
                                                                         resource_list,
                                                                         config_name,
                                                                         save_flag,
-                                                                        np_list,
-                                                                        optimized_run)
+                                                                        np_list)
         else:
             # no relevant livesim resources to add
             NcaLogger().flush_messages()
@@ -201,7 +200,7 @@ class ResourcesHandler:
         # build and return the networkConfig
         return NetworkConfig(name=config_name, peer_container=peer_container,
                              policies_container=resources_parser.policies_finder.policies_container,
-                             optimized_run=optimized_run)
+                             debug=debug)
 
     def _set_config_peer_container(self, ns_list, pod_list, resource_list, config_name, save_flag, resources_parser):
         success, res_type = resources_parser.parse_lists_for_topology(ns_list, pod_list, resource_list)
@@ -253,8 +252,8 @@ class ResourcesParser:
     """
     This class parses the input resources for topology (pods, namespaces, services) and policies.
     """
-    def __init__(self, optimized_run='false'):
-        self.policies_finder = PoliciesFinder(optimized_run)
+    def __init__(self):
+        self.policies_finder = PoliciesFinder()
         self.pods_finder = PodsFinder()
         self.ns_finder = NamespacesFinder()
         self.services_finder = ServicesFinder()

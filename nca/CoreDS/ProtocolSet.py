@@ -13,6 +13,8 @@ class ProtocolSet(CanonicalIntervalSet):
     """
     min_protocol_num = 0
     max_protocol_num = 255
+    port_supporting_protocols = {6, 17, 132}
+    icmp_protocols = {1, 58}
 
     def __init__(self, all_protocols=False):
         """
@@ -148,3 +150,27 @@ class ProtocolSet(CanonicalIntervalSet):
         for interval in self.interval_set:
             new_copy.interval_set.append(interval.copy())
         return new_copy
+
+    @staticmethod
+    def protocol_supports_ports(protocol):
+        """
+        :param protocol: Protocol number or name
+        :return: Whether the given protocol has ports
+        :rtype: bool
+        """
+        prot = protocol
+        if isinstance(protocol, str):
+            prot = ProtocolNameResolver.get_protocol_number(protocol)
+        return prot in ProtocolSet.port_supporting_protocols
+
+    @staticmethod
+    def protocol_is_icmp(protocol):
+        """
+        :param protocol: Protocol number or name
+        :return: Whether the protocol is icmp or icmpv6
+        :rtype: bool
+        """
+        prot = protocol
+        if isinstance(protocol, str):
+            prot = ProtocolNameResolver.get_protocol_number(protocol)
+        return prot in ProtocolSet.icmp_protocols

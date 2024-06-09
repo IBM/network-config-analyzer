@@ -16,6 +16,6 @@
       dst_pods:
       - frontend
       connection:
-      - Protocol: TCP
-        Ports:
+      - protocols: TCP
+        dst_ports:
         - 23

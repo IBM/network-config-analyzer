@@ -7,69 +7,67 @@
     - src_ns:
       - default
       src_pods:
+      - '*'
+      dst_ip_block:
+      - 0.0.0.0/0
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      src_pods:
       - app=productpage
       dst_ns:
       - default
       dst_pods:
       - app=details
       connection:
-      - Protocol: TCP
-        properties:
-        - dst_ports:
-          - 80
-          methods: GET
-          hosts: allowed-host.com
-          paths: all but /bad/path1, /bad/path3
-        - dst_ports:
-          - 80
-          methods: GET
-          hosts: all but allowed-host.com, disallowed-host.com
-          paths: /good_path1, /good_path2, /some/path2
-        - dst_ports:
-          - 80
-          methods: PUT
-          hosts: all but disallowed-host.com
-          paths: /good_path1, /good_path2, /some/path2
-        - dst_ports:
-          - 80
-          methods: all but GET, PUT
-          hosts: allowed-host.com
-          paths: all but /bad/path1, /bad/path3, /some/path2
-        - dst_ports:
-          - 90
-          methods: GET, PUT
-          hosts: all but disallowed-host.com
-          paths: /good_path1, /good_path2, /some/path2
-        - dst_ports:
-          - 100
-          methods: all but PUT
-          hosts: allowed-host.com
-          paths: all but /bad/path1, /bad/path3, /some/path2
-        - dst_ports:
-          - 100
-          methods: all but PUT
-          hosts: all but allowed-host.com
-          paths: /some/path3
-        - dst_ports:
-          - 100
-          methods: PUT
-          paths: /some/path3
-        - dst_ports:
-          - 1-79
-          - 81-89
-          - 91-99
-          - 101-65535
-          methods: all but PUT
-          hosts: allowed-host.com
-          paths: all but /bad/path1, /bad/path3, /some/path2
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ip_block:
-      - 0.0.0.0/0
-      connection:
-      - All connections
+      - dst_ports:
+        - 80
+        methods: GET
+        hosts: allowed-host.com
+        paths: all but /bad/path1, /bad/path3
+      - dst_ports:
+        - 80
+        methods: GET
+        hosts: all but allowed-host.com, disallowed-host.com
+        paths: /good_path1, /good_path2, /some/path2
+      - dst_ports:
+        - 80
+        methods: PUT
+        hosts: all but disallowed-host.com
+        paths: /good_path1, /good_path2, /some/path2
+      - dst_ports:
+        - 80
+        methods: all but GET, PUT
+        hosts: allowed-host.com
+        paths: all but /bad/path1, /bad/path3, /some/path2
+      - dst_ports:
+        - 90
+        methods: GET, PUT
+        hosts: all but disallowed-host.com
+        paths: /good_path1, /good_path2, /some/path2
+      - dst_ports:
+        - 100
+        methods: all but PUT
+        hosts: allowed-host.com
+        paths: all but /bad/path1, /bad/path3, /some/path2
+      - dst_ports:
+        - 100
+        methods: all but PUT
+        hosts: all but allowed-host.com
+        paths: /some/path3
+      - dst_ports:
+        - 100
+        methods: PUT
+        paths: /some/path3
+      - dst_ports:
+        - 1-79
+        - 81-89
+        - 91-99
+        - 101-65535
+        methods: all but PUT
+        hosts: allowed-host.com
+        paths: all but /bad/path1, /bad/path3, /some/path2
     non-TCP_rules:
     - src_ip_block:
       - 0.0.0.0/0

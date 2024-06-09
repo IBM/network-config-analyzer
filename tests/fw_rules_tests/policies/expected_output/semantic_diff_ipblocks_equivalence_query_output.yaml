@@ -37,8 +37,8 @@
       dst_pods:
       - tier=frontend
       connection:
-      - Protocol: TCP
-        Ports:
+      - protocols: TCP
+        dst_ports:
         - 53
   - description: Removed connections between persistent peers and ipBlocks
     rules:
@@ -72,8 +72,8 @@
       dst_pods:
       - tier=frontend
       connection:
-      - Protocol: UDP
-        Ports:
+      - protocols: UDP
+        dst_ports:
         - 53
 - query: semantic_diff_ipblocks_equivalence
   configs:
@@ -114,8 +114,8 @@
       dst_pods:
       - tier=frontend
       connection:
-      - Protocol: TCP
-        Ports:
+      - protocols: TCP
+        dst_ports:
         - 53
   - description: Removed connections between persistent peers and ipBlocks
     rules:
@@ -149,8 +149,8 @@
       dst_pods:
       - tier=frontend
       connection:
-      - Protocol: UDP
-        Ports:
+      - protocols: UDP
+        dst_ports:
         - 53
 - query: semantic_diff_ipblocks_equivalence
   configs:

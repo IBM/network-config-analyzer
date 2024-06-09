@@ -4,22 +4,6 @@
   numerical_result: 0
   explanation:
   - rules:
-    - src_ns:
-      - kube-system
-      src_pods:
-      - '*'
-      dst_ns:
-      - kube-system
-      dst_pods:
-      - has_named_port=dns-local
-      connection:
-      - Protocol: UDP
-        properties:
-        - src_ports:
-          - 80-100
-          dst_ports:
-          - 1-10052
-          - 10054-65535
     - src_ip_block:
       - 0.0.0.0/0
       dst_ns:
@@ -50,3 +34,18 @@
       - '*'
       connection:
       - All connections
+    - src_ns:
+      - kube-system
+      src_pods:
+      - '*'
+      dst_ns:
+      - kube-system
+      dst_pods:
+      - has_named_port=dns-local
+      connection:
+      - protocols: UDP
+        src_ports:
+        - 80-100
+        dst_ports:
+        - 1-10052
+        - 10054-65535

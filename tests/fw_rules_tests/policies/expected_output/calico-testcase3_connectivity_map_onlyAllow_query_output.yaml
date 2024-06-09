@@ -13,4 +13,4 @@
       dst_pods:
       - tier=frontend
       connection:
-      - Protocol: TCP
+      - protocols: TCP
