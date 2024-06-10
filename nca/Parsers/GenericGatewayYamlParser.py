@@ -10,7 +10,6 @@ from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
-from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.Resources.PolicyResources.GatewayPolicy import GatewayPolicyRule
 from .GenericYamlParser import GenericYamlParser
 
@@ -78,8 +77,6 @@ class GenericGatewayYamlParser(GenericYamlParser):
         :param PeerSet src_peers: the source peers to add to optimized props
         :return: the list of IngressPolicyRules
         """
-        assert not conn_props.named_ports
-        assert not conn_props.excluded_named_ports
         res = []
         assert not conn_props.is_active_dimension("src_peers")
         # extract dst_peers dimension from cubes
@@ -91,10 +88,7 @@ class GenericGatewayYamlParser(GenericYamlParser):
             rule_opt_props = ConnectivityProperties.make_conn_props(conn_cube)
             dst_peer_set = new_conn_cube["dst_peers"]
             new_conn_cube.unset_dim("dst_peers")
-            new_props = ConnectivityProperties.make_conn_props(new_conn_cube)
-            new_conns = ConnectionSet()
-            new_conns.add_connections('TCP', new_props)
-            res.append(GatewayPolicyRule(dst_peer_set, new_conns, rule_opt_props))
+            res.append(GatewayPolicyRule(dst_peer_set, rule_opt_props))
         return res
 
     @staticmethod

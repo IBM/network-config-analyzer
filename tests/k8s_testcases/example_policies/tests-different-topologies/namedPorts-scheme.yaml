@@ -25,7 +25,7 @@ networkConfigList:
   - name: np5 # just for warnings
     networkPolicyList:
       - namedPorts-policy5.yaml
-    expectedWarnings: 5
+    expectedWarnings: 0
 
 queries:
   - name: semantic_diff_named_ports_np1_and_np2

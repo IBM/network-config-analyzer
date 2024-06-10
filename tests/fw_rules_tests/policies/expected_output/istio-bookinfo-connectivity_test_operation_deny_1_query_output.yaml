@@ -9,28 +9,6 @@
       dst_ns:
       - default
       dst_pods:
-      - '*'
-      connection:
-      - Protocol: TCP
-        properties:
-        - methods: all but GET
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ns:
-      - default
-      dst_pods:
-      - '*'
-      connection:
-      - Protocol: TCP
-        properties:
-        - methods: all but GET
-    - src_ip_block:
-      - 0.0.0.0/0
-      dst_ns:
-      - default
-      dst_pods:
       - app!=details
       connection:
       - All connections
@@ -62,6 +40,24 @@
       - '*'
       connection:
       - All connections
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - default
+      dst_pods:
+      - '*'
+      connection:
+      - methods: all but GET
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - default
+      dst_pods:
+      - '*'
+      connection:
+      - methods: all but GET
     non-TCP_rules:
     - src_ip_block:
       - 0.0.0.0/0

@@ -5,7 +5,6 @@
 
 from enum import Enum
 from dataclasses import dataclass
-from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 
@@ -55,12 +54,12 @@ class NetworkPolicy:
         self.ingress_rules = []
         self.egress_rules = []
 
-        # The flag below is used for lazy calculation of optimized policy connections (as a union of rules connections)
+        # The flag below is used for lazy calculation of policy connections (as a union of rules connections)
         # The flag is set to False for new policies (including in redundancy query, when removing a rule from policy by
         # creating a new policy with a subset of rules), or after changing peers domains (per query).
-        # When this flag is False, the sync_opt_props function will (re)calculate optimized policy connections.
-        self.optimized_props_in_sync = False
-        self._init_opt_props()
+        # When this flag is False, the sync_props function will (re)calculate policy connections.
+        self.props_in_sync = False
+        self._init_props()
 
         self.affects_ingress = False  # whether the policy affects the ingress of the selected peers
         self.affects_egress = False  # whether the policy affects the egress of the selected peers
@@ -70,46 +69,46 @@ class NetworkPolicy:
         self.has_ipv6_addresses = False  # whether the policy referenced ip addresses (by user)
         # if this flag is False, excluding ipv6 addresses from the query results will be enabled
 
-    def _init_opt_props(self):
+    def _init_props(self):
         """
         The members below are used for lazy evaluation of policy connectivity properties.
         NOTE: THEY CANNOT BE ACCESSED DIRECTLY, ONLY BY 'GETTER' METHODS BELOW!
         """
-        self._optimized_allow_ingress_props = ConnectivityProperties.make_empty_props()
-        self._optimized_deny_ingress_props = ConnectivityProperties.make_empty_props()
-        self._optimized_pass_ingress_props = ConnectivityProperties.make_empty_props()
-        self._optimized_allow_egress_props = ConnectivityProperties.make_empty_props()
-        self._optimized_deny_egress_props = ConnectivityProperties.make_empty_props()
-        self._optimized_pass_egress_props = ConnectivityProperties.make_empty_props()
+        self._allow_ingress_props = ConnectivityProperties.make_empty_props()
+        self._deny_ingress_props = ConnectivityProperties.make_empty_props()
+        self._pass_ingress_props = ConnectivityProperties.make_empty_props()
+        self._allow_egress_props = ConnectivityProperties.make_empty_props()
+        self._deny_egress_props = ConnectivityProperties.make_empty_props()
+        self._pass_egress_props = ConnectivityProperties.make_empty_props()
 
-    def optimized_allow_ingress_props(self):
-        self.sync_opt_props()
-        return self._optimized_allow_ingress_props
+    def allow_ingress_props(self):
+        self.sync_props()
+        return self._allow_ingress_props
 
-    def optimized_deny_ingress_props(self):
-        self.sync_opt_props()
-        return self._optimized_deny_ingress_props
+    def deny_ingress_props(self):
+        self.sync_props()
+        return self._deny_ingress_props
 
-    def optimized_pass_ingress_props(self):
-        self.sync_opt_props()
-        return self._optimized_pass_ingress_props
+    def pass_ingress_props(self):
+        self.sync_props()
+        return self._pass_ingress_props
 
-    def optimized_allow_egress_props(self):
-        self.sync_opt_props()
-        return self._optimized_allow_egress_props
+    def allow_egress_props(self):
+        self.sync_props()
+        return self._allow_egress_props
 
-    def optimized_deny_egress_props(self):
-        self.sync_opt_props()
-        return self._optimized_deny_egress_props
+    def deny_egress_props(self):
+        self.sync_props()
+        return self._deny_egress_props
 
-    def optimized_pass_egress_props(self):
-        self.sync_opt_props()
-        return self._optimized_pass_egress_props
+    def pass_egress_props(self):
+        self.sync_props()
+        return self._pass_egress_props
 
-    def sync_opt_props(self):
+    def sync_props(self):
         """
-        Implemented by derived policies to compute optimized props of the policy according to the optimized props
-        of its rules, in case optimized props are not currently synchronized.
+        Implemented by derived policies to compute props of the policy according to the props
+        of its rules, in case props are not currently synchronized.
         """
         return NotImplemented
 
@@ -118,8 +117,8 @@ class NetworkPolicy:
 
     def __eq__(self, other):
         if isinstance(self, type(other)):
-            self.sync_opt_props()
-            other.sync_opt_props()
+            self.sync_props()
+            other.sync_props()
             return \
                 self.name == other.name and \
                 self.namespace == other.namespace and \
@@ -128,12 +127,12 @@ class NetworkPolicy:
                 self.selected_peers == other.selected_peers and \
                 self.ingress_rules == other.ingress_rules and \
                 self.egress_rules == other.egress_rules and \
-                self._optimized_allow_ingress_props == other._optimized_allow_ingress_props and \
-                self._optimized_deny_ingress_props == other._optimized_deny_ingress_props and \
-                self._optimized_pass_ingress_props == other._optimized_pass_ingress_props and \
-                self._optimized_allow_egress_props == other._optimized_allow_egress_props and \
-                self._optimized_deny_egress_props == other._optimized_deny_egress_props and \
-                self._optimized_pass_egress_props == other._optimized_pass_egress_props
+                self._allow_ingress_props == other._allow_ingress_props and \
+                self._deny_ingress_props == other._deny_ingress_props and \
+                self._pass_ingress_props == other._pass_ingress_props and \
+                self._allow_egress_props == other._allow_egress_props and \
+                self._deny_egress_props == other._deny_egress_props and \
+                self._pass_egress_props == other._pass_egress_props
         return False
 
     def __lt__(self, other):  # required so we can evaluate the policies according to their order
@@ -187,37 +186,37 @@ class NetworkPolicy:
         """
         self.egress_rules.append(rule)
 
-    def reorganize_opt_props_by_new_domains(self):
+    def reorganize_props_by_new_domains(self):
         """
         This method is called to allow reduction of src_peers/dst_peers to inactive dimensions
-        in optimized properties of every rule. It is called when running in a context of a certain query
+        in properties of every rule. It is called when running in a context of a certain query
         and after updating the domain accordingly in DimensionsManager.
-        It also saves a copy of the optimized connectivity properties before reduction, to allow restoring to
+        It also saves a copy of the connectivity properties before reduction, to allow restoring to
         these values after the query's run.
         Note: there is an assumption that rules of all derived policies have
-        optimized_props and optimized_props_copy members
+        props and props_copy members
         """
         for rule in self.ingress_rules + self.egress_rules:
-            if not rule.optimized_props_copy:
+            if not rule.props_copy:
                 # to avoid calling with the same rule multiple times
-                rule.optimized_props_copy = rule.optimized_props.copy()
-                rule.optimized_props.reduce_active_dimensions()
-        self.optimized_props_in_sync = False
+                rule.props_copy = rule.props.copy()
+                rule.props.reduce_active_dimensions()
+        self.props_in_sync = False
 
-    def restore_opt_props(self):
+    def restore_props(self):
         """
-        This method is called to restore optimized connectivity properties of every rule to their original values,
+        This method is called to restore connectivity properties of every rule to their original values,
         before the reduction of src_peers/dst_peers dimensions, s.t. the values of those dimensions will be
         with respect to the "full" default domain of these dimensions.
         Note: there is an assumption that rules of all derived policies have
-        optimized_props and optimized_props_copy members
+        props and props_copy members
         """
         for rule in self.ingress_rules + self.egress_rules:
-            if rule.optimized_props_copy:
+            if rule.props_copy:
                 # to avoid calling with the same rule multiple times
-                rule.optimized_props = rule.optimized_props_copy
-                rule.optimized_props_copy = ConnectivityProperties()
-        self.optimized_props_in_sync = False
+                rule.props = rule.props_copy
+                rule.props_copy = ConnectivityProperties()
+        self.props_in_sync = False
 
     @staticmethod
     def get_policy_type_from_dict(policy):  # noqa: C901
@@ -316,28 +315,6 @@ class NetworkPolicy:
         return self.rule_containing(other_policy, other_policy.egress_rules[other_egress_rule_index - 1],
                                     other_egress_rule_index, self.egress_rules)
 
-    def referenced_ip_blocks(self, exclude_ipv6=False):
-        """
-        Returns ip blocks referenced by this policy, or empty PeerSet
-        :param bool exclude_ipv6: indicates if to exclude the automatically added IPv6 addresses in the referenced ip_blocks.
-        IPv6 addresses that are referenced in the policy by the user will always be included
-        :return: PeerSet of the referenced ip blocks
-        """
-        return PeerSet()  # default value, can be overridden in derived classes
-
-    @staticmethod
-    def _include_ip_block(ip_block, exclude_ipv6):
-        """
-        returns whether to include or not the ipblock in the policy's referenced_ip_blocks
-        :param IpBlock ip_block: the ip_block to check
-        :param bool exclude_ipv6 : indicates if to exclude ipv6 addresses
-        excluding the ip_block will be enabled only if the policy didn't reference any ipv6 addresses.
-        if policy referenced only ipv4 addresses ,then the parser didn't add auto ip_blocks, all will be included.
-        otherwise, if the policy didn't reference any ips, this mean automatic ip_block with all ips was added,
-        this is the ip_block to be excluded - so query results will not consider the ipv6 full range
-        """
-        return ip_block.is_ipv4_block() or not exclude_ipv6
-
     def get_order(self):
         """
         :return: the order of the policy
@@ -351,12 +328,6 @@ class NetworkPolicy:
         """
         return NotImplemented
 
-    def allowed_connections(self, from_peer, to_peer, is_ingress):
-        """
-        Implemented by derived classes to evaluate the set of connections this policy allows between two peers
-        """
-        return NotImplemented
-
     def policy_type_str(self):
         if self.policy_kind == NetworkPolicy.PolicyType.Ingress:
             return "Ingress resource"
@@ -366,21 +337,9 @@ class NetworkPolicy:
             return "NetworkPolicy"
 
 
-@dataclass
-class PolicyConnections:
-    """
-    A class to contain the effect of applying policies to a pair of peers
-    """
-    captured: bool  # Whether policy(ies) selectors captured relevant peers (can have empty allowed-conns with captured==True)
-    allowed_conns: ConnectionSet = ConnectionSet()  # Connections allowed (and captured) by the policy(ies)
-    denied_conns: ConnectionSet = ConnectionSet()  # Connections denied by the policy(ies)
-    pass_conns: ConnectionSet = ConnectionSet()  # Connections specified as PASS by the policy(ies)
-    all_allowed_conns: ConnectionSet = ConnectionSet()  # all (captured+ non-captured) Connections allowed by the policy(ies)
-
-
-# TODO - making OptimizedPolicyConnections a dataclass does not work
+# TODO - making PolicyConnections a dataclass does not work
 # (probably because PeerSet and ConnectivityProperties are mutable)
-class OptimizedPolicyConnections:
+class PolicyConnections:
     """
     A class to contain the effect of applying policies to all src and dst peers
     It also serves as a filter for lazy evaluations of connections:

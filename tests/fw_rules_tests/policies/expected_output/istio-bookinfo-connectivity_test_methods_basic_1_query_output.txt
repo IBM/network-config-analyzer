@@ -1,6 +1,6 @@
 For connections of type TCP, final fw rules for query: connectivity-istio-test-methods-basic-1, config: istio-test-methods-basic-1:
 src_ns: [default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [default] src_pods: [app=productpage] dst_ns: [default] dst_pods: [app=details] conn: TCP {'dst_ports': '80', 'methods': 'GET'}
+src_ns: [default] src_pods: [app=productpage] dst_ns: [default] dst_pods: [app=details] conn: {dst_ports:80,methods:GET}
 src_ns: [default] src_pods: [app=productpage] dst_ns: [default] dst_pods: [app=reviews] conn: All connections
 
 For connections of type non-TCP, final fw rules for query: connectivity-istio-test-methods-basic-1, config: istio-test-methods-basic-1:

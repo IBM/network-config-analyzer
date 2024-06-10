@@ -18,30 +18,11 @@
       - '*'
       connection:
       - All but:
-        - Protocol: TCP
-          Ports:
-          - 53
-        - Protocol: UDP
-          Ports:
+        - protocols: TCP, UDP
+          dst_ports:
           - 53
   - description: Removed connections between persistent peers
     rules:
-    - src_ns:
-      - kube-system
-      - kube-system-dummy-to-ignore
-      src_pods:
-      - '*'
-      dst_ns:
-      - kube-system
-      dst_pods:
-      - '*'
-      connection:
-      - Protocol: TCP
-        Ports:
-        - 53
-      - Protocol: UDP
-        Ports:
-        - 53
     - src_ns:
       - vendor-system
       src_pods:
@@ -52,6 +33,19 @@
       - '*'
       connection:
       - All connections
+    - src_ns:
+      - kube-system
+      - kube-system-dummy-to-ignore
+      src_pods:
+      - '*'
+      dst_ns:
+      - kube-system
+      dst_pods:
+      - '*'
+      connection:
+      - protocols: TCP, UDP
+        dst_ports:
+        - 53
   - description: Removed connections between persistent peers and ipBlocks
     rules:
     - src_ip_block:
@@ -61,9 +55,6 @@
       dst_pods:
       - '*'
       connection:
-      - Protocol: TCP
-        Ports:
-        - 53
-      - Protocol: UDP
-        Ports:
+      - protocols: TCP, UDP
+        dst_ports:
         - 53

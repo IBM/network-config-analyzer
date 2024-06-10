@@ -26,20 +26,20 @@
             ],
             "connection": [
               {
-                "Protocol": "TCP",
-                "Ports": [
+                "protocols": "TCP",
+                "dst_ports": [
                   8080
                 ]
               },
               {
-                "Protocol": "UDP",
-                "Ports": [
+                "protocols": "UDP",
+                "dst_ports": [
                   9090
                 ]
               },
               {
-                "Protocol": "SCTP",
-                "Ports": [
+                "protocols": "SCTP",
+                "dst_ports": [
                   7070
                 ]
               }
@@ -65,14 +65,14 @@
             ],
             "connection": [
               {
-                "Protocol": "TCP",
-                "Ports": [
+                "protocols": "TCP",
+                "dst_ports": [
                   8082
                 ]
               },
               {
-                "Protocol": "UDP",
-                "Ports": [
+                "protocols": "UDP",
+                "dst_ports": [
                   9091
                 ]
               }

@@ -4,7 +4,7 @@ digraph {
 	fontsize=30
 	fontcolor=maroon
 	subgraph cluster_map_explanation {
-	dict_box [label=<<table border="0" cellspacing="0"><tr><td  align="text">Connectivity legend<br align="left" /></td></tr><tr><td align="text" tooltip="All" href="bogus">All     All<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 85-90" href="bogus">tcp85-90     TCP 85-90<br align="left" /></td></tr></table>> shape=box]
+	dict_box [label=<<table border="0" cellspacing="0"><tr><td  align="text">Connectivity legend<br align="left" /></td></tr><tr><td align="text" tooltip="All" href="bogus">All     All<br align="left" /></td></tr><tr><td align="text" tooltip="{protocols:TCP,dst_ports:85-90}" href="bogus">tcp85-90     {protocols:TCP,dst_ports:85-90}<br align="left" /></td></tr></table>> shape=box]
 	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2 tooltip="IP Block"]
 	"clique_All0" [shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0  xlabel="All" tooltip="Traffic allowed between any two workloads connected to the CLIQUE:
 All"]
@@ -38,7 +38,7 @@ subgraph cluster_kube_system_new_dummy_to_ignore_namespace{
 }
 	"0.0.0.0/0" -> "clique_All0"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
 	"default/cognetive-agents(DaemonSet)" -> "clique_All0"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"default/cognetive-agents(DaemonSet)" -> "kube-system-new/calico-node(DaemonSet)"[label="tcp85-90" labeltooltip="TCP 85-90" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/cognetive-agents(DaemonSet)" -> "kube-system-new/calico-node(DaemonSet)"[label="tcp85-90" labeltooltip="{protocols:TCP,dst_ports:85-90}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" -> "clique_All0"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
 	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" -> "ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
 	"kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" -> "clique_All0"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]

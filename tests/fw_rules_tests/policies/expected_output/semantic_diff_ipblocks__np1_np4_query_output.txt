@@ -9,7 +9,7 @@ src_ns: [kube-system] src_pods: [tier=frontend] dst_ns: [default,kube-system-dum
 src_ns: [kube-system] src_pods: [tier=frontend] dst_ns: [kube-system] dst_pods: [!has(tier) or tier=not_frontend_for_demo] conn: All connections
 
 Added connections between persistent peers and ipBlocks (based on topology from config: np4) :
-src: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: All but UDP 53
+src: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: All but {protocols:UDP,dst_ports:53}
 src: 10.0.0.0/8,172.21.0.0/16,172.30.0.0/16 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: All connections
 
 Removed connections between persistent peers and ipBlocks (based on topology from config: np1) :

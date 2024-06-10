@@ -3,8 +3,8 @@ src: 0.0.0.0/0 dst_ns: [default] dst_pods: [!has(dep)] conn: All connections
 src: 0.0.0.0/0 dst_ns: [ingress-controller-ns,istio-system,kube-system] dst_pods: [*] conn: All connections
 src_ns: [default] src_pods: [dep=A] dst_ns: [default] dst_pods: [dep=B] conn: All connections
 src_ns: [default] src_pods: [dep=B] dst_ns: [default] dst_pods: [dep=A] conn: All connections
-src_ns: [ingress-controller-ns] src_pods: [*] dst_ns: [default] dst_pods: [foo-app] conn: TCP {'dst_ports': '5678', 'paths': '/foo(/*)?'}
-src_ns: [istio-system] src_pods: [*] dst_ns: [default] dst_pods: [httpbin] conn: TCP {'dst_ports': '80', 'hosts': 'httpbin.example.com', 'paths': '(/status(/*)?)|(/delay(/*)?)'}
+src_ns: [ingress-controller-ns] src_pods: [*] dst_ns: [default] dst_pods: [foo-app] conn: {dst_ports:5678,paths:/foo(/*)?}
+src_ns: [istio-system] src_pods: [*] dst_ns: [default] dst_pods: [httpbin] conn: {dst_ports:80,hosts:httpbin.example.com,paths:(/status(/*)?)|(/delay(/*)?)}
 src_ns: [kube-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [default] dst_pods: [!has(dep)] conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [ingress-controller-ns,istio-system,kube-system] dst_pods: [*] conn: All connections
@@ -12,7 +12,7 @@ src_ns: [kube-system] src_pods: [*] dst_ns: [ingress-controller-ns,istio-system,
 For connections of type non-TCP, final fw rules for query: , config: **:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [!has(dep)] conn: All connections
 src: 0.0.0.0/0 dst_ns: [ingress-controller-ns,istio-system,kube-system] dst_pods: [*] conn: All connections
-src_ns: [default] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: UDP 53
+src_ns: [default] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: {protocols:UDP,dst_ports:53}
 src_ns: [default] src_pods: [dep=A] dst_ns: [default] dst_pods: [dep=B] conn: All connections
 src_ns: [default] src_pods: [dep=B] dst_ns: [default] dst_pods: [dep=A] conn: All connections
 src_ns: [istio-system,kube-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections

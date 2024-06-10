@@ -2,7 +2,6 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-import copy
 import ipaddress
 import re
 from ipaddress import ip_network
@@ -424,39 +423,6 @@ class IpBlock(Peer, CanonicalIntervalSet):
 
         non_overlapping_interval_list += interval.split()
         non_overlapping_interval_list += to_add
-
-    @staticmethod
-    def disjoint_ip_blocks(ip_blocks1, ip_blocks2, exclude_ipv6=False):
-        """
-        Takes all (atomic) ip-ranges in both ip-blocks and returns a new set of ip-ranges where
-        each ip-range is:
-        1. a subset of an ip-range in either ip-blocks AND
-        2. cannot be partially intersected by an ip-range in either ip-blocks AND
-        3. is maximal (extending the range to either side will violate either 1 or 2)
-        :param ip_blocks1: A set of ip blocks
-        :param ip_blocks2: A set of ip blocks
-        :param bool exclude_ipv6: indicates if to exclude the IPv6 addresses in case the result is all_ips_block
-        :return: A set of ip ranges as specified above
-        :rtype: PeerSet
-        """
-        # deepcopy is required since add_interval_to_list() changes the 'interval' argument
-        ip_blocks_set = copy.deepcopy(ip_blocks1)
-        ip_blocks_set |= copy.deepcopy(ip_blocks2)
-        ip_blocks = sorted(ip_blocks_set, key=IpBlock.ip_count)
-
-        # making sure the resulting list does not contain overlapping ipBlocks
-        blocks_with_no_overlap = []
-        for interval in ip_blocks:
-            IpBlock._add_interval_to_list(interval, blocks_with_no_overlap)
-
-        res = PeerSet()
-        for ip_block in blocks_with_no_overlap:
-            res.add(ip_block)
-
-        if not res:
-            res.add(IpBlock.get_all_ips_block(exclude_ipv6))
-
-        return res
 
     def is_ipv4_block(self):
         """

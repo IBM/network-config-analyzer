@@ -32,7 +32,7 @@ networkConfigList:
   - name: named-ports
     networkPolicyList:
       - testcase15-named-ports.yaml
-    expectedWarnings: 12
+    expectedWarnings: 0
 
   - name: equiv-games1
     networkPolicyList:

@@ -5,9 +5,7 @@
 
 import re
 from nca.CoreDS import Peer
-from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.PortSet import PortSet
-from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ProtocolNameResolver import ProtocolNameResolver
 from nca.CoreDS.ProtocolSet import ProtocolSet
@@ -21,7 +19,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
     A parser for k8s NetworkPolicy objects
     """
 
-    def __init__(self, policy, peer_container, policy_file_name='', optimized_run='false'):
+    def __init__(self, policy, peer_container, policy_file_name=''):
         """
         :param dict policy: The policy object as provided by the yaml parser
         :param PeerContainer peer_container: The policy will be evaluated against this set of peers
@@ -32,7 +30,6 @@ class K8sPolicyYamlParser(GenericYamlParser):
         self.peer_container = peer_container
         self.namespace = None
         self.referenced_labels = set()
-        self.optimized_run = optimized_run
         # a set of (key, value) pairs (note, the set may contain pods with labels having same keys but different values
         self.missing_pods_with_labels = set()
 
@@ -330,57 +327,26 @@ class K8sPolicyYamlParser(GenericYamlParser):
             src_pods = policy_selected_pods
             dst_pods = res_pods
 
-        res_opt_props = ConnectivityProperties.make_empty_props()
+        res_props = ConnectivityProperties.make_empty_props()
         ports_array = rule.get('ports', [])
         if ports_array:
-            res_conns = ConnectionSet()
             for port in ports_array:
                 protocol, dest_port_set = self.parse_port(port)
                 if isinstance(protocol, str):
                     protocol = ProtocolNameResolver.get_protocol_number(protocol)
-                conn_cube = ConnectivityCube.make_from_dict({"dst_ports": dest_port_set})
                 # K8s doesn't reason about src ports
-                res_conns.add_connections(protocol, ConnectivityProperties.make_conn_props(conn_cube))
-                if self.optimized_run != 'false' and src_pods and dst_pods:
+                if src_pods and dst_pods:
                     protocols = ProtocolSet.get_protocol_set_with_single_protocol(protocol)
-                    conn_cube.update({"protocols": protocols, "src_peers": src_pods, "dst_peers": dst_pods})
-                    conn_props = ConnectivityProperties.make_conn_props(conn_cube)
-                    res_opt_props |= conn_props
+                    conn_props = ConnectivityProperties.make_conn_props_from_dict(
+                        {"dst_ports": dest_port_set, "protocols": protocols, "src_peers": src_pods,
+                         "dst_peers": dst_pods})
+                    res_props |= conn_props
         else:
-            res_conns = ConnectionSet(True)
-            if self.optimized_run != 'false':
-                res_opt_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_pods,
-                                                                                  "dst_peers": dst_pods})
+            res_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_pods, "dst_peers": dst_pods})
         if not res_pods:
             self.warning('Rule selects no pods', rule)
 
-        return K8sPolicyRule(res_pods, res_conns, res_opt_props)
-
-    def verify_named_ports(self, rule, rule_pods, rule_conns):
-        """
-        Check the validity of named ports in a given rule: whether a relevant pod refers to the named port and whether
-        the protocol defined in the policy matches the protocol defined by the Pod. Issue warnings as required.
-        :param dict rule: The unparsed rule (for reference in warnings)
-        :param Peer.PeerSet rule_pods: The set of Pods in which the named ports should be defined
-        :param ConnectionSet rule_conns: The rule-specified connections, possibly containing named ports
-        :return: None
-        """
-        if not rule_conns.has_named_ports():
-            return
-        named_ports = rule_conns.get_named_ports()
-        for protocol, rule_ports in named_ports:
-            for port in rule_ports:
-                port_used = False
-                for pod in rule_pods:
-                    pod_named_port = pod.named_ports.get(port)
-                    if pod_named_port:
-                        port_used = True
-                        if ProtocolNameResolver.get_protocol_number(pod_named_port[1]) != protocol:
-                            self.warning(f'Protocol mismatch for named port {port} (vs. Pod {pod.full_name()})',
-                                         rule['ports'])
-
-                if not port_used:
-                    self.warning(f'Named port {port} is not defined in any selected pod', rule['ports'])
+        return K8sPolicyRule(res_pods, res_props)
 
     def parse_ingress_rule(self, rule, policy_selected_pods):
         """
@@ -393,7 +359,6 @@ class K8sPolicyYamlParser(GenericYamlParser):
         :rtype: tuple(K8sPolicyRule, ConnectivityProperties)
         """
         res_rule = self.parse_ingress_egress_rule(rule, 'from', policy_selected_pods)
-        self.verify_named_ports(rule, policy_selected_pods, res_rule.port_set)
         return res_rule
 
     def parse_egress_rule(self, rule, policy_selected_pods):
@@ -407,13 +372,12 @@ class K8sPolicyYamlParser(GenericYamlParser):
         :rtype: tuple(K8sPolicyRule, ConnectivityProperties)
         """
         res_rule = self.parse_ingress_egress_rule(rule, 'to', policy_selected_pods)
-        self.verify_named_ports(rule, res_rule.peer_set, res_rule.port_set)
         return res_rule
 
     def parse_policy(self):
         """
         Parses the input object to create a K8sNetworkPolicy object
-        :return: a K8sNetworkPolicy object with proper PeerSets and ConnectionSets
+        :return: a K8sNetworkPolicy object with proper PeerSets and connectivity properties
         :rtype: K8sNetworkPolicy
         """
         policy_name, policy_ns = self.parse_generic_yaml_objects_fields(self.policy, ['NetworkPolicy'],

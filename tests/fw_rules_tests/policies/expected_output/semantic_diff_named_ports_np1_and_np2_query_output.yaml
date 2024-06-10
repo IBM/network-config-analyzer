@@ -19,8 +19,8 @@
       dst_pods:
       - kube-dns-amd64-d66bf76db
       connection:
-      - Protocol: TCP
-        Ports:
+      - protocols: TCP
+        dst_ports:
         - 10054
   - description: Added connections between persistent peers and ipBlocks
     rules:
@@ -31,6 +31,6 @@
       dst_pods:
       - kube-dns-amd64-d66bf76db
       connection:
-      - Protocol: TCP
-        Ports:
+      - protocols: TCP
+        dst_ports:
         - 10054

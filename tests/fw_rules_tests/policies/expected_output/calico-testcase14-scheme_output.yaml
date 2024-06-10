@@ -13,9 +13,8 @@
       dst_pods:
       - app=keepalived-watcher
       connection:
-      - Protocol: ICMP
-        properties:
-        - icmp_type:
-          - 100
-          icmp_code:
-          - 230
+      - protocols: ICMP
+        icmp_type:
+        - 100
+        icmp_code:
+        - 230
