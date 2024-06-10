@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from .CanonicalIntervalSet import CanonicalIntervalSet
 from .CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from .DimensionsManager import DimensionsManager
 from .PortSet import PortSet
 from .MethodSet import MethodSet
 from .Peer import PeerSet, BasePeerSet
 from .ProtocolNameResolver import ProtocolNameResolver
+from .ProtocolSet import ProtocolSet
 from .MinDFA import MinDFA
 from .ConnectivityCube import ConnectivityCube
 
@@ -21,57 +21,29 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
     for TCP, it may be any of the dimensions from dimensions_list, except for icmp_type and icmp_code,
     for icmp data the actual used dimensions are only [src_peers, dst_peers, icmp_type, icmp_code].
 
-    The usage of this class in the original solution:
-        In the original solution ConnectivityProperties do not hold src_peers, dst_peers and protocols dimensions.
-        First, ConnectivityProperties are built at parse time. Since peers are not a part of ConnectivityProperties,
-        the named ports cannot be resolved at parse time, and so are kept in named_ports and excluded_named_ports,
-        as explained below.
-        Second, at the query time, ConnectivityProperties is calculated for every pair of peers, and the named ports
-        are resolved. The pairs of peers and the protocols are kept in ConnectionSet class, together with
-        the resulting ConnectivityProperties.
+    ConnectivityProperties potentially hold all the dimensions, including sets of source peers and destination peers.
+    The connectivity properties are built at the parse time for every policy.
 
-    The usage of this class in the optimized solution:
-        In the optimized solution ConnectivityProperties potentially hold all the dimensions, including sets
-        of source peers and destination peers. The connectivity properties are built at the parse time for every policy.
-        The named ports are resolved during the construction, therefore in the optimized solution named_ports and
-        excluded_named_ports fields are not used.
+    The src_peers and dst_peers dimensions are special dimensions,  they do not have constant domain. Their domain
+    depends on the current set of peers in the system (as appears in BasePeerSet singleton). This set grows when
+    adding more configurations. Thus, there is no unique 'all values' representation. In particular, those
+    dimensions are never reduced to inactive.
+    This might be a problem in comparison and inclusion operators of ConnectivityProperties. The possible solution
+    may be to keep 'reference full domain value' for these dimensions (as another member in the BasePeerSet),
+    and to set it to relevant values per query, and to make a special treatment of these dimensions
+    in the above operators.
 
-        The src_peers and dst_peers dimensions are special dimensions,  they do not have constant domain. Their domain
-        depends on the current set of peers in the system (as appears in BasePeerSet singleton). This set grows when
-        adding more configurations. Thus, there is no unique 'all values' representation. In particular, those
-        dimensions are never reduced to inactive.
-        This might be a problem in comparison and inclusion operators of ConnectivityProperties. The possible solution
-        may be to keep 'reference full domain value' for these dimensions (as another member in the BasePeerSet),
-        and to set it to relevant values per query, and to make a special treatment of these dimensions
-        in the above operators.
+    Also, including support for (included and excluded) named ports (relevant for dest ports only), which are
+    resolved during the construction of ConnectivityProperties.
 
-    Also, including support for (included and excluded) named ports (relevant for dest ports only).
-
-    The representation with named ports is considered a mid-representation, and is required due to the late binding
-    of the named ports to real ports numbers.
-    The method convert_named_ports is responsible for applying this late binding, and is called by a policy's method
-    allowed_connections() to get policy's allowed connections, given <src, dest> peers and direction ingress/egress
-    Given a specific dest-peer context, the pod's named ports mapping is known, and used for the named ports conversion.
-    Some of the operators for ConnectivityProperties are not supported for objects with (included and excluded) named ports.
-    For example, in the general case, the result for (all but port "x") | (all but port 10) has 2 options:
-        (1) if the dest pod has named port "x" mapped to 10 -> the result would be: (all but port 10)
-        (2) otherwise, the result would be: (all ports)
-    Thus, for the 'or' operator, the assumption is that excluded named ports is empty for both input objects.
-    Some methods, such as bool(), str(), may not return accurate results on objects with named ports (included/excluded)
-    since they depend on the late binding with actual dest pod context.
-    The current actual flow for using named ports is limited for the following:
-    (1) k8s: only +ve named ports, no src named ports, and only use of 'or' operators between these objects.
-    (2) calico: +ve and -ve named ports, no src named ports, and no use of operators between these objects.
     """
 
-    def __init__(self, create_all=False):
+    def __init__(self, dimensions_list=None, create_all=False):
         """
         This will create empty or full connectivity properties, depending on create_all flag.
         :param create_all: whether to create full connectivity properties.
         """
-        super().__init__(ConnectivityCube.dimensions_list)
-        self.named_ports = {}  # a mapping from dst named port (String) to src ports interval set
-        self.excluded_named_ports = {}  # a mapping from dst named port (String) to src ports interval set
+        super().__init__(dimensions_list if dimensions_list else ConnectivityCube.all_dimensions_list)
         if create_all:
             self.set_all()
 
@@ -97,21 +69,14 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         src_ports = conn_cube["src_ports"]
         dst_ports = conn_cube["dst_ports"]
         assert not src_ports.named_ports and not src_ports.excluded_named_ports
-        all_ports = PortSet.all_ports_interval.copy()
-        for port_name in dst_ports.named_ports:
-            res.named_ports[port_name] = src_ports.port_set
-        for port_name in dst_ports.excluded_named_ports:
-            res.excluded_named_ports[port_name] = all_ports
+        assert not dst_ports.named_ports and not dst_ports.excluded_named_ports
         return res
-
-    def __bool__(self):
-        return super().__bool__() or bool(self.named_ports)
 
     def __str__(self):
         if self.is_all():
-            return ''
+            return 'All connections'
         if not super().__bool__():
-            return 'Empty'
+            return 'No connections'
         if self.active_dimensions == ['dst_ports']:
             assert (len(self) == 1)
             for cube in self:
@@ -125,6 +90,9 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
     def __hash__(self):
         return super().__hash__()
 
+    def __lt__(self, other):
+        return len(self) < len(other) or str(self) < str(other)
+
     def get_connectivity_cube(self, cube):
         """
         translate the ordered cube to ConnectivityCube format
@@ -132,7 +100,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         :return: the cube in ConnectivityCube format
         :rtype: ConnectivityCube
         """
-        res = ConnectivityCube()
+        res = ConnectivityCube(self.all_dimensions_list)
         for i, dim in enumerate(self.active_dimensions):
             if isinstance(cube[i], MinDFA):
                 res.set_dim_directly(dim, cube[i])
@@ -149,10 +117,11 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         :rtype: dict
         """
         cube_dict = {}
+        dimensions_manager = DimensionsManager()
         for i, dim in enumerate(self.active_dimensions):
             dim_values = cube[i]
-            dim_type = DimensionsManager().get_dimension_type_by_name(dim)
-            dim_domain = DimensionsManager().get_dimension_domain_by_name(dim)
+            dim_type = dimensions_manager.get_dimension_type_by_name(dim)
+            dim_domain = dimensions_manager.get_dimension_domain_by_name(dim)
             if dim_domain == dim_values:
                 continue  # skip dimensions with all values allowed in a cube
             if dim in ['protocols', 'methods']:
@@ -167,7 +136,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
                     values_list = ','.join(str(interval) for interval in values_list)
             else:
                 # TODO: should be a list of words for a finite len DFA?
-                values_list = DimensionsManager().get_dim_values_str(dim_values, dim)
+                values_list = dimensions_manager.get_dim_values_str(dim_values, dim)
             cube_dict[dim] = values_list
         return cube_dict
 
@@ -188,9 +157,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
     def __eq__(self, other):
         if isinstance(other, ConnectivityProperties):
-            res = super().__eq__(other) and self.named_ports == other.named_ports and \
-                self.excluded_named_ports == other.excluded_named_ports
-            return res
+            return super().__eq__(other)
         return False
 
     def __and__(self, other):
@@ -208,96 +175,14 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         res -= other
         return res
 
-    def __iand__(self, other):
-        assert not self.has_named_ports()
-        assert not isinstance(other, ConnectivityProperties) or not other.has_named_ports()
-        super().__iand__(other)
-        return self
-
-    def __ior__(self, other):
-        assert not self.excluded_named_ports
-        assert not isinstance(other, ConnectivityProperties) or not other.excluded_named_ports
-        super().__ior__(other)
-        if isinstance(other, ConnectivityProperties):
-            res_named_ports = dict({})
-            for port_name in self.named_ports:
-                res_named_ports[port_name] = self.named_ports[port_name]
-            for port_name in other.named_ports:
-                if port_name in res_named_ports:
-                    res_named_ports[port_name] |= other.named_ports[port_name]
-                else:
-                    res_named_ports[port_name] = other.named_ports[port_name]
-            self.named_ports = res_named_ports
-        return self
-
-    def __isub__(self, other):
-        assert not self.has_named_ports()
-        assert not isinstance(other, ConnectivityProperties) or not other.has_named_ports()
-        super().__isub__(other)
-        return self
-
-    def contained_in(self, other):
-        """
-        :param ConnectivityProperties other: another connectivity properties
-        :return: Whether all (source port, target port) pairs in self also appear in other
-        :rtype: bool
-        """
-        assert not self.has_named_ports()
-        assert not other.has_named_ports()
-        return super().contained_in(other)
-
-    def has_named_ports(self):
-        return self.named_ports or self.excluded_named_ports
-
-    def get_named_ports(self):
-        res = set()
-        res |= set(self.named_ports.keys())
-        res |= set(self.excluded_named_ports.keys())
-        return res
-
-    def convert_named_ports(self, named_ports, protocol):
-        """
-        Replaces all references to named ports with actual ports, given a mapping
-        NOTE: that this function modifies self
-        :param dict[str, (int, int)] named_ports: The mapping from a named to port (str) to the actual port number
-        :param int protocol: The relevant protocol
-        :return: None
-        """
-        if not named_ports:
-            named_ports = {}
-
-        my_named_ports = self.named_ports
-        self.named_ports = {}
-        my_excluded_named_ports = self.excluded_named_ports
-        self.excluded_named_ports = {}
-
-        active_dims = ["src_ports", "dst_ports"]
-        for port in my_named_ports:
-            real_port = named_ports.get(port)
-            if real_port and real_port[1] == protocol:
-                real_port_number = real_port[0]
-                rectangle = [my_named_ports[port],
-                             CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
-                self.add_cube(rectangle, active_dims)
-        for port in my_excluded_named_ports:
-            real_port = named_ports.get(port)
-            if real_port and real_port[1] == protocol:
-                real_port_number = real_port[0]
-                rectangle = [my_excluded_named_ports[port],
-                             CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
-                self.add_hole(rectangle, active_dims)
-
     def copy(self):
         """
         :rtype: ConnectivityProperties
         """
-        res = ConnectivityProperties()
+        res = ConnectivityProperties(self.all_dimensions_list)
         for layer in self.layers:
             res.layers[self._copy_layer_elem(layer)] = self.layers[layer].copy()
         res.active_dimensions = self.active_dimensions.copy()
-
-        res.named_ports = self.named_ports.copy()
-        res.excluded_named_ports = self.excluded_named_ports.copy()
         return res
 
     def print_diff(self, other, self_name, other_name):
@@ -308,6 +193,10 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         :return: If self!=other, return a string showing a (source, target) pair that appears in only one of them
         :rtype: str
         """
+        if self.is_all() and not other.is_all():
+            return self_name + ' allows all connections while ' + other_name + ' does not.'
+        if not self.is_all() and other.is_all():
+            return other_name + ' allows all connections while ' + self_name + ' does not.'
         self_minus_other = self - other
         other_minus_self = other - self
         diff_str = self_name if self_minus_other else other_name
@@ -365,7 +254,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         return res
 
     @staticmethod
-    def _resolve_named_ports(named_ports, peer, protocols):
+    def _resolve_named_ports(named_ports, peer, protocols, used_named_ports):
         peer_named_ports = peer.get_named_ports()
         real_ports = PortSet()
         for named_port in named_ports:
@@ -378,6 +267,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
                       f'of the pod {peer}. Ignoring the pod')
                 continue
             real_ports.add_port(real_port[0])
+            used_named_ports.add(named_port)
         return real_ports
 
     @staticmethod
@@ -388,11 +278,8 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         If possible (i.e., in the optimized solution, when dst_peers are supported in the given cube),
         the named ports will be resolved.
 
-        In the optimized solution, the resulting ConnectivityProperties should not contain named ports:
+        The resulting ConnectivityProperties should not contain named ports:
             they are substituted with corresponding port numbers, per peer
-        In the original solution, the resulting ConnectivityProperties may contain named ports;
-            they cannot yet be resolved, since dst peers are not provided at this stage the original solution;
-            they will be resolved by convert_named_ports call during query runs.
 
         :param ConnectivityCube conn_cube: the input connectivity cube including all dimension values,
             whereas missing dimensions are represented by their default values (representing all possible values).
@@ -401,11 +288,12 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         src_ports = conn_cube["src_ports"]
         dst_ports = conn_cube["dst_ports"]
         assert not src_ports.named_ports and not src_ports.excluded_named_ports
-        if (not dst_ports.named_ports and not dst_ports.excluded_named_ports) or \
-                not conn_cube.is_active_dim("dst_peers"):
-            # Should not resolve named ports
+        if not dst_ports.named_ports and not dst_ports.excluded_named_ports:
+            # No named ports
             return ConnectivityProperties._make_conn_props_no_named_ports_resolution(conn_cube)
 
+        # Should resolve named ports
+#        assert conn_cube.is_active_dim("dst_peers")
         # Initialize conn_properties
         if dst_ports.port_set:
             dst_ports_no_named_ports = PortSet()
@@ -418,15 +306,21 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         # Resolving dst named ports
         protocols = conn_cube["protocols"]
         dst_peers = conn_cube["dst_peers"]
+        used_named_ports = set()
         for peer in dst_peers:
-            real_ports = ConnectivityProperties._resolve_named_ports(dst_ports.named_ports, peer, protocols)
+            real_ports = ConnectivityProperties._resolve_named_ports(dst_ports.named_ports, peer, protocols,
+                                                                     used_named_ports)
             if real_ports:
                 conn_cube.update({"dst_ports": real_ports, "dst_peers": PeerSet({peer})})
                 conn_properties |= ConnectivityProperties._make_conn_props_no_named_ports_resolution(conn_cube)
-            excluded_real_ports = ConnectivityProperties._resolve_named_ports(dst_ports.excluded_named_ports, peer, protocols)
+            excluded_real_ports = ConnectivityProperties._resolve_named_ports(dst_ports.excluded_named_ports, peer,
+                                                                              protocols, used_named_ports)
             if excluded_real_ports:
                 conn_cube.update({"dst_ports": excluded_real_ports, "dst_peers": PeerSet({peer})})
                 conn_properties -= ConnectivityProperties._make_conn_props_no_named_ports_resolution(conn_cube)
+        unresolved_named_ports = (dst_ports.named_ports.union(dst_ports.excluded_named_ports)).difference(used_named_ports)
+        if unresolved_named_ports:
+            print(f'Warning: Named ports {unresolved_named_ports} are not defined in any pod')
         return conn_properties
 
     @staticmethod
@@ -452,9 +346,9 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         This is a compact way to represent all peers connections, but it is an over-approximation also containing
         IpBlock->IpBlock connections. Those redundant connections will be eventually filtered out.
         """
-        src_peers = BasePeerSet().get_peer_set_by_indices(DimensionsManager().get_dimension_domain_by_name("src_peers"))
-        dst_peers = BasePeerSet().get_peer_set_by_indices(DimensionsManager().get_dimension_domain_by_name("dst_peers"))
-        return ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_peers, "dst_peers": dst_peers})
+        # optimization: src_peers and dst_peers have the same domain
+        peers = BasePeerSet().get_peer_set_by_indices(DimensionsManager().get_dimension_domain_by_name("src_peers"))
+        return ConnectivityProperties.make_conn_props_from_dict({"src_peers": peers, "dst_peers": peers})
 
     @staticmethod
     def make_empty_props():
@@ -470,7 +364,14 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         Returns all connectivity properties, representing logical True
         :return: ConnectivityProperties
         """
-        return ConnectivityProperties(True)
+        return ConnectivityProperties(create_all=True)
+
+    def get_all_peers(self):
+        """
+        Return all peers appearing in self.
+        :return: PeerSet
+        """
+        return self.project_on_one_dimension("src_peers") | self.project_on_one_dimension("dst_peers")
 
     def are_auto_conns(self):
         """
@@ -496,9 +397,131 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         """
         Return the properties after removing all connections from peer to itself
         """
-        peers = self.project_on_one_dimension("src_peers") | self.project_on_one_dimension("dst_peers")
+        return self - self.get_auto_conns_from_peers()
+
+    def get_auto_conns_from_peers(self):
+        """
+        Build properties containing all connections from peer to itself, for all peers in the current properties
+        :return: the resulting auto connections properties
+        """
+        peers = self.get_all_peers()
         auto_conns = ConnectivityProperties()
         for peer in peers:
             auto_conns |= ConnectivityProperties.make_conn_props_from_dict({"src_peers": PeerSet({peer}),
                                                                             "dst_peers": PeerSet({peer})})
-        return self - auto_conns
+        return auto_conns
+
+    def minimize(self):
+        """
+        Try to minimize the current properties by changing the order between "src_peers" and "dst_peers" dimensions
+        """
+        new_props = self.reorder_by_switching_src_dst_peers()
+        return self if len(self) <= len(new_props) else new_props
+
+    def reorder_by_switching_src_dst_peers(self):
+        """
+        Reorder self by switching the order between "src_peers" and "dst_peers" dimensions
+        """
+        new_all_dims_map = [i for i in range(len(self.all_dimensions_list))]
+        src_peers_index = self.all_dimensions_list.index("src_peers")
+        dst_peers_index = self.all_dimensions_list.index("dst_peers")
+        # switch between "src_peers" and "dst_peers" dimensions
+        new_all_dims_map[src_peers_index] = dst_peers_index
+        new_all_dims_map[dst_peers_index] = src_peers_index
+        return self._reorder_by_dim_list(new_all_dims_map)
+
+    def _reorder_by_dim_list(self, new_all_dims_map):
+        """
+        Reorder the current properties by the given dimensions order
+        :param list[int] new_all_dims_map: the given dimensions order
+        :return: the reordered connectivity properties
+        """
+        # Build reordered all dimensions list
+        new_all_dimensions_list = self._reorder_list_by_map(self.all_dimensions_list, new_all_dims_map)
+        new_active_dimensions = []
+        new_active_dims_map = [i for i in range(len(self.active_dimensions))]
+        # Build reordered active dimensions list
+        for dim in new_all_dimensions_list:
+            if dim in self.active_dimensions:
+                new_active_dims_map[len(new_active_dimensions)] = self.active_dimensions.index(dim)
+                new_active_dimensions.append(dim)
+        # Build reordered properties by cubes
+        res = ConnectivityProperties(new_all_dimensions_list)
+        for cube in self:
+            new_cube = self._reorder_list_by_map(cube, new_active_dims_map)
+            res.add_cube(new_cube, new_active_dimensions)
+        return res
+
+    @staticmethod
+    def _reorder_list_by_map(orig_list, new_to_old_map):
+        """
+        Reorder a given list by map from new to old indices.
+        :param list orig_list: the original list
+        :param list[int] new_to_old_map: the list mapping new to old indices
+        :return: the resulting list
+        """
+        res = []
+        for i in range(len(orig_list)):
+            res.append(orig_list[new_to_old_map[i]])
+        return res
+
+    @staticmethod
+    def extract_src_dst_peers_from_cube(the_cube, peer_container, relevant_protocols=ProtocolSet(True)):
+        """
+        Remove src_peers and dst_peers from the given cube, and return those sets of peers
+        and the resulting properties without the peers.
+        :param ConnectivityCube the_cube: the given cube
+        :param PeerContainer peer_container: the peer container
+        :param relevant_protocols: the relevant protocols used to represent all protocols
+        :return: tuple(ConnectivityProperties, PeerSet, PeerSet) - the resulting properties after removing
+        src_peers and dst_peers, src_peers, dst_peers
+        """
+        all_peers = peer_container.get_all_peers_group(True)
+        conn_cube = the_cube.copy()
+        src_peers = conn_cube["src_peers"] or all_peers
+        conn_cube.unset_dim("src_peers")
+        dst_peers = conn_cube["dst_peers"] or all_peers
+        conn_cube.unset_dim("dst_peers")
+        protocols = conn_cube["protocols"]
+        if protocols == relevant_protocols:
+            conn_cube.unset_dim("protocols")
+        props = ConnectivityProperties.make_conn_props(conn_cube)
+        return props, src_peers, dst_peers
+
+    def get_simplified_connections_representation(self, is_str, use_complement_simplification=True):
+        """
+        Get a simplified representation of the connectivity properties - choose shorter version between self
+        and its complement.
+        representation as str is a string representation, and not str is representation as list of objects.
+        The representation is used at fw-rules representation of the connection.
+        :param bool is_str: should get str representation (True) or list representation (False)
+        :param bool use_complement_simplification: should choose shorter rep between self and complement
+        :return: the required representation of the connection set
+        :rtype Union[str, list]
+        """
+        if self.is_all():
+            return "All connections" if is_str else ["All connections"]
+        if not super().__bool__():
+            return "No connections" if is_str else ["No connections"]
+
+        rep = self._get_connections_representation(is_str)
+        if use_complement_simplification and 'protocols' in self.active_dimensions:
+            # The following 'minus' operation is heavy, try to avoid it as much as possible.
+            compl = ConnectivityProperties.make_all_props() - self
+            compl_rep = compl._get_connections_representation(is_str)
+            if len(rep) > len(compl_rep):
+                return f'All but {compl_rep}' if is_str else [{"All but": compl_rep}]
+            else:
+                return rep
+        else:
+            return rep
+
+    def _get_connections_representation(self, is_str):
+        cubes_list = [self.get_cube_dict(cube, is_str) for cube in self]
+        if is_str:
+            return ','.join(self._get_cube_str_representation(cube) for cube in cubes_list)
+        return cubes_list
+
+    @staticmethod
+    def _get_cube_str_representation(cube):
+        return '{' + ','.join(f'{item[0]}:{item[1]}' for item in cube.items()) + '}'

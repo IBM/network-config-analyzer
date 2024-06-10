@@ -7,20 +7,6 @@
     - src_ns:
       - default
       src_pods:
-      - app=productpage
-      dst_ns:
-      - default
-      dst_pods:
-      - app=details
-      connection:
-      - Protocol: TCP
-        properties:
-        - dst_ports:
-          - 80
-          methods: GET
-    - src_ns:
-      - default
-      src_pods:
       - '*'
       dst_ip_block:
       - 0.0.0.0/0
@@ -36,6 +22,18 @@
       - app=reviews
       connection:
       - All connections
+    - src_ns:
+      - default
+      src_pods:
+      - app=productpage
+      dst_ns:
+      - default
+      dst_pods:
+      - app=details
+      connection:
+      - dst_ports:
+        - 80
+        methods: GET
     non-TCP_rules:
     - src_ip_block:
       - 0.0.0.0/0

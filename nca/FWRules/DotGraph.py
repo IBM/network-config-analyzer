@@ -5,7 +5,6 @@
 from dataclasses import dataclass
 from enum import Enum
 import string
-import ast
 
 
 class DotGraph:
@@ -122,7 +121,6 @@ class DotGraph:
         output_result += ''.join([self._subgraph_to_str(subgraph) for subgraph in self.subgraphs.values()])
         output_result += ''.join(sorted([self._edge_to_str(edge) for edge in self.edges]))
         output_result += '\tcolor=white\n'
-        output_result += self._explanation_to_str()
         output_result += '\tlabelloc = "b"\n'
         if with_header:
             output_result += '\tfontsize=15\n'
@@ -131,22 +129,6 @@ class DotGraph:
             output_result += '\t}\n'
         output_result += '}\n'
         return output_result
-
-    @staticmethod
-    def _explanation_to_str():
-        """
-        creates a string in dot format of the explanation label
-        """
-        explanation = ['Application connectivity graph',
-                       ' ',
-                       ' ',
-                       ]
-        explanation_table = '<<table border="0" cellspacing="0">'
-        for line in explanation:
-            explanation_table += f'<tr><td align="text" >{line} <br align="left" /></td></tr>'
-        explanation_table += '</table>>\n'
-
-        return f'\tlabel={explanation_table}'
 
     def _labels_dict_to_str(self):
         """
@@ -230,6 +212,11 @@ class DotGraph:
         line += f'[{label} {tooltip} color={edge_color} fontcolor=darkgreen {arrow_type}]\n'
         return line
 
+    @staticmethod
+    def get_val_by_key_from_list(the_list, key):
+        res_items = [item for item in the_list if key in item]
+        return res_items[0].split(':')[1] if res_items else ''
+
     def _set_labels_dict(self):
         """
         creates a dict of label -> to label_short
@@ -244,19 +231,14 @@ class DotGraph:
         labels_short = {}
         # for each label, the short will look like "tcp<port>" if there is a port, or "TCP" if there is no port
         for label in self.labels:
-            splitted_label = label.split(' ', 1)
-            label_type = splitted_label.pop(0)
-            label_port = splitted_label[0] if splitted_label else ''
-            if label_port.startswith('{'):
-                # it is not a port, its a list of dict, a dict can have 'dst_ports'
-                # we will use only one 'dst_ports':
-                connections = ast.literal_eval(f'[{label_port}]')
-                ports = [conn['dst_ports'] for conn in connections if 'dst_ports' in conn.keys()]
-                label_port = ports[0] if ports else ''
+            splitted_label = label.replace('{', '').replace('}', '').split(',')
+            label_type = self.get_val_by_key_from_list(splitted_label, 'protocols') or 'TCP'
+            label_port = self.get_val_by_key_from_list(splitted_label, 'dst_ports')
             # a 'dst_ports' can be too long (like 'port0,port1-port2' ) we trim it to the first port:
             if len(label_port) > 6:
                 label_port = label_port.split(',')[0].split('-')[0]
-            labels_short[label] = f'{label_type.lower()}{label_port}' if label_port else label_type
+            labels_short[label] = 'All' if label == 'All' else f'{label_type.lower()}{label_port}' if label_port \
+                else label_type
 
         # for labels sharing the same short, we will add a letter to the end of the short:
         for short in set(labels_short.values()):

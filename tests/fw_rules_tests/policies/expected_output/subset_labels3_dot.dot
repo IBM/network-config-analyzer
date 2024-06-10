@@ -21,13 +21,6 @@ subgraph cluster_ns1_namespace{
 	"ns1/deployment-A-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-A-1</td></tr><tr><td>deployment-A-2</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 	"ns1/deployment-B-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-B-1</td></tr><tr><td>deployment-B-2</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 }
-subgraph cluster_ns2_namespace{
-	label="ns2"
-	fontsize=20
-	fontcolor=blue
-	tooltip="Namespace"
-	"ns2/deployment-F-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-F-1</td></tr><tr><td>deployment-F-2</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
-}
 subgraph cluster_ns3_namespace{
 	label="ns3"
 	fontsize=20
@@ -40,7 +33,6 @@ subgraph cluster_ns3_namespace{
 	"ns1/deployment-B-1" -> "ns1/deployment-A-1"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"ns3/Pod8" -> "default/Pod4"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	color=white
-	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
 	labelloc = "b"
 	fontsize=15
 	fontcolor=maroon

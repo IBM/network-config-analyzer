@@ -1,3 +1,5 @@
+resourceList:
+  - bookinfo-topology
 
 networkConfigList:
   - name: mixed-sidecar

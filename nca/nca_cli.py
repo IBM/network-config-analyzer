@@ -146,7 +146,7 @@ def run_args(args):  # noqa: C901
     # so that configs from certain run do not affect a potential following run.
     BasePeerSet.reset()
     if args.scheme:
-        return SchemeRunner(args.scheme, args.output_format, args.file_out, args.optimized_run).run_scheme()
+        return SchemeRunner(args.scheme, args.output_format, args.file_out, args.debug).run_scheme()
     ns_list = args.ns_list
     pod_list = args.pod_list
     resource_list = args.resource_list
@@ -185,16 +185,12 @@ def run_args(args):  # noqa: C901
             all_labels.append(lbl_dict)
         output_config['subset'].update({'label_subset': all_labels})
 
-    if args.explain is not None and args.optimized_run == 'true':
+    if args.explain is not None:
         output_config['explain'] = args.explain
         ExplTracker().activate(output_config.outputEndpoints)
 
     if args.output_format == 'html':
-        if args.optimized_run == 'true':
-            ExplTracker().activate(output_config.outputEndpoints)
-        else:
-            print('Not creating html format. html format has only optimized implementation')
-            return _compute_return_value(0, 0, 1)
+        ExplTracker().activate(output_config.outputEndpoints)
 
     if args.equiv is not None:
         np_list = args.equiv if args.equiv != [''] else None
@@ -230,16 +226,10 @@ def run_args(args):  # noqa: C901
         pair_query_flag = True
         expected_output = args.expected_output or None
 
-    if args.optimized_run == 'debug' or args.optimized_run == 'true':
-        # TODO - update/remove the optimization below when all queries are supported in optimized implementation
-        if not SchemeRunner.has_implemented_opt_queries({query_name}):
-            print(f'Not running query {query_name} since it does not have optimized implementation yet')
-            return _compute_return_value(0, 0, 1)
-
     resources_handler = ResourcesHandler()
     network_config = resources_handler.get_network_config(_make_recursive(np_list), _make_recursive(ns_list),
                                                           _make_recursive(pod_list), _make_recursive(resource_list),
-                                                          save_flag=pair_query_flag, optimized_run=args.optimized_run)
+                                                          save_flag=pair_query_flag)
     if pair_query_flag:
         base_np_list = args.base_np_list
         base_resource_list = args.base_resource_list
@@ -248,8 +238,7 @@ def run_args(args):  # noqa: C901
         base_network_config = resources_handler.get_network_config(_make_recursive(base_np_list),
                                                                    _make_recursive(base_ns_list),
                                                                    _make_recursive(base_pod_list),
-                                                                   _make_recursive(base_resource_list),
-                                                                   optimized_run=args.optimized_run)
+                                                                   _make_recursive(base_resource_list))
         if base_as_second:
             network_configs_array = [network_config, base_network_config]
         else:
@@ -339,12 +328,9 @@ def nca_main(argv=None):
     parser.add_argument('--pr_url', type=str, help='The full api url for adding a PR comment')
     parser.add_argument('--return_0', action='store_true', help='Force a return value 0')
     parser.add_argument('--version', '-v', action='store_true', help='Print version and exit')
-    parser.add_argument('--debug', '-d', action='store_true', help='Print debug information')
+    parser.add_argument('--debug', '-d', action='store_true', help='Run correctness checks and print debug information')
     parser.add_argument('--output_endpoints', choices=['pods', 'deployments'],
                         help='Choose endpoints type in output (pods/deployments)', default='deployments')
-    parser.add_argument('--optimized_run', '-opt', type=str,
-                        help='Whether to run optimized run (-opt=true), original run (-opt=false) - the default '
-                             'or the comparison of the both (debug)', default='false')
     parser.add_argument('--print_ipv6', action='store_true', help='Display IPv6 addresses connections too. '
                                                                   'If the policy reference IPv6 addresses, '
                                                                   'their connections will be printed anyway')

@@ -1,21 +1,20 @@
 For connections of type TCP, final fw rules for query: new_online_boutique_connectivity_map, config: new_online_boutique:
-src: 0.0.0.0/0 dst_ns: [asm-ingress] dst_pods: [*] conn: TCP 8080
+src: 0.0.0.0/0 dst_ns: [asm-ingress] dst_pods: [*] conn: {dst_ports:8080}
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [loadgenerator] conn: All connections
 src_ns: [asm-ingress,default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
+src_ns: [asm-ingress,default] src_pods: [*] dst_ns: [asm-ingress] dst_pods: [*] conn: {dst_ports:8080}
 src_ns: [asm-ingress,default] src_pods: [*] dst_ns: [default] dst_pods: [loadgenerator] conn: All connections
-src_ns: [asm-ingress] src_pods: [*] dst_ns: [asm-ingress] dst_pods: [*] conn: All connections
-src_ns: [asm-ingress] src_pods: [*] dst_ns: [default] dst_pods: [frontend] conn: TCP {'dst_ports': '8080', 'methods': 'GET, POST'}
-src_ns: [default] src_pods: [*] dst_ns: [asm-ingress] dst_pods: [*] conn: TCP 8080
-src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: TCP {'methods': 'POST', 'paths': '/hipstershop.CartService/AddItem, /hipstershop.CartService/GetCart, /hipstershop.CartService/EmptyCart'}
-src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [currencyservice] conn: TCP {'dst_ports': '7000', 'methods': 'POST', 'paths': '/hipstershop.CurrencyService/Convert, /hipstershop.CurrencyService/GetSupportedCurrencies'}
-src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [shippingservice] conn: TCP {'dst_ports': '50051', 'methods': 'POST', 'paths': '/hipstershop.ShippingService/GetQuote, /hipstershop.ShippingService/ShipOrder'}
-src_ns: [default] src_pods: [app in (checkoutservice,frontend,recommendationservice)] dst_ns: [default] dst_pods: [productcatalogservice] conn: TCP {'dst_ports': '3550', 'methods': 'POST', 'paths': '/hipstershop.ProductCatalogService/GetProduct, /hipstershop.ProductCatalogService/ListProducts'}
-src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [emailservice] conn: TCP {'dst_ports': '8080', 'methods': 'POST', 'paths': '/hipstershop.EmailService/SendOrderConfirmation'}
-src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [paymentservice] conn: TCP {'dst_ports': '50051', 'methods': 'POST', 'paths': '/hipstershop.PaymentService/Charge'}
-src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [adservice] conn: TCP {'dst_ports': '9555', 'methods': 'POST', 'paths': '/hipstershop.AdService/GetAds'}
-src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [checkoutservice] conn: TCP {'dst_ports': '5050', 'methods': 'POST', 'paths': '/hipstershop.CheckoutService/PlaceOrder'}
-src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [recommendationservice] conn: TCP {'dst_ports': '8080', 'methods': 'POST', 'paths': '/hipstershop.RecommendationService/ListRecommendations'}
-src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [frontend] conn: TCP {'dst_ports': '8080', 'methods': 'GET, POST'}
+src_ns: [asm-ingress] src_pods: [*] dst_ns: [default] dst_pods: [frontend] conn: {dst_ports:8080,methods:GET, POST}
+src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: {methods:POST,paths:/hipstershop.CartService/AddItem, /hipstershop.CartService/GetCart, /hipstershop.CartService/EmptyCart}
+src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [currencyservice] conn: {dst_ports:7000,methods:POST,paths:/hipstershop.CurrencyService/Convert, /hipstershop.CurrencyService/GetSupportedCurrencies}
+src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [shippingservice] conn: {dst_ports:50051,methods:POST,paths:/hipstershop.ShippingService/GetQuote, /hipstershop.ShippingService/ShipOrder}
+src_ns: [default] src_pods: [app in (checkoutservice,frontend,recommendationservice)] dst_ns: [default] dst_pods: [productcatalogservice] conn: {dst_ports:3550,methods:POST,paths:/hipstershop.ProductCatalogService/GetProduct, /hipstershop.ProductCatalogService/ListProducts}
+src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [emailservice] conn: {dst_ports:8080,methods:POST,paths:/hipstershop.EmailService/SendOrderConfirmation}
+src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [paymentservice] conn: {dst_ports:50051,methods:POST,paths:/hipstershop.PaymentService/Charge}
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [adservice] conn: {dst_ports:9555,methods:POST,paths:/hipstershop.AdService/GetAds}
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [checkoutservice] conn: {dst_ports:5050,methods:POST,paths:/hipstershop.CheckoutService/PlaceOrder}
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [recommendationservice] conn: {dst_ports:8080,methods:POST,paths:/hipstershop.RecommendationService/ListRecommendations}
+src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [frontend] conn: {dst_ports:8080,methods:GET, POST}
 
 For connections of type non-TCP, final fw rules for query: new_online_boutique_connectivity_map, config: new_online_boutique:
 src: 0.0.0.0/0 dst_ns: [asm-ingress,default] dst_pods: [*] conn: All connections

@@ -96,28 +96,14 @@
     rules:
     - src_ip_block:
       - 0.0.0.0/5
-      - 8.0.0.0/7
-      dst_ns:
-      - default
-      dst_pods:
-      - app=app-1
-      connection:
-      - All connections
-    - src_ip_block:
       - 10.10.0.0/16
-      dst_ns:
-      - default
-      dst_pods:
-      - app=app-1
-      connection:
-      - All connections
-    - src_ip_block:
       - 11.0.0.0/8
       - 12.0.0.0/6
       - 128.0.0.0/1
       - 16.0.0.0/4
       - 32.0.0.0/3
       - 64.0.0.0/2
+      - 8.0.0.0/7
       dst_ns:
       - default
       dst_pods:
@@ -127,35 +113,14 @@
   - description: Removed connections between persistent peers and ipBlocks
     rules:
     - src_ip_block:
-      - 10.0.0.0/13
-      - 10.10.0.0/16
-      - 10.8.0.0/15
-      dst_ns:
-      - default
-      dst_pods:
-      - app=app-2
-      connection:
-      - All but:
-        - Protocol: UDP
-          Ports:
-          - 53
-    - src_ip_block:
-      - 10.12.0.0/14
-      - 10.128.0.0/9
-      - 10.16.0.0/12
-      - 10.32.0.0/11
-      - 10.64.0.0/10
-      dst_ns:
-      - default
-      dst_pods:
-      - app=app-2
-      connection:
-      - All but:
-        - Protocol: UDP
-          Ports:
-          - 53
-    - src_ip_block:
       - 0.0.0.0/5
+      - 10.11.0.0/16
+      - 11.0.0.0/8
+      - 12.0.0.0/6
+      - 128.0.0.0/1
+      - 16.0.0.0/4
+      - 32.0.0.0/3
+      - 64.0.0.0/2
       - 8.0.0.0/7
       dst_ns:
       - default
@@ -164,26 +129,16 @@
       connection:
       - All connections
     - src_ip_block:
-      - 10.11.0.0/16
+      - 0.0.0.0/0
       dst_ns:
       - default
       dst_pods:
       - app=app-2
       connection:
-      - All connections
-    - src_ip_block:
-      - 11.0.0.0/8
-      - 12.0.0.0/6
-      - 128.0.0.0/1
-      - 16.0.0.0/4
-      - 32.0.0.0/3
-      - 64.0.0.0/2
-      dst_ns:
-      - default
-      dst_pods:
-      - app=app-2
-      connection:
-      - All connections
+      - All but:
+        - protocols: UDP
+          dst_ports:
+          - 53
   - description: New connections between persistent peers and added peers
     rules:
     - src_ns:

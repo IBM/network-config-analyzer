@@ -25,13 +25,11 @@ subgraph cluster_ns2_namespace{
 	fontcolor=blue
 	tooltip="Namespace"
 	"ns2/deployment-C(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-C(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-	"ns2/deployment-F(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-F(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
 }
 	"ns1/deployment-A(Deployment)" -> "default/deployment-E(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"ns1/deployment-B(Deployment)" -> "ns1/deployment-A(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"ns2/deployment-C(Deployment)" -> "ns1/deployment-A(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	color=white
-	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
 	labelloc = "b"
 	fontsize=15
 	fontcolor=maroon

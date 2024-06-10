@@ -1,2 +1,2 @@
 final fw rules for query: connectivity, config: testcase25-config-1:
-src_ns: [kube-system] src_pods: [app=kube-fluentd] dst_ns: [kube-system] dst_pods: [tier=frontend] conn: TCP
+src_ns: [kube-system] src_pods: [app=kube-fluentd] dst_ns: [kube-system] dst_pods: [tier=frontend] conn: {protocols:TCP}

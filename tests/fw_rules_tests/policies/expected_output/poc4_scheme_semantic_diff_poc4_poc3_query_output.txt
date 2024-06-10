@@ -1,4 +1,4 @@
 poc3 and poc4 are not semantically equivalent.
 
 Added connections between persistent peers (based on topology from config: poc4) :
-src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [frontend] conn: TCP 23
+src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [frontend] conn: {protocols:TCP,dst_ports:23}

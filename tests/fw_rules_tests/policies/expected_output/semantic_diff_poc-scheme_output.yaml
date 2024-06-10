@@ -9,162 +9,7 @@
     rules:
     - src_ns:
       - default
-      src_pods:
-      - '*'
-      dst_ns:
       - kube-system
-      dst_pods:
-      - '*'
-      connection:
-      - All but:
-        - Protocol: UDP
-          Ports:
-          - 53
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ns:
-      - default
-      dst_pods:
-      - productcatalogservice
-      connection:
-      - All but:
-        - Protocol: TCP
-          Ports:
-          - 3550
-    - src_ns:
-      - default
-      src_pods:
-      - recommendationservice
-      dst_ns:
-      - default
-      dst_pods:
-      - '*'
-      connection:
-      - All but:
-        - Protocol: TCP
-          Ports:
-          - 3550
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ns:
-      - default
-      dst_pods:
-      - app in (paymentservice,shippingservice)
-      connection:
-      - All but:
-        - Protocol: TCP
-          Ports:
-          - 50051
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ns:
-      - default
-      dst_pods:
-      - checkoutservice
-      connection:
-      - All but:
-        - Protocol: TCP
-          Ports:
-          - 5050
-    - src_ns:
-      - default
-      src_pods:
-      - cartservice
-      dst_ns:
-      - default
-      dst_pods:
-      - '*'
-      connection:
-      - All but:
-        - Protocol: TCP
-          Ports:
-          - 6379
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ns:
-      - default
-      dst_pods:
-      - currencyservice
-      connection:
-      - All but:
-        - Protocol: TCP
-          Ports:
-          - 7000
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ns:
-      - default
-      dst_pods:
-      - cartservice
-      connection:
-      - All but:
-        - Protocol: TCP
-          Ports:
-          - 7070
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ns:
-      - default
-      dst_pods:
-      - app in (emailservice,recommendationservice)
-      connection:
-      - All but:
-        - Protocol: TCP
-          Ports:
-          - 8080
-    - src_ns:
-      - default
-      src_pods:
-      - loadgenerator
-      dst_ns:
-      - default
-      dst_pods:
-      - '*'
-      connection:
-      - All but:
-        - Protocol: TCP
-          Ports:
-          - 8080
-    - src_ns:
-      - kube-system
-      src_pods:
-      - '*'
-      dst_ns:
-      - default
-      dst_pods:
-      - '*'
-      connection:
-      - All but:
-        - Protocol: TCP
-          Ports:
-          - 8080
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ns:
-      - default
-      dst_pods:
-      - adservice
-      connection:
-      - All but:
-        - Protocol: TCP
-          Ports:
-          - 9555
-    - src_ns:
-      - default
       src_pods:
       - '*'
       dst_ns:
@@ -251,22 +96,167 @@
       dst_ns:
       - default
       dst_pods:
-      - app!=frontend
+      - app not in (frontend,loadgenerator)
       connection:
       - All connections
-  - description: Removed connections between persistent peers and ipBlocks
-    rules:
-    - src_ip_block:
-      - 0.0.0.0/0
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - default
+      dst_pods:
+      - productcatalogservice
+      connection:
+      - All but:
+        - protocols: TCP
+          dst_ports:
+          - 3550
+    - src_ns:
+      - default
+      src_pods:
+      - recommendationservice
       dst_ns:
       - default
       dst_pods:
       - '*'
       connection:
       - All but:
-        - Protocol: TCP
-          Ports:
+        - protocols: TCP
+          dst_ports:
+          - 3550
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - default
+      dst_pods:
+      - app in (paymentservice,shippingservice)
+      connection:
+      - All but:
+        - protocols: TCP
+          dst_ports:
+          - 50051
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - default
+      dst_pods:
+      - checkoutservice
+      connection:
+      - All but:
+        - protocols: TCP
+          dst_ports:
+          - 5050
+    - src_ns:
+      - default
+      src_pods:
+      - cartservice
+      dst_ns:
+      - default
+      dst_pods:
+      - '*'
+      connection:
+      - All but:
+        - protocols: TCP
+          dst_ports:
+          - 6379
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - default
+      dst_pods:
+      - currencyservice
+      connection:
+      - All but:
+        - protocols: TCP
+          dst_ports:
+          - 7000
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - default
+      dst_pods:
+      - cartservice
+      connection:
+      - All but:
+        - protocols: TCP
+          dst_ports:
+          - 7070
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - default
+      dst_pods:
+      - app in (emailservice,frontend,loadgenerator,recommendationservice)
+      connection:
+      - All but:
+        - protocols: TCP
+          dst_ports:
           - 8080
+    - src_ns:
+      - default
+      src_pods:
+      - loadgenerator
+      dst_ns:
+      - default
+      dst_pods:
+      - '*'
+      connection:
+      - All but:
+        - protocols: TCP
+          dst_ports:
+          - 8080
+    - src_ns:
+      - kube-system
+      src_pods:
+      - '*'
+      dst_ns:
+      - default
+      dst_pods:
+      - '*'
+      connection:
+      - All but:
+        - protocols: TCP
+          dst_ports:
+          - 8080
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - default
+      dst_pods:
+      - adservice
+      connection:
+      - All but:
+        - protocols: TCP
+          dst_ports:
+          - 9555
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - kube-system
+      dst_pods:
+      - '*'
+      connection:
+      - All but:
+        - protocols: UDP
+          dst_ports:
+          - 53
+  - description: Removed connections between persistent peers and ipBlocks
+    rules:
     - src_ip_block:
       - 0.0.0.0/0
       dst_ns:
@@ -283,3 +273,14 @@
       - 0.0.0.0/0
       connection:
       - All connections
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - default
+      dst_pods:
+      - '*'
+      connection:
+      - All but:
+        - protocols: TCP
+          dst_ports:
+          - 8080

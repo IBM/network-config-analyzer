@@ -9,10 +9,9 @@
       dst_ns:
       - default
       dst_pods:
-      - app=skydive
+      - '*'
       connection:
-      - Protocol: TCP
-        Ports:
+      - dst_ports:
         - 26257
     - src_ns:
       - default
@@ -24,8 +23,7 @@
       dst_pods:
       - '*'
       connection:
-      - Protocol: TCP
-        Ports:
+      - dst_ports:
         - 26257
     - src_ip_block:
       - 0.0.0.0/0

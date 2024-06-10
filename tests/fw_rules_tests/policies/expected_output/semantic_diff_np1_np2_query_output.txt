@@ -1,13 +1,7 @@
 np1 and np2 are not semantically equivalent.
 
 Added connections between persistent peers and ipBlocks (based on topology from config: np2) :
-src: 0.0.0.0-9.255.255.255 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: TCP 53
-src: 11.0.0.0-172.20.255.255 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: TCP 53
-src: 172.22.0.0-172.29.255.255 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: TCP 53
-src: 172.31.0.0-255.255.255.255 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: TCP 53
+src: 0.0.0.0-9.255.255.255,11.0.0.0-172.20.255.255,172.22.0.0-172.29.255.255,172.31.0.0-255.255.255.255 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: TCP 53
 
 Removed connections between persistent peers and ipBlocks (based on topology from config: np1) :
-src: 0.0.0.0-9.255.255.255 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: UDP 53
-src: 11.0.0.0-172.20.255.255 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: UDP 53
-src: 172.22.0.0-172.29.255.255 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: UDP 53
-src: 172.31.0.0-255.255.255.255 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: UDP 53
+src: 0.0.0.0-9.255.255.255,11.0.0.0-172.20.255.255,172.22.0.0-172.29.255.255,172.31.0.0-255.255.255.255 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: UDP 53

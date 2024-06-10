@@ -1,26 +1,3 @@
 np_SupsetAllowFirst and np_SubsetDenyFirst are not semantically equivalent.
 Connections allowed in np_SupsetAllowFirst which are different in np_SubsetDenyFirst:
-src: kube-system/file-plugin-7bfb8b69bf-p86gk, dst: kube-system/calico-node-mgdlr, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/file-plugin-7bfb8b69bf-p86gk, dst: kube-system/keepalived-watcher-57ghx, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/file-plugin-7bfb8b69bf-p86gk, dst: kube-system/keepalived-watcher-gzdfm, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/file-plugin-7bfb8b69bf-p86gk, dst: kube-system/keepalived-watcher-wczq8, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/file-plugin-7bfb8b69bf-p86gk, dst: kube-system/kube-fluentd-h6rjg, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/file-plugin-7bfb8b69bf-p86gk, dst: kube-system/storage-watcher-8494b4b8bb-f8csd, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/file-plugin-7bfb8b69bf-p86gk, dst: kube-system/tiller-deploy-5c45c9966b-nqwz6, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/file-plugin-7bfb8b69bf-p86gk, dst: kube-system/vpn-858f6d9777-2bw5m, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/keepalived-watcher-57ghx, dst: kube-system/calico-node-mgdlr, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/keepalived-watcher-57ghx, dst: kube-system/file-plugin-7bfb8b69bf-p86gk, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/keepalived-watcher-57ghx, dst: kube-system/keepalived-watcher-gzdfm, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/keepalived-watcher-57ghx, dst: kube-system/keepalived-watcher-wczq8, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/keepalived-watcher-57ghx, dst: kube-system/kube-fluentd-h6rjg, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/keepalived-watcher-57ghx, dst: kube-system/storage-watcher-8494b4b8bb-f8csd, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/keepalived-watcher-57ghx, dst: kube-system/tiller-deploy-5c45c9966b-nqwz6, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/keepalived-watcher-57ghx, dst: kube-system/vpn-858f6d9777-2bw5m, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/storage-watcher-8494b4b8bb-f8csd, dst: kube-system/calico-node-mgdlr, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/storage-watcher-8494b4b8bb-f8csd, dst: kube-system/file-plugin-7bfb8b69bf-p86gk, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/storage-watcher-8494b4b8bb-f8csd, dst: kube-system/keepalived-watcher-57ghx, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/storage-watcher-8494b4b8bb-f8csd, dst: kube-system/keepalived-watcher-gzdfm, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/storage-watcher-8494b4b8bb-f8csd, dst: kube-system/keepalived-watcher-wczq8, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/storage-watcher-8494b4b8bb-f8csd, dst: kube-system/kube-fluentd-h6rjg, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/storage-watcher-8494b4b8bb-f8csd, dst: kube-system/tiller-deploy-5c45c9966b-nqwz6, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
-src: kube-system/storage-watcher-8494b4b8bb-f8csd, dst: kube-system/vpn-858f6d9777-2bw5m, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
+src: ['kube-system/file-plugin-7bfb8b69bf-p86gk', 'kube-system/keepalived-watcher-57ghx', 'kube-system/storage-watcher-8494b4b8bb-f8csd'], dst: ['kube-system/calico-node-mgdlr', 'kube-system/file-plugin-7bfb8b69bf-p86gk', 'kube-system/keepalived-watcher-57ghx', 'kube-system/keepalived-watcher-gzdfm', 'kube-system/keepalived-watcher-wczq8', 'kube-system/kube-fluentd-h6rjg', 'kube-system/storage-watcher-8494b4b8bb-f8csd', 'kube-system/tiller-deploy-5c45c9966b-nqwz6', 'kube-system/vpn-858f6d9777-2bw5m'], description: np_SupsetAllowFirst allows communication on [protocols=TCP] while np_SubsetDenyFirst does not

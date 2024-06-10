@@ -6,10 +6,10 @@
 import itertools
 from collections import defaultdict
 import networkx
-from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod
-from nca.CoreDS.ConnectionSet import ConnectionSet
+from nca.CoreDS.Peer import IpBlock, Pod
+from nca.CoreDS.ProtocolSet import ProtocolSet
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from .DotGraph import DotGraph
-from .MinimizeFWRules import MinimizeCsFwRules, MinimizeFWRules
 from .ClusterInfo import ClusterInfo
 
 
@@ -26,53 +26,48 @@ class ConnectivityGraph:
         :param allowed_labels: the set of allowed labels to be used in generated fw-rules, extracted from policy yamls
         :param output_config: OutputConfiguration object
         """
-        # connections_to_peers holds the connectivity graph
+        # props_to_peers holds the connectivity graph
         self.output_config = output_config
-        self.connections_to_peers = defaultdict(list)
+        self.props_to_peers = defaultdict(list)
         if self.output_config.fwRulesOverrideAllowedLabels:
             allowed_labels = set(label for label in self.output_config.fwRulesOverrideAllowedLabels.split(','))
         self.cluster_info = ClusterInfo(all_peers, allowed_labels)
         self.allowed_labels = allowed_labels
 
-    def add_edge(self, source_peer, dest_peer, connections):
-        """
-        Adding a labeled edge to the graph
-        :param Peer source_peer: The source peer
-        :param Peer dest_peer: The dest peer
-        :param ConnectionSet connections: The allowed connections from source_peer to dest_peer
-        :return: None
-        """
-        self.connections_to_peers[connections].append((source_peer, dest_peer))
-
-    def add_edges(self, connections):
-        """
-        Adding a set of labeled edges to the graph
-        :param dict connections: a map from ConnectionSet to (src, dest) pairs
-        :return: None
-        """
-        self.connections_to_peers.update(connections)
-
-    def add_edges_from_cube_dict(self, conn_cube, peer_container):
+    def add_edges_from_cube_dict(self, conn_cube, peer_container, connectivity_restriction=None):
         """
         Add edges to the graph according to the give cube
         :param ConnectivityCube conn_cube: the given cube
          whereas all other values should be filtered out in the output
-         :param PeerContainer peer_container: the peer container
+        :param PeerContainer peer_container: the peer container
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to TCP / non-TCP, or not
         """
-        conns, src_peers, dst_peers = \
-            ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, peer_container)
-        for src_peer in src_peers:
-            for dst_peer in dst_peers:
-                self.connections_to_peers[conns].append((src_peer, dst_peer))
 
-    def add_props_to_graph(self, props, peer_container):
+        relevant_protocols = ProtocolSet()
+        if connectivity_restriction:
+            if connectivity_restriction == 'TCP':
+                relevant_protocols.add_protocol('TCP')
+            else:  # connectivity_restriction == 'non-TCP'
+                relevant_protocols = ProtocolSet.get_non_tcp_protocols()
+
+        props, src_peers, dst_peers = \
+            ConnectivityProperties.extract_src_dst_peers_from_cube(conn_cube, peer_container, relevant_protocols)
+        split_src_peers = src_peers.split()
+        split_dst_peers = dst_peers.split()
+        for src_peer in split_src_peers:
+            for dst_peer in split_dst_peers:
+                self.props_to_peers[props].append((src_peer, dst_peer))
+
+    def add_props_to_graph(self, props, peer_container, connectivity_restriction=None):
         """
         Add edges to the graph according to the given connectivity properties
         :param ConnectivityProperties props: the given connectivity properties
         :param PeerContainer peer_container: the peer container
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to TCP / non-TCP, or not
+
         """
         for cube in props:
-            self.add_edges_from_cube_dict(props.get_connectivity_cube(cube), peer_container)
+            self.add_edges_from_cube_dict(props.get_connectivity_cube(cube), peer_container, connectivity_restriction)
 
     def _get_peer_details(self, peer, format_requirement=False):
         """
@@ -277,16 +272,16 @@ class ConnectivityGraph:
         """
         # for each peer, we get a list of (peer,conn,direction) that it connected to:
         peers_edges = {peer: [] for peer in set(self.cluster_info.all_peers)}
-        edges_connections = dict()
-        for connection, peer_pairs in self.connections_to_peers.items():
-            if not connection:
+        edges_props = dict()
+        for props, peer_pairs in self.props_to_peers.items():
+            if not props:
                 continue
             for src_peer, dst_peer in peer_pairs:
                 if src_peer != dst_peer:
-                    peers_edges[src_peer].append((dst_peer, connection, False))
-                    peers_edges[dst_peer].append((src_peer, connection, True))
-                    edges_connections[(src_peer, dst_peer)] = connection
-                    edges_connections[(dst_peer, src_peer)] = connection
+                    peers_edges[src_peer].append((dst_peer, props, False))
+                    peers_edges[dst_peer].append((src_peer, props, True))
+                    edges_props[(src_peer, dst_peer)] = props
+                    edges_props[(dst_peer, src_peer)] = props
 
         # for each peer, adding a self edge only for connection that the peer already have:
         for peer, peer_edges in peers_edges.items():
@@ -298,7 +293,7 @@ class ConnectivityGraph:
         # find groups of peers that are also connected to each other:
         connected_groups, left_out = self._find_equal_groups(peers_edges)
         # for every group, also add the connection of the group (should be only one)
-        connected_groups = [(group, edges_connections.get((group[0], group[1]), None)) for group in connected_groups]
+        connected_groups = [(group, edges_props.get((group[0], group[1]), None)) for group in connected_groups]
 
         # removing the peers of groups that we already found:
         peers_edges = {peer: edges for peer, edges in peers_edges.items() if peer in left_out}
@@ -319,8 +314,8 @@ class ConnectivityGraph:
         :return: a string of the original peers connectivity graph content (without minimization of fw-rules)
         """
         lines = set()
-        for connections, peer_pairs in self.connections_to_peers.items():
-            if not connections:
+        for props, peer_pairs in self.props_to_peers.items():
+            if not props:
                 continue
             for src_peer, dst_peer in peer_pairs:
                 if src_peer != dst_peer:
@@ -330,8 +325,7 @@ class ConnectivityGraph:
                     # not be added either
                     if exclude_self_loop_conns and src_peer_name == dst_peer_name:
                         continue
-                    conn_str = connections.get_simplified_connections_representation(True)
-                    conn_str = conn_str.title() if not conn_str.isupper() else conn_str
+                    conn_str = props.get_simplified_connections_representation(True)
                     lines.add(f'{src_peer_name} => {dst_peer_name} : {conn_str}')
 
         lines_list = []
@@ -357,7 +351,7 @@ class ConnectivityGraph:
         # we are going to treat a peers_group as one peer.
         # the first peer in the peers_group is representing the group
         # we will add the text of all the peers in the group to this peer
-        for peers_group, group_connection in peers_groups:
+        for peers_group, group_props in peers_groups:
             peer_name, node_type, nc_name, text = self._get_peer_details(peers_group[0])
             if len(peers_group) > 1:
                 text = sorted(set(self._get_peer_details(peer)[3][0] for peer in peers_group))
@@ -366,20 +360,20 @@ class ConnectivityGraph:
             node_type = DotGraph.NodeType.MultiPod if len(text) > 1 else node_type
             dot_graph.add_node(nc_name, peer_name, node_type, text)
             # adding the self edges:
-            if len(text) > 1 and group_connection:
-                conn_str = group_connection.get_simplified_connections_representation(True)
-                conn_str = conn_str.replace("Protocol:", "").replace('All connections', 'All')
+            if len(text) > 1 and group_props:
+                conn_str = group_props.get_simplified_connections_representation(True)
+                conn_str = conn_str.replace('All connections', 'All')
                 dot_graph.add_edge(peer_name, peer_name, label=conn_str, is_dir=False)
 
         representing_peers = [multi_peer[0][0] for multi_peer in peers_groups]
-        for connections, peer_pairs in self.connections_to_peers.items():
+        for props, peer_pairs in self.props_to_peers.items():
             directed_edges = set()
             # todo - is there a better way to get edge details?
             # we should revisit this code after reformatting connections labels
-            conn_str = connections.get_simplified_connections_representation(True)
-            conn_str = conn_str.replace("Protocol:", "").replace('All connections', 'All')
+            conn_str = props.get_simplified_connections_representation(True)
+            conn_str = conn_str.replace('All connections', 'All')
             for src_peer, dst_peer in peer_pairs:
-                if src_peer != dst_peer and connections and src_peer in representing_peers and dst_peer in representing_peers:
+                if src_peer != dst_peer and props and src_peer in representing_peers and dst_peer in representing_peers:
                     src_peer_name, _, src_nc, _ = self._get_peer_details(src_peer)
                     dst_peer_name, _, dst_nc, _ = self._get_peer_details(dst_peer)
                     directed_edges.add(((src_peer_name, src_nc), (dst_peer_name, dst_nc)))
@@ -399,133 +393,3 @@ class ConnectivityGraph:
             for edge in undirected_edges | cliques_edges:
                 dot_graph.add_edge(src_name=edge[0][0], dst_name=edge[1][0], label=conn_str, is_dir=False)
         return dot_graph.to_str(self.output_config.outputFormat == 'dot')
-
-    def get_minimized_firewall_rules(self):
-        """
-        computes and returns minimized firewall rules from original connectivity graph
-        :return: minimize_fw_rules: an object of type MinimizeFWRules holding the minimized fw-rules
-        """
-
-        connections_sorted_by_size = list(self.connections_to_peers.items())
-        connections_sorted_by_size.sort(reverse=True)
-
-        connections_sorted_by_size = self._merge_ip_blocks(connections_sorted_by_size)
-
-        if self.output_config.fwRulesRunInTestMode:
-            # print the original connectivity graph
-            lines = set()
-            for connections, peer_pairs in connections_sorted_by_size:
-                for src_peer, dst_peer in peer_pairs:
-                    src_peer_name = self._get_peer_details(src_peer)[0]
-                    dst_peer_name = self._get_peer_details(dst_peer)[0]
-                    # on level of deployments, omit the 'all connections' between a pod to itself
-                    # a connection between deployment to itself is derived from connection between 2 different pods of
-                    # the same deployment
-                    if src_peer == dst_peer and self.output_config.outputEndpoints == 'deployments':
-                        continue
-                    lines.add(f'src: {src_peer_name}, dest: {dst_peer_name}, allowed conns: {connections}')
-            for line in lines:
-                print(line)
-            print('======================================================')
-        # compute the minimized firewall rules
-        return self._minimize_firewall_rules(connections_sorted_by_size)
-
-    def _minimize_firewall_rules(self, connections_sorted_by_size):
-        """
-        Creates the set of minimized fw rules and prints to output
-        :param list connections_sorted_by_size: the original connectivity graph in fw-rules format
-        :return:  minimize_fw_rules: an object of type MinimizeFWRules holding the minimized fw-rules
-        """
-        cs_containment_map = self._build_connections_containment_map(connections_sorted_by_size)
-        fw_rules_map = defaultdict(list)
-        results_map = dict()
-        minimize_cs = MinimizeCsFwRules(self.cluster_info, self.allowed_labels, self.output_config)
-        # build fw_rules_map: per connection - a set of its minimized fw rules
-        for connections, peer_pairs in connections_sorted_by_size:
-            # currently skip "no connections"
-            if not connections:
-                continue
-            # TODO: figure out why we have pairs with (ip,ip) ?
-            peer_pairs_filtered = self._get_peer_pairs_filtered(peer_pairs)
-            peer_pairs_in_containing_connections = cs_containment_map[connections]
-            fw_rules, results_per_info = minimize_cs.compute_minimized_fw_rules_per_connection(
-                connections, peer_pairs_filtered, peer_pairs_in_containing_connections)
-            fw_rules_map[connections] = fw_rules
-            results_map[connections] = results_per_info
-
-        minimize_fw_rules = MinimizeFWRules(fw_rules_map, self.cluster_info, self.output_config,
-                                            results_map)
-        return minimize_fw_rules
-
-    @staticmethod
-    def _get_peer_pairs_filtered(peer_pairs):
-        """
-        Filters out peer pairs where both src and dst are IpBlock
-        :param list peer_pairs: the peer pairs to filter
-        :return: a filtered set of peer pairs
-        """
-        return set((src, dst) for (src, dst) in peer_pairs if not (isinstance(src, IpBlock) and isinstance(dst, IpBlock)))
-
-    def _build_connections_containment_map(self, connections_sorted_by_size):
-        """
-        Build a map from a connection to a set of peer_pairs from connections it is contained in
-        :param list connections_sorted_by_size: the original connectivity graph in fw-rules format
-        :return: a map from connection to a set of peer pairs from containing connections
-        """
-        cs_containment_map = defaultdict(set)
-        for (conn, _) in connections_sorted_by_size:
-            for (other_conn, peer_pairs) in connections_sorted_by_size:
-                if other_conn != conn and conn.contained_in(other_conn):
-                    peer_pairs_filtered = self._get_peer_pairs_filtered(peer_pairs)
-                    cs_containment_map[conn] |= peer_pairs_filtered
-        return cs_containment_map
-
-    @staticmethod
-    def _merge_ip_blocks(connections_sorted_by_size):
-        """
-        Given an input connectivity graph, merge ip-blocks for peer-pairs when possible. e.g. if (pod_x ,
-        0.0.0.0-49.49.255.255) and ) and (pod_x, 49.50.0.0-255.255.255.255) are in connections_sorted_by_size[conn],
-        then in the output result, only (pod_x, 0.0.0.0-255.255.255.255) will be in: connections_sorted_by_size[conn]
-
-        :param connections_sorted_by_size:  the original connectivity graph : a list of tuples
-               (connection set ,  peer_pairs), where peer_pairs is a list of (src,dst) tuples
-        :return: connections_sorted_by_size_new : a new connectivity graph with merged ip-blocks
-        """
-        connections_sorted_by_size_new = []
-        for connections, peer_pairs in connections_sorted_by_size:
-            map_ip_blocks_per_dst = dict()
-            map_ip_blocks_per_src = dict()
-            merged_peer_pairs = []
-            for (src, dst) in peer_pairs:
-                if isinstance(src, IpBlock) and isinstance(dst, ClusterEP):
-                    if dst not in map_ip_blocks_per_dst:
-                        map_ip_blocks_per_dst[dst] = src.copy()
-                    else:
-                        map_ip_blocks_per_dst[dst] |= src
-                elif isinstance(dst, IpBlock) and isinstance(src, ClusterEP):
-                    if src not in map_ip_blocks_per_src:
-                        map_ip_blocks_per_src[src] = dst.copy()
-                    else:
-                        map_ip_blocks_per_src[src] |= dst
-                else:
-                    merged_peer_pairs.append((src, dst))
-            for (src, ip_block) in map_ip_blocks_per_src.items():
-                merged_peer_pairs.append((src, ip_block))
-            for (dst, ip_block) in map_ip_blocks_per_dst.items():
-                merged_peer_pairs.append((ip_block, dst))
-            connections_sorted_by_size_new.append((connections, merged_peer_pairs))
-
-        return connections_sorted_by_size_new
-
-    def conn_graph_has_fw_rules(self):
-        """
-        :return: bool flag indicating if the given conn_graph has fw_rules (and not considered empty)
-        """
-        if not self.connections_to_peers:
-            return False
-        if len((self.connections_to_peers.items())) == 1:
-            conn = list(self.connections_to_peers.keys())[0]
-            # we currently do not create fw-rules for "no connections"
-            if not conn:  # conn is "no connections":
-                return False
-        return True

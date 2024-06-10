@@ -1,2 +1,2 @@
 final fw rules for query: match-icmp-also-within-default-test, config: match-icmp-also-within-default:
-src_ns: [kube-system] src_pods: [app=keepalived-watcher] dst_ns: [kube-system] dst_pods: [app=keepalived-watcher] conn: ICMP {'icmp_type': '100', 'icmp_code': '230'}
+src_ns: [kube-system] src_pods: [app=keepalived-watcher] dst_ns: [kube-system] dst_pods: [app=keepalived-watcher] conn: {protocols:ICMP,icmp_type:100,icmp_code:230}

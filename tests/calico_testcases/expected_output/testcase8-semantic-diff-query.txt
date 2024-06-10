@@ -3,7 +3,7 @@ np1/kube-system/ingress-networkpolicy-with-conflict-destination and global-allow
 Added connections between persistent peers (based on topology from config: global-allow-all) :
 src_ns: [default,kube-system,vendor-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [app=kube-fluentd] conn: All connections
 src_ns: [kube-system] src_pods: [app=kube-fluentd] dst_ns: [default,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [app=kube-fluentd] dst_ns: [kube-system] dst_pods: [*] conn: All but TCP
+src_ns: [kube-system] src_pods: [app=kube-fluentd] dst_ns: [kube-system] dst_pods: [*] conn: All but {protocols:TCP}
 
 Added connections between persistent peers and ipBlocks (based on topology from config: global-allow-all) :
 src: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [app=kube-fluentd] conn: All connections

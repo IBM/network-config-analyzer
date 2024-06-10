@@ -3,15 +3,14 @@ src: 0.0.0.0/0 dst_ns: [asm-ingress,default] dst_pods: [*] conn: All connections
 src_ns: [asm-ingress,default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [asm-ingress] src_pods: [*] dst: connected_with_mesh.example.com conn: All connections
 src_ns: [asm-ingress] src_pods: [*] dst_ns: [asm-ingress,default] dst_pods: [*] conn: All connections
-src_ns: [asm-ingress] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: TCP {'dst_ports': '443', 'hosts': 'httpbin.example.com'}
+src_ns: [asm-ingress] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: {dst_ports:443,hosts:httpbin.example.com}
 src_ns: [default] src_pods: [app not in (checkoutservice,frontend)] dst: connected_with_mesh.example.com conn: All connections
-src_ns: [default] src_pods: [app not in (checkoutservice,frontend)] dst_ns: [istio-system] dst_pods: [*] conn: TCP {'dst_ports': '443', 'hosts': 'httpbin.example.com'}
+src_ns: [default] src_pods: [app not in (checkoutservice,frontend)] dst_ns: [istio-system] dst_pods: [*] conn: {dst_ports:443,hosts:httpbin.example.com}
 src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [app not in (adservice,checkoutservice,frontend,loadgenerator,recommendationservice)] conn: All connections
 src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [app not in (emailservice,frontend,loadgenerator,paymentservice)] conn: All connections
 src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [frontend] conn: All connections
 src_ns: [default] src_pods: [recommendationservice] dst_ns: [default] dst_pods: [productcatalogservice] conn: All connections
-src_ns: [istio-system] src_pods: [*] dst: httpbin.example.com conn: TCP {'dst_ports': '80', 'hosts': 'httpbin.example.com'}
-src_ns: [istio-system] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: All connections
+src_ns: [istio-system] src_pods: [*] dst: httpbin.example.com conn: {dst_ports:80,hosts:httpbin.example.com}
 
 For connections of type non-TCP, final fw rules for query: onlineboutique-sidecars-connectivity, config: onlineboutique-sidecars-and-gateways:
 src: 0.0.0.0/0 dst_ns: [asm-ingress,default,istio-system] dst_pods: [*] conn: All connections

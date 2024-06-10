@@ -17,12 +17,12 @@
       - account-command
       connection:
       - All but:
-        - Protocol: TCP
-          Ports:
+        - protocols: TCP
+          dst_ports:
           - 8080
           - 9090
-        - Protocol: UDP
-          Ports:
+        - protocols: UDP
+          dst_ports:
           - 8080
   - description: Removed connections between persistent peers
     rules:
@@ -36,6 +36,6 @@
       - bank-ui
       connection:
       - All but:
-        - Protocol: TCP
-          Ports:
+        - protocols: TCP
+          dst_ports:
           - 8080

@@ -2,13 +2,13 @@ final fw rules for query: connectivity_map, config: ip:
 src: 0.0.0.0/0 dst_ns: [default,ingress-nginx,kube-system] dst_pods: [*] conn: All connections
 src_ns: [default,kube-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [default,kube-system] src_pods: [*] dst_ns: [default,ingress-nginx,kube-system] dst_pods: [*] conn: All connections
-src_ns: [ingress-nginx] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: TCP {'dst_ports': '80', 'hosts': 'demo.localdev.me'}
+src_ns: [ingress-nginx] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: {protocols:TCP,dst_ports:80,hosts:demo.localdev.me}
 
 final fw rules for query: connectivity_map, config: np0:
 src: 0.0.0.0/0 dst_ns: [default,kube-system] dst_pods: [*] conn: All connections
 src_ns: [default,kube-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [default,kube-system] src_pods: [*] dst_ns: [default,kube-system] dst_pods: [*] conn: All connections
-src_ns: [ingress-nginx] src_pods: [ingress-nginx-controller-6d5f55986b] dst_ns: [default] dst_pods: [*] conn: TCP {'dst_ports': '80', 'hosts': 'demo.localdev.me'}
+src_ns: [ingress-nginx] src_pods: [ingress-nginx-controller-6d5f55986b] dst_ns: [default] dst_pods: [*] conn: {protocols:TCP,dst_ports:80,hosts:demo.localdev.me}
 
 final fw rules for query: connectivity_map, config: np1:
 src: 0.0.0.0/0 dst_ns: [default,kube-system] dst_pods: [*] conn: All connections

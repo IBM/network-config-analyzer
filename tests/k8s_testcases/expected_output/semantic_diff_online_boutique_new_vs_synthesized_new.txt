@@ -8,9 +8,8 @@ src: 0.0.0.0/0 dst_ns: [default] dst_pods: [loadgenerator] conn: All connections
 src_ns: [default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 
 New connections between persistent peers and added peers (based on topology from config: new_online_synthesis_res) :
-src_ns: [default] src_pods: [app in (checkoutservice,frontend,loadgenerator,recommendationservice)] dst_ns: [kube-system] dst_pods: [*] conn: UDP 53
+src_ns: [default] src_pods: [app in (checkoutservice,frontend,loadgenerator,recommendationservice)] dst_ns: [kube-system] dst_pods: [*] conn: {protocols:UDP,dst_ports:53}
 
 New connections between added peers and ipBlocks (based on topology from config: new_online_synthesis_res) :
 src: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
 src_ns: [kube-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections

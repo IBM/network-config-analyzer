@@ -1,18 +1,18 @@
 final fw rules for query: connectivity_map, config: poc4:
-src: 0.0.0.0/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [frontend] conn: {protocols:TCP,dst_ports:8080}
 src: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
-src_ns: [default] src_pods: [app in (cartservice,checkoutservice,frontend,loadgenerator,recommendationservice)] dst_ns: [kube-system] dst_pods: [k8s-app=kube-dns] conn: UDP 53
-src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: TCP 7070
-src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [currencyservice] conn: TCP 7000
-src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [shippingservice] conn: TCP 50051
-src_ns: [default] src_pods: [app in (checkoutservice,frontend,recommendationservice)] dst_ns: [default] dst_pods: [productcatalogservice] conn: TCP 3550
-src_ns: [default] src_pods: [cartservice] dst_ns: [default] dst_pods: [redis-cart] conn: TCP 6379
-src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [emailservice] conn: TCP 8080
-src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [paymentservice] conn: TCP 50051
-src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [adservice] conn: TCP 9555
-src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [checkoutservice] conn: TCP 5050
-src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [recommendationservice] conn: TCP 8080
-src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [frontend] conn: TCP 23,8080
+src_ns: [default] src_pods: [app in (cartservice,checkoutservice,frontend,loadgenerator,recommendationservice)] dst_ns: [kube-system] dst_pods: [k8s-app=kube-dns] conn: {protocols:UDP,dst_ports:53}
+src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: {protocols:TCP,dst_ports:7070}
+src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [currencyservice] conn: {protocols:TCP,dst_ports:7000}
+src_ns: [default] src_pods: [app in (checkoutservice,frontend,recommendationservice)] dst_ns: [default] dst_pods: [productcatalogservice] conn: {protocols:TCP,dst_ports:3550}
+src_ns: [default] src_pods: [cartservice] dst_ns: [default] dst_pods: [redis-cart] conn: {protocols:TCP,dst_ports:6379}
+src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [app in (paymentservice,shippingservice)] conn: {protocols:TCP,dst_ports:50051}
+src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [emailservice] conn: {protocols:TCP,dst_ports:8080}
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [adservice] conn: {protocols:TCP,dst_ports:9555}
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [checkoutservice] conn: {protocols:TCP,dst_ports:5050}
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [recommendationservice] conn: {protocols:TCP,dst_ports:8080}
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [shippingservice] conn: {protocols:TCP,dst_ports:50051}
+src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [frontend] conn: {protocols:TCP,dst_ports:23,8080}
 src_ns: [kube-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [kube-system] src_pods: [*] dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
+src_ns: [kube-system] src_pods: [*] dst_ns: [default] dst_pods: [frontend] conn: {protocols:TCP,dst_ports:8080}
 src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections

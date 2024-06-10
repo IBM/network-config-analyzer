@@ -1,79 +1,32 @@
 final fw rules for query: connectivity_map, config: ip:
-src: 0.0.0.0/0 dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
-src: ::/0 dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [default,vendor-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [default,vendor-system] src_pods: [*] dst: ::/0 conn: All connections
+src: 0.0.0.0/0,::/0 dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
+src_ns: [default,vendor-system] src_pods: [*] dst: 0.0.0.0/0,::/0 conn: All connections
 src_ns: [default,vendor-system] src_pods: [*] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [calico-node] conn: TCP {'dst_ports': '210', 'hosts': 'first.bar.com', 'paths': '(/abc(/*)?)-(/abc/def(/*)?)'}
-src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [file-plugin-7bfb8b69bf] conn: TCP {'dst_ports': '80', 'hosts': 'first.bar.com', 'paths': '/abc/def(/*)?'}
-src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [kube-dns-amd64-d66bf76db] conn: TCP 213
-src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [kube-fluentd] conn: TCP {'dst_ports': '80', 'hosts': 'second.bar.com', 'paths': '(/xyz(/*)?)-(/xyz)'}
-src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [storage-watcher-8494b4b8bb] conn: TCP {'dst_ports': '102', 'hosts': 'second.bar.com', 'paths': '/xyz'}
-src_ns: [kube-system] src_pods: [calico-kube-controllers-7694668c77] dst: 0.0.0.0/0 conn: All connections
-src_ns: [kube-system] src_pods: [calico-kube-controllers-7694668c77] dst: ::/0 conn: All connections
-src_ns: [kube-system] src_pods: [calico-kube-controllers-7694668c77] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [calico-node] dst: 0.0.0.0/0 conn: All connections
-src_ns: [kube-system] src_pods: [calico-node] dst: ::/0 conn: All connections
-src_ns: [kube-system] src_pods: [calico-node] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [file-plugin-7bfb8b69bf] dst: 0.0.0.0/0 conn: All connections
-src_ns: [kube-system] src_pods: [file-plugin-7bfb8b69bf] dst: ::/0 conn: All connections
-src_ns: [kube-system] src_pods: [file-plugin-7bfb8b69bf] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [heapster-7df8cb8c66] dst: 0.0.0.0/0 conn: All connections
-src_ns: [kube-system] src_pods: [heapster-7df8cb8c66] dst: ::/0 conn: All connections
-src_ns: [kube-system] src_pods: [heapster-7df8cb8c66] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [kube-dns-amd64-d66bf76db] dst: 0.0.0.0/0 conn: All connections
-src_ns: [kube-system] src_pods: [kube-dns-amd64-d66bf76db] dst: ::/0 conn: All connections
-src_ns: [kube-system] src_pods: [kube-dns-amd64-d66bf76db] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [kube-dns-autoscaler-78f5fdbd46] dst: 0.0.0.0/0 conn: All connections
-src_ns: [kube-system] src_pods: [kube-dns-autoscaler-78f5fdbd46] dst: ::/0 conn: All connections
-src_ns: [kube-system] src_pods: [kube-dns-autoscaler-78f5fdbd46] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [kube-fluentd] dst: 0.0.0.0/0 conn: All connections
-src_ns: [kube-system] src_pods: [kube-fluentd] dst: ::/0 conn: All connections
-src_ns: [kube-system] src_pods: [kube-fluentd] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [kubernetes-dashboard-5b5f985bcf] dst: 0.0.0.0/0 conn: All connections
-src_ns: [kube-system] src_pods: [kubernetes-dashboard-5b5f985bcf] dst: ::/0 conn: All connections
-src_ns: [kube-system] src_pods: [kubernetes-dashboard-5b5f985bcf] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f] dst: 0.0.0.0/0 conn: All connections
-src_ns: [kube-system] src_pods: [public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f] dst: ::/0 conn: All connections
-src_ns: [kube-system] src_pods: [public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [storage-watcher-8494b4b8bb] dst: 0.0.0.0/0 conn: All connections
-src_ns: [kube-system] src_pods: [storage-watcher-8494b4b8bb] dst: ::/0 conn: All connections
-src_ns: [kube-system] src_pods: [storage-watcher-8494b4b8bb] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [tiller-deploy-5c45c9966b] dst: 0.0.0.0/0 conn: All connections
-src_ns: [kube-system] src_pods: [tiller-deploy-5c45c9966b] dst: ::/0 conn: All connections
-src_ns: [kube-system] src_pods: [tiller-deploy-5c45c9966b] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [vpn-858f6d9777] dst: 0.0.0.0/0 conn: All connections
-src_ns: [kube-system] src_pods: [vpn-858f6d9777] dst: ::/0 conn: All connections
-src_ns: [kube-system] src_pods: [vpn-858f6d9777] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
+src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [calico-node] conn: {protocols:TCP,dst_ports:210,hosts:first.bar.com,paths:(/abc(/*)?)-(/abc/def(/*)?)}
+src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [file-plugin-7bfb8b69bf] conn: {protocols:TCP,dst_ports:80,hosts:first.bar.com,paths:/abc/def(/*)?}
+src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [kube-dns-amd64-d66bf76db] conn: {protocols:TCP,dst_ports:213}
+src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [kube-fluentd] conn: {protocols:TCP,dst_ports:80,hosts:second.bar.com,paths:(/xyz(/*)?)-(/xyz)}
+src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [storage-watcher-8494b4b8bb] conn: {protocols:TCP,dst_ports:102,hosts:second.bar.com,paths:/xyz}
+src_ns: [kube-system] src_pods: [calico-kube-controllers-7694668c77, calico-node, file-plugin-7bfb8b69bf, heapster-7df8cb8c66, kube-dns-amd64-d66bf76db, kube-dns-autoscaler-78f5fdbd46, kube-fluentd, kubernetes-dashboard-5b5f985bcf, public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f, storage-watcher-8494b4b8bb, tiller-deploy-5c45c9966b, vpn-858f6d9777] dst: 0.0.0.0/0,::/0 conn: All connections
+src_ns: [kube-system] src_pods: [calico-kube-controllers-7694668c77, calico-node, file-plugin-7bfb8b69bf, heapster-7df8cb8c66, kube-dns-amd64-d66bf76db, kube-dns-autoscaler-78f5fdbd46, kube-fluentd, kubernetes-dashboard-5b5f985bcf, public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f, storage-watcher-8494b4b8bb, tiller-deploy-5c45c9966b, vpn-858f6d9777] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
 
 final fw rules for query: connectivity_map, config: global-simple:
-src_ns: [kube-system] src_pods: [app=keepalived-watcher] dst_ns: [kube-system] dst_pods: [!has(app)] conn: TCP 200-250
-src_ns: [kube-system] src_pods: [app=keepalived-watcher] dst_ns: [vendor-system] dst_pods: [*] conn: TCP 200-250
+src_ns: [kube-system] src_pods: [app=keepalived-watcher] dst_ns: [kube-system] dst_pods: [!has(app)] conn: {protocols:TCP,dst_ports:200-250}
+src_ns: [kube-system] src_pods: [app=keepalived-watcher] dst_ns: [vendor-system] dst_pods: [*] conn: {protocols:TCP,dst_ports:200-250}
 
 final fw rules for query: connectivity_map, config: global-simple-with-ingress:
-src_ns: [kube-system] src_pods: [app=keepalived-watcher] dst_ns: [kube-system] dst_pods: [calico-node] conn: TCP {'dst_ports': '210', 'hosts': 'first.bar.com', 'paths': '(/abc(/*)?)-(/abc/def(/*)?)'}
-src_ns: [kube-system] src_pods: [app=keepalived-watcher] dst_ns: [kube-system] dst_pods: [kube-dns-amd64-d66bf76db] conn: TCP 213
+src_ns: [kube-system] src_pods: [app=keepalived-watcher] dst_ns: [kube-system] dst_pods: [calico-node] conn: {protocols:TCP,dst_ports:210,hosts:first.bar.com,paths:(/abc(/*)?)-(/abc/def(/*)?)}
+src_ns: [kube-system] src_pods: [app=keepalived-watcher] dst_ns: [kube-system] dst_pods: [kube-dns-amd64-d66bf76db] conn: {protocols:TCP,dst_ports:213}
 
 final fw rules for query: connectivity_map, config: global-not-simple/testcase15-global-ports-not-simple-match-ingress-egress:
-src_ns: [default,kube-system,vendor-system] src_pods: [*] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
+src_ns: [default,kube-system,vendor-system] src_pods: [*] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: {protocols:TCP,dst_ports:101-104}
 
 final fw rules for query: connectivity_map, config: global-not-simple/testcase15-global-ports-not-simple-mismatch-ingress-egress:
 
 final fw rules for query: connectivity_map, config: global-not-simple:
-src_ns: [default,kube-system,vendor-system] src_pods: [*] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
+src_ns: [default,kube-system,vendor-system] src_pods: [*] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: {protocols:TCP,dst_ports:101-104}
 
 final fw rules for query: connectivity_map, config: global-not-simple-with-ingress:
-src_ns: [default,vendor-system] src_pods: [*] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
-src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [storage-watcher-8494b4b8bb] conn: TCP {'dst_ports': '102', 'hosts': 'second.bar.com', 'paths': '/xyz'}
-src_ns: [kube-system] src_pods: [calico-kube-controllers-7694668c77] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
-src_ns: [kube-system] src_pods: [calico-node] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
-src_ns: [kube-system] src_pods: [file-plugin-7bfb8b69bf] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
-src_ns: [kube-system] src_pods: [heapster-7df8cb8c66] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
-src_ns: [kube-system] src_pods: [kube-dns-amd64-d66bf76db] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
-src_ns: [kube-system] src_pods: [kube-dns-autoscaler-78f5fdbd46] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
-src_ns: [kube-system] src_pods: [kube-fluentd] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
-src_ns: [kube-system] src_pods: [kubernetes-dashboard-5b5f985bcf] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
-src_ns: [kube-system] src_pods: [public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
-src_ns: [kube-system] src_pods: [storage-watcher-8494b4b8bb] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
-src_ns: [kube-system] src_pods: [tiller-deploy-5c45c9966b] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
-src_ns: [kube-system] src_pods: [vpn-858f6d9777] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
+src_ns: [default,vendor-system] src_pods: [*] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: {protocols:TCP,dst_ports:101-104}
+src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [storage-watcher-8494b4b8bb] conn: {protocols:TCP,dst_ports:102,hosts:second.bar.com,paths:/xyz}
+src_ns: [kube-system] src_pods: [calico-kube-controllers-7694668c77, calico-node, file-plugin-7bfb8b69bf, heapster-7df8cb8c66, kube-dns-amd64-d66bf76db, kube-dns-autoscaler-78f5fdbd46, kube-fluentd, kubernetes-dashboard-5b5f985bcf, public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f, storage-watcher-8494b4b8bb, tiller-deploy-5c45c9966b, vpn-858f6d9777] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: {protocols:TCP,dst_ports:101-104}

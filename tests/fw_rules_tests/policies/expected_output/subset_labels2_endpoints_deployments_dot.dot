@@ -10,7 +10,6 @@ subgraph cluster_default_namespace{
 	fontcolor=blue
 	tooltip="Namespace"
 	"default/Pod4(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod4(Pod)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-	"default/Pod5(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod5(Pod)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
 }
 subgraph cluster_ns1_namespace{
 	label="ns1"
@@ -37,7 +36,6 @@ subgraph cluster_ns3_namespace{
 	"default/Pod4(Pod)" -> "ns2/deployment-D(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"ns3/Pod7(Pod)" -> "default/Pod4(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	color=white
-	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
 	labelloc = "b"
 	fontsize=15
 	fontcolor=maroon

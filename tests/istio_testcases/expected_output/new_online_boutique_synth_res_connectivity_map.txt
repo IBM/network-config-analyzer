@@ -2,16 +2,16 @@ For connections of type TCP, final fw rules for query: new_online_boutique_synth
 src: 0.0.0.0/0 dst_ns: [asm-ingress] dst_pods: [*] conn: All connections
 src_ns: [asm-ingress,default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [asm-ingress,default] src_pods: [*] dst_ns: [asm-ingress] dst_pods: [*] conn: All connections
-src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: TCP 7070
-src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [currencyservice] conn: TCP 7000
-src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [shippingservice] conn: TCP 50051
-src_ns: [default] src_pods: [app in (checkoutservice,frontend,recommendationservice)] dst_ns: [default] dst_pods: [productcatalogservice] conn: TCP 3550
-src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [emailservice] conn: TCP 8080
-src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [paymentservice] conn: TCP 50051
-src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [adservice] conn: TCP 9555
-src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [checkoutservice] conn: TCP 5050
-src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [recommendationservice] conn: TCP 8080
-src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
+src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: {dst_ports:7070}
+src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [currencyservice] conn: {dst_ports:7000}
+src_ns: [default] src_pods: [app in (checkoutservice,frontend,recommendationservice)] dst_ns: [default] dst_pods: [productcatalogservice] conn: {dst_ports:3550}
+src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [app in (paymentservice,shippingservice)] conn: {dst_ports:50051}
+src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [emailservice] conn: {dst_ports:8080}
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [adservice] conn: {dst_ports:9555}
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [checkoutservice] conn: {dst_ports:5050}
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [recommendationservice] conn: {dst_ports:8080}
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [shippingservice] conn: {dst_ports:50051}
+src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [frontend] conn: {dst_ports:8080}
 
 For connections of type non-TCP, final fw rules for query: new_online_boutique_synth_res_connectivity_map, config: new_online_boutique_synthesis_res:
 src: 0.0.0.0/0 dst_ns: [asm-ingress,default] dst_pods: [*] conn: All connections

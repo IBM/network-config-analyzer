@@ -15,9 +15,9 @@ jobs:
   test-docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - name: Build Docker image
-        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56
+        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25
         id: build_docker
         with:
           context: .
@@ -27,9 +27,9 @@ jobs:
   test-docker-ubi:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - name: Build Docker image
-        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56
+        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25
         id: build_docker
         with:
           context: .
@@ -40,7 +40,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - uses: ./.github/actions/setup-nca-env
       - run: pip install flake8
       - name: Lint with flake8
@@ -54,7 +54,7 @@ jobs:
   unit-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - uses: ./.github/actions/setup-nca-env
       - run: |
           export PYTHONPATH=.
@@ -62,7 +62,7 @@ jobs:
   k8s-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - uses: ./.github/actions/setup-nca-env
       - name: install helm
         run: |
@@ -76,42 +76,21 @@ jobs:
         run: python tests/run_all_tests.py --type=general --category=k8s --check_run_time | tee tests/k8s_log.txt ; test ${PIPESTATUS[0]} -eq 0
       - name: upload run_k8s_tests log
         if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: k8s-log
           path: tests/k8s_log.txt
       - name: Upload k8s failed run-time tests file
         if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: k8s-failed-run-time-check-file
           path: ./tests/k8s_tests_failed_runtime_check.csv
           if-no-files-found: ignore
-  k8s-tests-orig-vs-opt-comparison:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-      - uses: ./.github/actions/setup-nca-env
-      - name: install helm
-        run: |
-          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-          chmod 700 get_helm.sh
-          sudo ./get_helm.sh
-      - name: Run k8s tests
-        env:
-          GHE_TOKEN: ${{ github.token }}
-          PYTHONPATH: .
-        run: python tests/run_all_tests.py --type=general --category=k8s --hc_opt=debug | tee tests/k8s_cmp_log.txt ; test ${PIPESTATUS[0]} -eq 0
-      - name: upload run_k8s_tests log
-        if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
-        with:
-          name: k8s-cmp-log
-          path: tests/k8s_cmp_log.txt
   calico-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - uses: ./.github/actions/setup-nca-env
       - name: Run calico tests
         env:
@@ -120,37 +99,21 @@ jobs:
         run: python tests/run_all_tests.py --type=general --category=calico --check_run_time | tee tests/calico_log.txt ; test ${PIPESTATUS[0]} -eq 0
       - name: upload run_calico_tests log
         if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: calico-log
           path: tests/calico_log.txt
       - name: Upload calico failed run-time tests file
         if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: calico-failed-run-time-check-file
           path: ./tests/calico_tests_failed_runtime_check.csv
           if-no-files-found: ignore
-  calico-tests-orig-vs-opt-comparison:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-      - uses: ./.github/actions/setup-nca-env
-      - name: Run calico tests
-        env:
-          GHE_TOKEN: ${{ github.token }}
-          PYTHONPATH: .
-        run: python tests/run_all_tests.py --type=general --category=calico --hc_opt=debug | tee tests/calico_cmp_log.txt ; test ${PIPESTATUS[0]} -eq 0
-      - name: upload run_calico_tests log
-        if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
-        with:
-          name: calico-cmp-log
-          path: tests/calico_cmp_log.txt
   istio-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - uses: ./.github/actions/setup-nca-env
       - name: Run istio tests
         env:
@@ -159,37 +122,21 @@ jobs:
         run: python tests/run_all_tests.py --type=general --category=istio --check_run_time | tee tests/istio_log.txt ; test ${PIPESTATUS[0]} -eq 0
       - name: upload run_istio_tests log
         if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: istio-log
           path: tests/istio_log.txt
       - name: Upload istio failed run-time tests file
         if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: istio-failed-run-time-check-file
           path: ./tests/istio_tests_failed_runtime_check.csv
           if-no-files-found: ignore
-  istio-tests-orig-vs-opt-comparison:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-      - uses: ./.github/actions/setup-nca-env
-      - name: Run istio tests
-        env:
-          GHE_TOKEN: ${{ github.token }}
-          PYTHONPATH: .
-        run: python tests/run_all_tests.py --type=general --category=istio --hc_opt=debug | tee tests/istio_cmp_log.txt ; test ${PIPESTATUS[0]} -eq 0
-      - name: upload run_istio_tests log
-        if: ${{ always() }}
-        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
-        with:
-          name: istio-cmp-log
-          path: tests/istio_cmp_log.txt
   fw-rules-assertion-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - uses: ./.github/actions/setup-nca-env
       - run: |
           export PYTHONPATH=.
@@ -197,7 +144,7 @@ jobs:
 #  live-cluster:
 #    runs-on: ubuntu-latest
 #    steps:
-#      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+#      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
 #      - uses: ./.github/actions/setup-nca-env
 #      - uses: helm/kind-action@d8ccf8fb623ce1bb360ae2f45f323d9d5c5e9f00
 #      - run: |
@@ -211,13 +158,13 @@ jobs:
   build_package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - uses: ./.github/actions/setup-nca-env
       - name: Build package
         run: |
           pip install build==0.10.0
           python -m build
-      - uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+      - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
           name: nca-package
           path: dist/*
@@ -225,16 +172,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_package
     steps:
-      - uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c  # v5.0.0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d  # v5.1.0
         with:
           python-version: 3.9
           architecture: x64
-      - uses: actions/download-artifact@6b208ae046db98c579e8a3aa621ab581ff575935
+      - uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427
         with:
           name: nca-package
           path: nca_build
       - run: |
-          pip install nca_build/network-config-analyzer-*.tar.gz
+          pip install nca_build/network_config_analyzer-*.tar.gz
           nca --connectivity -r https://github.com/IBM/network-config-analyzer/blob/master/tests/livesim_tests/livesim_topology.yaml
         env:
           GHE_TOKEN: ${{ github.token }}

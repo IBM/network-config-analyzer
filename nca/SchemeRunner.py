@@ -18,11 +18,7 @@ class SchemeRunner(GenericYamlParser):
     This class takes a scheme file, build all its network configurations and runs all its queries
     """
 
-    implemented_opt_queries = {'connectivityMap', 'equivalence', 'vacuity', 'redundancy', 'strongEquivalence',
-                               'containment', 'twoWayContainment', 'permits', 'interferes', 'pairwiseInterferes',
-                               'forbids', 'emptiness', 'disjointness', 'allCaptured', 'sanity', 'semanticDiff'}
-
-    def __init__(self, scheme_file_name, output_format=None, output_path=None, optimized_run='false'):
+    def __init__(self, scheme_file_name, output_format=None, output_path=None, debug=False):
         GenericYamlParser.__init__(self, scheme_file_name)
         self.network_configs = {}
         self.global_res = 0
@@ -31,7 +27,7 @@ class SchemeRunner(GenericYamlParser):
             self.output_config_from_cli_args['outputFormat'] = output_format
         if output_path is not None:
             self.output_config_from_cli_args['outputPath'] = output_path
-        self.optimized_run = optimized_run
+        self.debug = debug
 
         scanner = TreeScannerFactory.get_scanner(scheme_file_name)
         for yaml_file in scanner.get_yamls():
@@ -39,10 +35,6 @@ class SchemeRunner(GenericYamlParser):
                 self.scheme = yaml_doc
                 if not isinstance(self.scheme, dict):
                     self.syntax_error("The scheme's top-level object must be a map")
-
-    @staticmethod
-    def has_implemented_opt_queries(queries):
-        return SchemeRunner.implemented_opt_queries.intersection(queries)
 
     def _get_input_file(self, given_path, out_flag=False):
         """
@@ -83,7 +75,7 @@ class SchemeRunner(GenericYamlParser):
             input_file_list.append(resource_path)
         return input_file_list
 
-    def _add_config(self, config_entry, resources_handler, optimized_run):
+    def _add_config(self, config_entry, resources_handler):
         """
         Produces a NetworkConfig object for a given entry in the scheme file.
         Increases self.global_res if the number of warnings/error in the config does not match the expected number.
@@ -111,7 +103,7 @@ class SchemeRunner(GenericYamlParser):
         expected_error = config_entry.get('expectedError')
         try:
             network_config = resources_handler.get_network_config(np_list, ns_list, pod_list, resource_list,
-                                                                  config_name, optimized_run=optimized_run)
+                                                                  config_name, debug=self.debug)
             if not network_config:
                 self.warning(f'networkPolicyList {network_config.name} contains no networkPolicies',
                              np_list)
@@ -150,21 +142,18 @@ class SchemeRunner(GenericYamlParser):
         global_ns_list = self._handle_resources_list(self.scheme.get('namespaceList', None))
         global_resource_list = self._handle_resources_list(self.scheme.get('resourceList', None))
         resources_handler = ResourcesHandler()
-        if self.optimized_run == 'true':
-            # we need to track configurations for the queries to use later-on
-            # todo - this is not the place to activate the ExplTracker, should be done per query?
-            # todo - should take the output_endpoints from the query
-            ExplTracker().activate('deployments')
-        resources_handler.set_global_peer_container(global_ns_list, global_pod_list, global_resource_list,
-                                                    self.optimized_run)
+        query_array = self.scheme.get('queries', [])
+        if not self.activate_exp_tracker(query_array):
+            return
+        resources_handler.set_global_peer_container(global_ns_list, global_pod_list, global_resource_list)
 
         # specified configs (non-global)
         start = time.time()
         for config_entry in self.scheme.get('networkConfigList', []):
-            self._add_config(config_entry, resources_handler, self.optimized_run)
+            self._add_config(config_entry, resources_handler)
         end_parse = time.time()
         print(f'Finished parsing in {(end_parse - start):6.2f} seconds')
-        self.run_queries(self.scheme.get('queries', []))
+        self.run_queries(query_array)
         end_queries = time.time()
         print(f'Parsing time: {(end_parse - start):6.2f} seconds')
         print(f'Queries time: {(end_queries - end_parse):6.2f} seconds')
@@ -182,6 +171,40 @@ class SchemeRunner(GenericYamlParser):
         output_configuration_dict.update(self.output_config_from_cli_args)
         output_config_obj = OutputConfiguration(output_configuration_dict, query['name'])
         return output_config_obj
+
+    def activate_exp_tracker(self, query_array):
+        """
+        check if it is safe to activate the ExplTracker, and activate it
+        activating is safe if we have at most one query that needs explainabilty, and it must be the first
+        :param list[dict] query_array: A list of query objects to run
+        :return: whether it safe to run the queries
+        :rtype: bool
+        """
+        need_connectivity = ['connectivityMap' in q.keys() for q in query_array]
+        out_configs = [self.get_query_output_config_obj(q) for q in query_array]
+        need_html = need_connectivity and [oc['outputFormat'] == 'html' for oc in out_configs]
+        # todo: if we have explainabilty query, then implement:
+        # todo: is_query_explainabilty = ['explainabilty' in q.keys() for q in query_array]
+        # todo: need_exp = need_html || is_query_explainabilty
+        need_exp = need_html
+        n_need_exp = len([needs_exp for needs_exp in need_exp if needs_exp])
+        if n_need_exp == 0:
+            return True
+        elif n_need_exp == 1 and need_exp[0]:
+            ExplTracker().activate(out_configs[0]['outputFormat'])
+            return True
+        elif n_need_exp == 1 and need_exp[0]:
+            query_name = query_array[0]['name']
+            print(f'Explainability does not have optimized implementation yet, needs for query "{query_name}"')
+            return False
+        elif n_need_exp == 1:
+            query_name = query_array[need_exp.index(True)]['name']
+            print(f'Query "{query_name}" must be the first query, since it needs Explainability')
+            return False
+        else:
+            quaries_names = [q['name'] for q, needs_html in zip(query_array, need_html) if needs_html]
+            print(f'Can not run more than one query that needs Explainability, got {n_need_exp}:\n{quaries_names}')
+            return False
 
     def run_queries(self, query_array):
         """
@@ -204,11 +227,6 @@ class SchemeRunner(GenericYamlParser):
             not_executed = 0
             self.check_fields_validity(query, 'query', allowed_elements)
             query_name = query['name']
-            if self.optimized_run == 'debug' or self.optimized_run == 'true':
-                # TODO - update/remove the optimization below when all queries are supported in optimized implementation
-                if not self.has_implemented_opt_queries(set(query.keys())):
-                    print(f'Skipping query {query_name} since it does not have optimized implementation yet')
-                    continue
             print('Running query', query_name)
             output_config_obj = self.get_query_output_config_obj(query)
             expected_output = self._get_input_file(query.get('expectedOutput', None), True)

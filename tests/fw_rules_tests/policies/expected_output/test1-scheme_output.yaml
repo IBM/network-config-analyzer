@@ -27,25 +27,27 @@
       - All connections
     - src_ns:
       - default
-      - ibm-system-new
-      - kube-system-new
-      - kube-system-new-dummy-to-ignore
       src_pods:
       - '*'
       dst_ns:
       - default
       - ibm-system-new
+      - kube-system-new
       - kube-system-new-dummy-to-ignore
       dst_pods:
       - '*'
       connection:
       - All connections
     - src_ns:
-      - default
+      - ibm-system-new
+      - kube-system-new
+      - kube-system-new-dummy-to-ignore
       src_pods:
       - '*'
       dst_ns:
-      - kube-system-new
+      - default
+      - ibm-system-new
+      - kube-system-new-dummy-to-ignore
       dst_pods:
       - '*'
       connection:

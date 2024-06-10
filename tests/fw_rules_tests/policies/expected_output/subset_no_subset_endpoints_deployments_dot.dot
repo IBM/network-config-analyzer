@@ -4,7 +4,6 @@ digraph {
 	fontsize=30
 	fontcolor=maroon
 	subgraph cluster_map_explanation {
-	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2 tooltip="IP Block"]
 subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
@@ -12,7 +11,6 @@ subgraph cluster_default_namespace{
 	tooltip="Namespace"
 	"default/Pod1(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod1(Pod)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
 	"default/Pod4(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod4(Pod)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-	"default/Pod5(Pod)" [label=<<table border="1" cellspacing="0"><tr><td>Pod5(Pod)</td></tr><tr><td>deployment-Eb(Deployment)</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 	"default/deployment-E(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-E(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
 }
 subgraph cluster_ns1_namespace{
@@ -30,7 +28,6 @@ subgraph cluster_ns2_namespace{
 	fontcolor=blue
 	tooltip="Namespace"
 	"ns2/Pod3(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod3(Pod)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
-	"ns2/Pod6(Pod)" [label=<<table border="1" cellspacing="0"><tr><td>Pod6(Pod)</td></tr><tr><td>deployment-F(Deployment)</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 	"ns2/deployment-C(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-C(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
 	"ns2/deployment-D(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-D(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
 }
@@ -51,7 +48,6 @@ subgraph cluster_ns3_namespace{
 	"ns2/deployment-C(Deployment)" -> "ns1/deployment-A(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"ns3/Pod7(Pod)" -> "default/Pod4(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	color=white
-	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
 	labelloc = "b"
 	fontsize=15
 	fontcolor=maroon

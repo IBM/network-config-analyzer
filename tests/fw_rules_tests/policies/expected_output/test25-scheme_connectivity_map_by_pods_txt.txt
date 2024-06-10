@@ -1,3 +1,2 @@
 final fw rules for query: connectivity_map_by_pods_txt, config: np25:
-src_ns: [default] src_pods: [my-test-deployment-C-1] dst_ns: [default] dst_pods: [app=B] conn: All connections
-src_ns: [default] src_pods: [my-test-deployment-C-2] dst_ns: [default] dst_pods: [app=B] conn: All connections
+src_ns: [default] src_pods: [my-test-deployment-C-1, my-test-deployment-C-2] dst_ns: [default] dst_pods: [app=B] conn: All connections

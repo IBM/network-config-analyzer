@@ -138,12 +138,14 @@ class FWRuleElement:
     Every fw-rule element (src,dst) has a ns-level info
     """
 
-    def __init__(self, ns_info):
+    def __init__(self, ns_info, cluster_info=None):
         """
         Create a FWRuleElement object
         :param ns_info: set of namespaces, of type: set[K8sNamespace]
+        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
         """
         self.ns_info = ns_info
+        self.cluster_info = cluster_info
 
     def get_elem_list_obj(self):
         """
@@ -187,42 +189,45 @@ class FWRuleElement:
     def __eq__(self, other):
         return self.ns_info == other.ns_info
 
+    def __le__(self, other):
+        return self.get_peer_set().issubset(other.get_peer_set())
+
     def is_system_ns(self):
         """
         :return: True if this element has one namespace and it ends with "system"
         """
         return len(self.ns_info) == 1 and str(list(self.ns_info)[0]).endswith("-system")
 
-    def get_pods_set(self, cluster_info):
+    def get_pods_set(self):
         """
-        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
         :return: a set of pods in the cluster represented by this element
         """
         res = set()
         for ns in self.ns_info:
-            res |= cluster_info.ns_dict[ns]
+            res |= self.cluster_info.ns_dict[ns]
         return res
 
-    def get_peer_set(self, cluster_info):
+    def get_peer_set(self):
         """
-        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
         :return: a PeerSet (pods and/or IpBlocks)  represented by this element
         """
-        return PeerSet(self.get_pods_set(cluster_info))
+        return PeerSet(self.get_pods_set())
 
     @staticmethod
-    def create_fw_elements_from_base_element(base_elem):
+    def create_fw_elements_from_base_element(base_elem, cluster_info, output_config):
         """
         create a list of fw-rule-elements from base-element
         :param base_elem: of type ClusterEP/IpBlock/K8sNamespace/DNSEntry
+        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
+        :param OutputConfiguration output_config: an object holding output configuration
         :return: list fw-rule-elements of type:  list[PodElement]/list[IPBlockElement]/list[FWRuleElement]/list[DNSElement]
         """
         if isinstance(base_elem, ClusterEP):
-            return [PodElement(base_elem)]
+            return [PodElement(base_elem, output_config.outputEndpoints == 'deployments')]
         elif isinstance(base_elem, IpBlock):
             return [IPBlockElement(ip) for ip in base_elem.split()]
         elif isinstance(base_elem, K8sNamespace):
-            return [FWRuleElement({base_elem})]
+            return [FWRuleElement({base_elem}, cluster_info)]
         elif isinstance(base_elem, DNSEntry):
             return [DNSElement(base_elem)]
         # unknown base-elem type
@@ -287,9 +292,8 @@ class PodElement(FWRuleElement):
     def __eq__(self, other):
         return isinstance(other, PodElement) and self.element == other.element and super().__eq__(other)
 
-    def get_pods_set(self, cluster_info):
+    def get_pods_set(self):
         """
-        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
         :return: a set of pods in the cluster represented by this element
         """
         return {self.element}
@@ -301,13 +305,14 @@ class PodLabelsElement(FWRuleElement):
     """
 
     # TODO: is it possible to have such element with len(ns_info)>1? if not, should add support for such merge?
-    def __init__(self, element, ns_info):
+    def __init__(self, element, ns_info, cluster_info):
         """
         Create an object of type PodLabelsElement
         :param element: an element of type LabelExpr
         :param ns_info: namespace set of type set[K8sNamespace]
+        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
         """
-        super().__init__(ns_info)
+        super().__init__(ns_info, cluster_info)
         self.element = element
 
     def get_elem_list_obj(self):
@@ -344,17 +349,16 @@ class PodLabelsElement(FWRuleElement):
     def __eq__(self, other):
         return isinstance(other, PodLabelsElement) and self.element == other.element and super().__eq__(other)
 
-    def get_pods_set(self, cluster_info):
+    def get_pods_set(self):
         """
-        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
         :return: a set of pods in the cluster represented by this element
         """
         res = set()
-        ns_pods = super().get_pods_set(cluster_info)
+        ns_pods = super().get_pods_set()
         key = self.element.key
         values = self.element.values
         for v in values:
-            pods_with_label_val_in_ns = cluster_info.pods_labels_map[(key, v)] & ns_pods
+            pods_with_label_val_in_ns = self.cluster_info.pods_labels_map[(key, v)] & ns_pods
             res |= pods_with_label_val_in_ns
         return res
 
@@ -383,8 +387,7 @@ class PeerSetElement(FWRuleElement):
         """
         :return: string for the field src_pods or dst_pods in representation for txt rule format
         """
-        sorted_pods_names = ', '.join(sorted(self._get_pods_names().split(', ')))
-        return f'[{sorted_pods_names}]'
+        return f'[{self._get_pods_names()}]'
 
     def _get_pods_names(self):
         res = ''
@@ -396,7 +399,8 @@ class PeerSetElement(FWRuleElement):
                     unique_names.add(peer.owner_name)
             else:
                 res += (', ' if res else '') + peer.name
-        return res
+        sorted_res = ', '.join(sorted(res.split(', ')))
+        return sorted_res
 
     def __str__(self):
         """
@@ -420,19 +424,17 @@ class PeerSetElement(FWRuleElement):
     def __eq__(self, other):
         return isinstance(other, PeerSetElement) and self.element == other.element and super().__eq__(other)
 
-    def get_pods_set(self, cluster_info):
+    def get_pods_set(self):
         """
-        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
         :return: a set of pods in the cluster represented by this element
         """
         return self.element
 
-    def get_peer_set(self, cluster_info):
+    def get_peer_set(self):
         """
-        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
         :return: a PeerSet (pods and/or IpBlocks)  represented by this element
         """
-        return self.get_pods_set(cluster_info)
+        return self.get_pods_set()
 
 
 # TODO: should it be a sub-type of FWRuleElement?
@@ -485,17 +487,15 @@ class IPBlockElement(FWRuleElement):
     def __eq__(self, other):
         return isinstance(other, IPBlockElement) and self.element == other.element and super().__eq__(other)
 
-    def get_pods_set(self, cluster_info):
+    def get_pods_set(self):
         """
-        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
         :return: a set of pods in the cluster represented by this element
         """
         # an ip block element does not represent any pods
         return set()
 
-    def get_peer_set(self, cluster_info):
+    def get_peer_set(self):
         """
-        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
         :return: a PeerSet (pods and/or IpBlocks)  represented by this element
         """
         return PeerSet({self.element})
@@ -551,17 +551,15 @@ class DNSElement(FWRuleElement):
     def __eq__(self, other):
         return isinstance(other, DNSElement) and self.element == other.element and super().__eq__(other)
 
-    def get_pods_set(self, cluster_info):
+    def get_pods_set(self):
         """
-        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
         :return: a set of pods in the cluster represented by this element
         """
         # an dns-entry element does not represent any pods
         return set()
 
-    def get_peer_set(self, cluster_info):
+    def get_peer_set(self):
         """
-        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
         :return: a PeerSet (pods and/or IpBlocks)  represented by this element
         """
         return PeerSet({self.element})
@@ -575,16 +573,16 @@ class FWRule:
     rule_csv_header = ['query', 'src_ns', 'src_pods', 'dst_ns', 'dst_pods', 'connection']
     supported_formats = {'txt', 'yaml', 'csv', 'md', 'json'}
 
-    def __init__(self, src, dst, conn):
+    def __init__(self, src, dst, props):
         """
         Create an object of FWRule
         :param src: src element of type FWRuleElement
         :param dst: dst element of type FWRuleElement
-        :param conn: allowed connections of type ConnectionSet
+        :param props: allowed connections of type ConnectivityProperties
         """
         self.src = src
         self.dst = dst
-        self.conn = conn
+        self.props = props
 
     # TODO: also re-format the rule if ns is a combination of both 'system' and non 'system'
     def should_rule_be_filtered_out(self):
@@ -606,7 +604,7 @@ class FWRule:
         """
         src_str = self.src.get_elem_str(True)
         dst_str = self.dst.get_elem_str(False)
-        conn_str = str(self.conn)
+        conn_str = str(self.props)
         return src_str + dst_str + ' conn: ' + conn_str
 
     def get_rule_str(self):
@@ -615,14 +613,14 @@ class FWRule:
         """
         src_str = self.src.get_elem_str(True)
         dst_str = self.dst.get_elem_str(False)
-        conn_str = self.conn.get_simplified_connections_representation(True)
+        conn_str = self.props.get_simplified_connections_representation(True)
         return src_str + dst_str + ' conn: ' + conn_str + '\n'
 
     def __hash__(self):
         return hash(str(self))
 
     def __eq__(self, other):
-        return self.src == other.src and self.dst == other.dst and self.conn == other.conn
+        return self.src == other.src and self.dst == other.dst and self.props == other.props
 
     def __lt__(self, other):
         return str(self) < str(other)
@@ -642,7 +640,7 @@ class FWRule:
         elif component == 'dst_pods':
             return str(self.dst) if isinstance(self.dst, (IPBlockElement, DNSElement)) else self.dst.get_pod_str()
         elif component == 'connection':
-            return self.conn.get_simplified_connections_representation(True)
+            return self.props.get_simplified_connections_representation(True)
         return ''
 
     def get_rule_csv_row(self):
@@ -665,7 +663,7 @@ class FWRule:
         src_ip_block_list = sorted(self.src.get_elem_list_obj()) if isinstance(self.src, IPBlockElement) else None
         dst_ip_block_list = sorted(self.dst.get_elem_list_obj()) if isinstance(self.dst, IPBlockElement) else None
         dst_dns_entry_list = sorted(self.dst.get_elem_list_obj()) if isinstance(self.dst, DNSElement) else None
-        conn_list = self.conn.get_simplified_connections_representation(False)
+        conn_list = self.props.get_simplified_connections_representation(False)
 
         rule_obj = {}
         if src_ip_block_list is None and dst_ip_block_list is None and dst_dns_entry_list is None:
@@ -709,19 +707,3 @@ class FWRule:
         if req_format == 'txt':
             return self.get_rule_str()
         return None
-
-    @staticmethod
-    def create_fw_rules_from_base_elements(src, dst, connections):
-        """
-        create fw-rules from single pair of base elements (src,dst) and a given connection set
-        :param ConnectionSet connections: the allowed connections from src to dst
-        :param src: a base-element  of type: ClusterEP/K8sNamespace/ IpBlock
-        :param dst: a base-element  of type: ClusterEP/K8sNamespace/IpBlock
-        :return: list with created fw-rules
-        :rtype list[FWRule]
-        """
-        src_elem = FWRuleElement.create_fw_elements_from_base_element(src)
-        dst_elem = FWRuleElement.create_fw_elements_from_base_element(dst)
-        if src_elem is None or dst_elem is None:
-            return []
-        return [FWRule(src, dst, connections) for src in src_elem for dst in dst_elem]

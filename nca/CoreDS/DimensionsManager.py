@@ -13,7 +13,7 @@ from .MinDFA import MinDFA
 class DimensionsManager:
     """
     A singleton class to manage dimensions names and their association to type and domain.
-    The dimensions are related to certain protocol's properties in ConnectionSet / ConnectivityProperties.
+    The dimensions are related to certain protocol's properties in ConnectivityProperties.
     They are used for allowed connection representation, as protocols properties, within CanonicalHyperCubeSet objects.
 
     The src_peers and dst_peers are special dimensions, they do not have constant domain.

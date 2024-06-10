@@ -271,6 +271,8 @@ class PodsFinder:
         dns_entries = parser.parse_serviceentry(srv_entry_object, self.peer_set)
         for dns_entry in dns_entries:
             self._add_peer(dns_entry)
+            if ExplTracker().is_active():
+                ExplTracker().add_item(srv_entry_object.path, srv_entry_object.line_number, dns_entry.full_name())
 
 
 class NamespacesFinder:
